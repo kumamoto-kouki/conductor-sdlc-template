@@ -1,0 +1,12 @@
+# 依存・ビルド
+node_modules/
+dist/
+target/
+
+# オーケストレーション作業（ローカル観測専用）
+.claude/worktrees/
+.orchestration/
+.claude/settings.local.json
+
+# OS/エディタ
+.DS_Store
