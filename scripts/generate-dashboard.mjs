@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// docs/status-dashboard.html を docs/status.json + docs/dashboard-template.html
+// docs/status-dashboard.html を docs/status.json + scripts/templates/dashboard-template.html
 // からビルド時に完全な静的HTMLとして生成する。
 //
 // 設計方針（.kiro/steering/operations.md 参照）:
@@ -19,14 +19,19 @@ import { execFileSync } from "node:child_process";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const STATUS_JSON_PATH = join(ROOT, "docs", "status.json");
-const TEMPLATE_PATH = join(ROOT, "docs", "dashboard-template.html");
+const TEMPLATE_PATH = join(
+  ROOT,
+  "scripts",
+  "templates",
+  "dashboard-template.html",
+);
 const OUTPUT_PATH = join(ROOT, "docs", "status-dashboard.html");
 
 const GENERATED_NOTICE = `<!--
   ⚠ 自動生成ファイル。手編集しないこと。
   状態を更新する場合は docs/status.json を編集し、
   node scripts/generate-dashboard.mjs を再実行して、このファイルを再生成すること。
-  テンプレート（静的な骨格）は docs/dashboard-template.html。
+  テンプレート（静的な骨格）は scripts/templates/dashboard-template.html。
 -->`;
 
 // dashboard-template.html にだけ必要な「テンプレート部品なので直接開かない」注記は
