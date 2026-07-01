@@ -12,7 +12,7 @@
 | 振り返り               | `.claude/reports/`                                     | 実装後の学びを記録し正本へ格上げ                                                                                                      |
 | ガードレール           | `.claude/settings.json`                                | 破壊的操作の deny・作業系の allow                                                                                                     |
 | 並行開発の道具         | `scripts/`                                             | `swarm-up.sh`／`swarm-down.sh`／`dev-dashboard.sh`                                                                                    |
-| 可視化                 | `docs/status.json`＋`scripts/generate-dashboard.mjs`   | 進行・体制・節目・KPI・PDCA を1枚に生成（`status.json` が唯一の真実。HTML は生成物・手編集しない）                                    |
+| 可視化                 | `dashboard/`＋`scripts/generate-dashboard.mjs`         | `status.json`（唯一の真実）＋テンプレ→HTML生成。`docs/` はドキュメント専用に分離                                                      |
 | プロダクト記憶（雛形） | `.kiro/steering/product.md`・`tech.md`・`structure.md` | 空テンプレ（記入して使う）                                                                                                            |
 
 ## 始め方（新規プロジェクト）
@@ -23,10 +23,10 @@
    - [ ] `product.md`・`tech.md`・`structure.md` を記入した（`/kiro-steering` で対話生成も可）
    - [ ] **配役を1度確定**：`role-catalog.md` の標準キャスト（統括=統括／Engリーダー・Designリーダー=レーンリーダー／運用=運用／実装BE・実装FE・デザイン実装=Maker／EngRev・デザインRev=Checker／QA=QA）から、今回動かす役を選ぶ。候補ロスターは必要フェーズで投入
    - [ ] **運用パラメータを確定**：レビュー中の WIP 上限（既定 3）／整合の実施＝統括・担当＝運用／ID 体系（M＝節目専用・K＝繰越・D＝デザイン・V＝目視、節目 ID とタスク ID を衝突させない）
-   - [ ] `docs/status.json` を初期化した（ダッシュボードをデータ駆動で運用する場合。`docs/status-dashboard.html` は `scripts/generate-dashboard.mjs` の生成物なので**手編集しない**）
+   - [ ] `dashboard/status.json` を初期化した（ダッシュボードをデータ駆動で運用する場合。`dashboard/status-dashboard.html` は `scripts/generate-dashboard.mjs` の生成物なので**手編集しない**）
 4. **Discovery→仕様**: `/kiro-discovery "アイデア"` → `/kiro-spec-quick <feature>`（または個別スキル）で `.kiro/specs/<feature>/` を作る。各フェーズは人間承認。
 5. **実装**: `/kiro-impl <feature>`。**規律A＝統括は実装せず、レーンリーダーの采配でワーカーが worktree 並行実装 → 独立レビューで受理**。
-6. **可視化**: `docs/status.json` を更新し `node scripts/generate-dashboard.mjs` で `docs/status-dashboard.html` を再生成して進行を映す。**状態遷移トリガー**（着手→進行中→レビュー中→完了）で実施=統括が同一コミットで json 更新＋生成、担当=運用が「json＝実態」を監視。
+6. **可視化**: `dashboard/status.json` を更新し `node scripts/generate-dashboard.mjs` で `dashboard/status-dashboard.html` を再生成して進行を映す。**状態遷移トリガー**（着手→進行中→レビュー中→完了）で実施=統括が同一コミットで json 更新＋生成、担当=運用が「json＝実態」を監視。
 7. **振り返り**: 節目で `.claude/reports/` に学びを残し、2 回目の判断は正本（steering／rules）へ格上げ。
 
 ## この手法の核（守るもの）

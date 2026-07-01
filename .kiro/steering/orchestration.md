@@ -134,7 +134,7 @@ Wave 2（並行可）:            機能C         機能D
 
 ## ループエンジニアリング（PDCA を回す自律ティアと安全装置）
 
-コンダクター・オーケストレーションは PDCA（Plan→Do→Check→Act）を回す制御系として運用する。参考: ループエンジニアリング（[[loop-engineering-reference]]）。実践と検証の証跡は `docs/status-dashboard.html` に図解で集約する。
+コンダクター・オーケストレーションは PDCA（Plan→Do→Check→Act）を回す制御系として運用する。参考: ループエンジニアリング（[[loop-engineering-reference]]）。実践と検証の証跡は `dashboard/status-dashboard.html` に図解で集約する。
 
 - **段階的自律 L1→L2→L3**（新パターンは必ず L1 から）: L1＝レポートのみ（コード変更なし・STATE.md に優先度集約）／L2＝Maker＋独立 Checker で修正候補、**マージ/公開は人間**（当面の既定）／L3＝無人（予算・metrics・denylist が整って初めて。目標でない）。
 - **Maker-Checker 分離**: Checker は fresh context・「拒否理由を探す」姿勢。Verifier Theater 対策にテスト出力を必須化。
