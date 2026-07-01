@@ -21,7 +21,6 @@ const ROOT = join(__dirname, "..");
 const STATUS_JSON_PATH = join(ROOT, "docs", "status.json");
 const TEMPLATE_PATH = join(ROOT, "docs", "dashboard-template.html");
 const OUTPUT_PATH = join(ROOT, "docs", "status-dashboard.html");
-const NPX_PATH = "/root/.vite-plus/bin/npx";
 
 const GENERATED_NOTICE = `<!--
   ⚠ 自動生成ファイル。手編集しないこと。
@@ -47,9 +46,35 @@ const TONE_CLASS = {
 };
 const LANE_COLOR = { design: "#b08968", eng: "#6a8caf" };
 
-function badge(b) {
+// 検証状態モデル（evidence）: 受理の裏付け種別。badge text はここから自動生成し、
+// 手書きで個別管理しない（二重管理の再発防止・.kiro/steering/operations.md 参照）。
+const EVIDENCE_LABELS = {
+  "auto-test": "自動テスト",
+  "manual-visual": "実機目視",
+  "live-api": "実API疎通",
+  "po-signoff": "PO判断",
+};
+const PROOF_KINDS = ["auto-test", "manual-visual", "live-api"];
+
+function evidenceLabel(evidence) {
+  if (!evidence || evidence.length === 0) return "—";
+  return evidence.map((e) => EVIDENCE_LABELS[e] || e).join(" / ");
+}
+
+// evidence に po-signoff のみが含まれ、他の実証系（auto-test/manual-visual/live-api）
+// が一切無い場合は「実証が無いままPOがサインオフした」ことが分かるよう badge に
+// 「（実機未）」を自動付記する。badge.text を個別に手書きしない設計にするための集約点。
+function badgeTextWithEvidenceSuffix(text, evidence) {
+  if (!evidence || evidence.length === 0) return text;
+  const hasProof = evidence.some((e) => PROOF_KINDS.includes(e));
+  const hasSignoffOnly = evidence.includes("po-signoff") && !hasProof;
+  return hasSignoffOnly ? `${text}（実機未）` : text;
+}
+
+function badge(b, evidence) {
   if (!b) return "";
-  return `<span class="badge ${TONE_CLASS[b.tone] || "badge-mute"}">${b.text}</span>`;
+  const text = badgeTextWithEvidenceSuffix(b.text, evidence);
+  return `<span class="badge ${TONE_CLASS[b.tone] || "badge-mute"}">${text}</span>`;
 }
 
 function pct(n) {
@@ -210,7 +235,7 @@ function renderMilestoneCards(data) {
         : "";
       return `
         <div class="card">
-          <h3>${m.title} ${badge(m.badge)}</h3>
+          <h3>${m.title} ${badge(m.badge, m.evidence)}</h3>
           <div class="bar"><span style="width: ${pct(m.progress)}%"></span></div>
           ${tag}
         </div>`;
@@ -238,7 +263,8 @@ function renderSpecs(data) {
         <td>${s.stage}</td>
         <td>${s.impl}</td>
         <td>${testsLabel(s)}</td>
-        <td>${badge(s.badge)}</td>
+        <td>${evidenceLabel(s.evidence)}</td>
+        <td>${badge(s.badge, s.evidence)}</td>
       </tr>`,
     )
     .join("");
@@ -430,18 +456,34 @@ function main() {
     `$1    ${GENERATED_NOTICE}\n`,
   );
 
+  // HTML生成（本質的な責務）はここまでで完了・成功している。
+  // これ以降の prettier 整形は後処理（あれば見た目を整える／無くても生成の成功は損なわれない）。
   writeFileSync(OUTPUT_PATH, html);
   console.log(`generated: ${OUTPUT_PATH}`);
 
-  execFileSync(
-    NPX_PATH,
-    ["prettier", "--write", "docs/status-dashboard.html"],
-    {
-      cwd: ROOT,
-      stdio: "inherit",
-    },
-  );
-  console.log("prettier: formatted docs/status-dashboard.html");
+  formatWithPrettierBestEffort();
+}
+
+// prettier 整形はベストエフォート。`npx` はPATH解決に任せる（環境固有の絶対パスを
+// ハードコードしない＝テンプレートとして他プロジェクトへコピーされる前提のため）。
+// prettier が無い/失敗する環境でも、HTML生成自体の成功はブロックしない
+// （警告を出して exit 0 で終える。生成済みHTMLは未整形のまま残る）。
+function formatWithPrettierBestEffort() {
+  try {
+    execFileSync(
+      "npx",
+      ["--yes", "prettier", "--write", "docs/status-dashboard.html"],
+      {
+        cwd: ROOT,
+        stdio: "inherit",
+      },
+    );
+    console.log("prettier: formatted docs/status-dashboard.html");
+  } catch (err) {
+    console.warn(
+      `⚠ prettier 整形をスキップしました（HTML生成自体は成功済み）: ${err.message}`,
+    );
+  }
 }
 
 main();

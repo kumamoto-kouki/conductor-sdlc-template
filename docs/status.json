@@ -11,7 +11,8 @@
       "badge": {
         "text": "達成",
         "tone": "ok"
-      }
+      },
+      "evidence": ["auto-test"]
     },
     {
       "id": "M2",
@@ -24,7 +25,8 @@
         "text": "確認済",
         "tone": "ok"
       },
-      "note": "実機ログでキャラ窓の描画を確認済み"
+      "note": "実機ログでキャラ窓の描画を確認済み",
+      "evidence": ["auto-test", "manual-visual"]
     },
     {
       "id": "M3",
@@ -37,7 +39,8 @@
         "text": "達成（PO サインオフ）",
         "tone": "ok"
       },
-      "note": "実装完了＋自動テスト緑が裏付け。実機・実APIの実対話は <b>PO 判断でサインオフ</b>（実証ログは本セッション未取得・必要なら後日 API キーで実証可）。"
+      "note": "実装完了＋自動テスト緑が裏付け。実機・実APIの実対話は <b>PO 判断でサインオフ</b>（実証ログは本セッション未取得・必要なら後日 API キーで実証可）。",
+      "evidence": ["auto-test", "po-signoff"]
     },
     {
       "id": "M4",
@@ -51,7 +54,8 @@
         "tone": "warn"
       },
       "note": "日記 ON/OFF トグル（D1）＋日記エンジン（機能D・全8タスク・35テスト）とも<b>実装完了</b>。",
-      "remainingNote": "残りは実機での生成確認（実API・人手）"
+      "remainingNote": "残りは実機での生成確認（実API・人手）",
+      "evidence": ["auto-test"]
     },
     {
       "id": "M5",
@@ -65,7 +69,8 @@
         "tone": "warn"
       },
       "note": "Google ドライブ連携の本番資格情報待ち",
-      "remainingNote": "OAuth アプリ登録（client_id/secret）が必要＝PO 判断中"
+      "remainingNote": "OAuth アプリ登録（client_id/secret）が必要＝PO 判断中",
+      "evidence": []
     },
     {
       "id": "cross",
@@ -79,7 +84,8 @@
         "tone": "ok"
       },
       "remainingNote": "残りは最終的な整合確認",
-      "hideCard": true
+      "hideCard": true,
+      "evidence": ["auto-test"]
     }
   ],
   "specs": [
@@ -92,7 +98,8 @@
       "badge": {
         "text": "完了",
         "tone": "ok"
-      }
+      },
+      "evidence": ["auto-test"]
     },
     {
       "name": "キャラ表示（機能A）",
@@ -103,7 +110,8 @@
       "badge": {
         "text": "完了",
         "tone": "ok"
-      }
+      },
+      "evidence": ["auto-test"]
     },
     {
       "name": "モデル切替・対話（機能C）",
@@ -114,7 +122,8 @@
       "badge": {
         "text": "完了",
         "tone": "ok"
-      }
+      },
+      "evidence": ["auto-test"]
     },
     {
       "name": "観察日記（機能D）",
@@ -126,7 +135,8 @@
       "badge": {
         "text": "完了",
         "tone": "ok"
-      }
+      },
+      "evidence": ["auto-test"]
     }
   ],
   "sharedTests": {
