@@ -1,0 +1,34 @@
+---
+// Mermaid 図のアイランド。npm の mermaid パッケージを Astro の Vite パイプラインで
+// バンドルする（CDN不使用・オフラインでも描画可能）。ページ全体を巨大な1スクリプトに
+// 巻き込まないよう、この <script> は Astro が自動的に1回だけバンドルする。
+interface Props {
+  code: string;
+  ariaLabel?: string;
+  class?: string;
+}
+
+const { code, ariaLabel = "図", class: className = "" } = Astro.props;
+---
+
+<pre class={`mermaid ${className}`.trim()} role="img" aria-label={ariaLabel}>{code}</pre>
+
+<script>
+  import mermaid from "mermaid";
+
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: "base",
+    themeVariables: {
+      primaryColor: "#fbf3e9",
+      primaryBorderColor: "#b08968",
+      primaryTextColor: "#2b2622",
+      lineColor: "#d6cabb",
+      fontFamily:
+        "system-ui, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif",
+    },
+    flowchart: { htmlLabels: true, curve: "basis" },
+  });
+
+  mermaid.run({ querySelector: ".mermaid" });
+</script>

@@ -1,0 +1,30 @@
+---
+// 作業ボードの1列（⏳待ち／🔨進行中／🔍レビュー中／✅完了・受理）。
+import BoardCard from "./BoardCard.astro";
+
+interface Props {
+  title: string;
+  style: string;
+  items: Array<Record<string, any>>;
+  size: "sm" | "md";
+  footnote?: string;
+}
+
+const { title, style, items, size, footnote } = Astro.props;
+---
+
+<div class="overflow-hidden rounded-xl ring-1 ring-line/70">
+  <div class="px-3 py-1.5 text-xs font-bold" style={style}>{title}</div>
+  {
+    items.length ? (
+      <div class="space-y-1.5 p-2">
+        {items.map((item) => (
+          <BoardCard item={item} size={size} />
+        ))}
+        {footnote && <div class="px-1 pt-0.5 text-[10px] text-muted">{footnote}</div>}
+      </div>
+    ) : (
+      <div class="p-2 text-center text-[11px] text-muted">—</div>
+    )
+  }
+</div>

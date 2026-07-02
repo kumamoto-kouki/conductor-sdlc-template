@@ -1,0 +1,32 @@
+---
+// KPI 数値表示（大きい数字＋ラベル＋補足）。見積もりサマリーや運用パネルの
+// 4枚組（!text-3xl・tag見出し）と、健全性 KPI カード（text-{tone}・<small>ラベル）の
+// 2パターンをどちらも表現できるようにする。
+interface Props {
+  value: number | string;
+  label: string;
+  note?: string;
+  tone?: string;
+  // "lg": 見積もり/運用パネルのような大きめ数字＋下にtagラベル
+  // "card": 健全性KPIカードのような数字直後に<small>ラベル＋下にtagノート
+  variant?: "lg" | "card";
+}
+
+const { value, label, note = "", tone = "accent", variant = "lg" } = Astro.props;
+---
+
+{
+  variant === "lg" ? (
+    <div>
+      <div class={`kpi !text-3xl text-${tone}`}>{value}</div>
+      <div class="tag">{label}</div>
+    </div>
+  ) : (
+    <div>
+      <div class={`kpi text-${tone}`}>
+        {value} <small>{label}</small>
+      </div>
+      <div class="tag">{note}</div>
+    </div>
+  )
+}

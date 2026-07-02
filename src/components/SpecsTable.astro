@@ -1,0 +1,36 @@
+---
+// 機能ごとの状態(spec)テーブル。ヘッダーを含む完結したテーブルとして描画する。
+import Badge from "./Badge.astro";
+import { evidenceLabel, testsLabel } from "../lib/derive.mjs";
+
+interface Props {
+  specs: Array<Record<string, any>>;
+}
+
+const { specs } = Astro.props;
+---
+
+<table>
+  <tr>
+    <th>機能（spec）</th>
+    <th>仕様の段階</th>
+    <th>実装</th>
+    <th>テスト</th>
+    <th>裏付け</th>
+    <th>状態</th>
+  </tr>
+  {
+    specs.map((s) => (
+      <tr>
+        <td>{s.name}</td>
+        <td>{s.stage}</td>
+        <td>{s.impl}</td>
+        <td>{testsLabel(s)}</td>
+        <td>{evidenceLabel(s.evidence)}</td>
+        <td>
+          <Badge badge={s.badge} evidence={s.evidence} />
+        </td>
+      </tr>
+    ))
+  }
+</table>
