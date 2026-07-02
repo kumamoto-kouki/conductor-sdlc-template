@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ja"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>（プロジェクト名） 開発ダッシュボード</title><link rel="stylesheet" href="/_astro/status-dashboard.l3_xkVWP.css"></head> <body> <div class="wrap"> <header class="hero"> <h1 class="text-white">（プロジェクト名） 開発ダッシュボード</h1> <div class="mt-1.5 text-[13px] text-white/85">
+<!DOCTYPE html><html lang="ja"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>（プロジェクト名） 開発ダッシュボード</title><link rel="stylesheet" href="_astro/status-dashboard.l3_xkVWP.css"></head> <body> <div class="wrap"> <header class="hero"> <h1 class="text-white">（プロジェクト名） 開発ダッシュボード</h1> <div class="mt-1.5 text-[13px] text-white/85">
 スナップショット:
 <b class="font-bold text-white">2026-06-29</b> ／ ブランチ
 <code class="!bg-white/15 !text-white">&lt;統合ブランチ&gt;</code> ／
@@ -87,7 +87,7 @@
   class ENGMAKE leaf
   class DESMAKE leafDesign
   class ENGREV rev
-  class DESREV rev</pre> <script type="module" src="/_astro/MermaidDiagram.astro_astro_type_script_index_0_lang.DQ1LSgcR.js"></script>
+  class DESREV rev</pre>
 <table class="mt-3 text-[13px]"><tr><th>観点</th><th>内容</th></tr><tr><td><b>担当ペルソナ</b></td><td>統括・運用・Engリーダー・Designリーダー・デザイン実装・デザインRev・実装BE・実装FE・EngRev・QAは AI エージェントの役割ペルソナ（実在の個人ではありません）。各役を「担当者」として固定し、責任の所在を明確にしています。<b>統括は実装に着手せず采配に専念し、采配は各レーン・リーダー（Engリーダー・Designリーダー）へ委譲</b>します。</td></tr><tr><td><b>👩🏼‍💼 運用（運用マネージャー・横断支援）</b></td><td>図の破線は報告系統（運用→統括→PO）。運用の実行状況の管理と相談窓口を担い、受理判断には不介入（独立性で統括の自己評価バイアスを避ける）。</td></tr><tr><td><b>2つのレーン</b></td><td>エンジニアリング（実装）とデザイン。どちらも同じ三役（コンダクター・実施者・レビュアー）。</td></tr><tr><td><b>実施者（作る役）は複数が並行</b></td><td>機能やコンポーネントごとに別々の作業者が同時に動く（図のカードの重なり）。コンダクターと受理（レビュー）が集約点。</td></tr><tr><td><b>作る役とチェック役は必ず別</b></td><td>自分で作って自分で合格を出さない（甘い判定を防ぐ）。受理は「証拠」で行う。</td></tr><tr><td><b>デザインの証拠</b></td><td>見た目の好みでなく、コントラスト比（読みやすさ）・状態網羅・原則8（AI開示）の遵守・実装できるか、で判定。</td></tr><tr><td><b>デザインの作り方</b></td><td>claude.ai/design で生成（文面は <code>docs/design-brief.md</code>）→ レビュー → <code>/design-sync</code> で1部品ずつコードへ取り込み → 公開は人間。</td></tr></table>
 
 <div class="mt-6 mb-1 text-xs font-bold text-muted">フェーズ別 投入計画（ツリー体制図）</div>
@@ -98,20 +98,20 @@
   CD -. 報告 .- OPS[&quot;👩🏼‍💼 運用&quot;]
   CD --&gt; DESIGN[&quot;🧭 設計&lt;br/&gt;候補・着手前設計&quot;]
   classDef cand fill:#fbf7f0,stroke:#c9a36a,stroke-dasharray: 3 2;
-  class DESIGN cand</pre> </div><div class="rounded-xl bg-card p-2.5 ring-1 ring-line/60"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">② 設計</div><pre class="mermaid" role="img" aria-label="② 設計フェーズの体制ツリー">flowchart TD
+  class DESIGN cand</pre></div><div class="rounded-xl bg-card p-2.5 ring-1 ring-line/60"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">② 設計</div><pre class="mermaid" role="img" aria-label="② 設計フェーズの体制ツリー">flowchart TD
   PO[&quot;🧑🏻‍💼 PO&quot;] --&gt; CD[&quot;👨🏼‍💼 統括&quot;]
   CD -. 報告 .- OPS[&quot;👩🏼‍💼 運用&quot;]
   CD --&gt; DESIGN[&quot;🧭 設計&lt;br/&gt;候補・主担当&quot;]
   CD --&gt; DREV[&quot;🕵🏼‍♀️ デザインRev&lt;br/&gt;観点助言&quot;]
   CD --&gt; EREV[&quot;🕵🏼‍♂️ EngRev&lt;br/&gt;観点助言&quot;]
   classDef cand fill:#fbf7f0,stroke:#c9a36a,stroke-dasharray: 3 2;
-  class DESIGN cand</pre> </div><div class="rounded-xl bg-[#fbf3e9] p-2.5 ring-2 ring-accent"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">③ 実装<span class="badge badge-bad">▶ いまここ</span></div><pre class="mermaid" role="img" aria-label="③ 実装フェーズの体制ツリー">flowchart TD
+  class DESIGN cand</pre></div><div class="rounded-xl bg-[#fbf3e9] p-2.5 ring-2 ring-accent"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">③ 実装<span class="badge badge-bad">▶ いまここ</span></div><pre class="mermaid" role="img" aria-label="③ 実装フェーズの体制ツリー">flowchart TD
   PO[&quot;🧑🏻‍💼 PO&quot;] --&gt; CD[&quot;👨🏼‍💼 統括&quot;]
   CD -. 報告 .- OPS[&quot;👩🏼‍💼 運用&quot;]
   CD --&gt; BE[&quot;👨🏼‍💻 実装BE&lt;br/&gt;実装&quot;]
   CD --&gt; FE[&quot;👩🏼‍💻 実装FE&lt;br/&gt;実装&quot;]
   CD --&gt; DES[&quot;👩🏼‍🎨 デザイン実装&lt;br/&gt;実装&quot;]
-  CD --&gt; QA[&quot;🔬 QA&lt;br/&gt;QA・テスト&quot;]</pre> </div><div class="rounded-xl bg-card p-2.5 ring-1 ring-line/60"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">④ レビュー／受理</div><pre class="mermaid" role="img" aria-label="④ レビュー／受理フェーズの体制ツリー">flowchart TD
+  CD --&gt; QA[&quot;🔬 QA&lt;br/&gt;QA・テスト&quot;]</pre></div><div class="rounded-xl bg-card p-2.5 ring-1 ring-line/60"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">④ レビュー／受理</div><pre class="mermaid" role="img" aria-label="④ レビュー／受理フェーズの体制ツリー">flowchart TD
   PO[&quot;🧑🏻‍💼 PO&quot;] --&gt; CD[&quot;👨🏼‍💼 統括&quot;]
   CD -. 報告 .- OPS[&quot;👩🏼‍💼 運用&quot;]
   CD --&gt; DREV[&quot;🕵🏼‍♀️ デザインRev&lt;br/&gt;受理&quot;]
@@ -121,18 +121,18 @@
   classDef rev fill:#fff,stroke:#2e7d52;
   classDef cand fill:#fbf7f0,stroke:#7fa8cc,stroke-dasharray: 3 2;
   class DREV,EREV rev
-  class SEC,PERF cand</pre> </div><div class="rounded-xl bg-card p-2.5 ring-1 ring-line/60"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">⑤ 公開（push）前</div><pre class="mermaid" role="img" aria-label="⑤ 公開（push）前フェーズの体制ツリー">flowchart TD
+  class SEC,PERF cand</pre></div><div class="rounded-xl bg-card p-2.5 ring-1 ring-line/60"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">⑤ 公開（push）前</div><pre class="mermaid" role="img" aria-label="⑤ 公開（push）前フェーズの体制ツリー">flowchart TD
   PO[&quot;🧑🏻‍💼 PO・承認&quot;] --&gt; CD[&quot;👨🏼‍💼 統括&quot;]
   CD -. 報告 .- OPS[&quot;👩🏼‍💼 運用&quot;]
   CD --&gt; SEC[&quot;🔐 セキュリティ監査&lt;br/&gt;候補・公開前&quot;]
   classDef cand fill:#fbf7f0,stroke:#7fa8cc,stroke-dasharray: 3 2;
-  class SEC cand</pre> </div><div class="rounded-xl bg-card p-2.5 ring-1 ring-line/60"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">⑥ 引き継ぎ</div><pre class="mermaid" role="img" aria-label="⑥ 引き継ぎフェーズの体制ツリー">flowchart TD
+  class SEC cand</pre></div><div class="rounded-xl bg-card p-2.5 ring-1 ring-line/60"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">⑥ 引き継ぎ</div><pre class="mermaid" role="img" aria-label="⑥ 引き継ぎフェーズの体制ツリー">flowchart TD
   PO[&quot;🧑🏻‍💼 PO&quot;] --&gt; CD[&quot;👨🏼‍💼 統括&quot;]
   CD -. 報告 .- OPS[&quot;👩🏼‍💼 運用&quot;]
   CD --&gt; HANDOFF[&quot;👩🏼‍💼 運用&lt;br/&gt;引き継ぎ主&quot;]
   CD --&gt; WRITER[&quot;✍️ ライター&lt;br/&gt;候補&quot;]
   classDef cand fill:#fbf7f0,stroke:#7fa8cc,stroke-dasharray: 3 2;
-  class WRITER cand</pre> </div></div>
+  class WRITER cand</pre></div></div>
 <div class="mt-2.5 rounded-lg bg-[#e9f0ea] px-3 py-2 text-[11px] text-muted ring-1 ring-[#cfe2d6]"><p><b>横断（全期間）</b>：👩🏼‍💼 運用（運用マネージャー）＝運用状況の管理・相談窓口。フェーズに依らず常時。</p></div> </div> </details> <!-- ===== 外部サービスとの関係 ===== --> <details class="fold"> <summary>
 外部サービスとの関係（GitHub / Claude Design）
 <span class="note">どこで作り・どこへ出すか</span> </summary> <div class="fold-body card card-updated"> <pre class="mermaid mx-auto max-w-[760px]" role="img" aria-label="外部サービスとの関係図。左の Claude Design、中央のローカルリポジトリ、右の GitHub がデータの流れでつながる。push（公開）は人間が承認">flowchart LR
@@ -154,7 +154,7 @@
   class CDN cdn
   class LOCAL local
   class GH gh
-  class GATE gate</pre> 
+  class GATE gate</pre>
 <ul class="tight mt-3"><li><p><b>Claude Design（claude.ai/design）</b>：デザインを会話で生成する場所。デザイン実施者が操作し、結果を <code>/design-sync</code> で<b>1部品ずつ</b>ローカルへ取り込む。新規課金は不要だが共通の利用枠を消費。</p></li><li><p><b>ローカルリポジトリ（この PC）</b>：実装・テスト・統合の中心。コンダクター・実施者・レビュアーが動く。</p></li><li><p><b>GitHub</b>：コードを公開し進捗（Projects / PR）を管理する先。<b>push（公開）は人間が承認</b>してから。</p></li></ul> </div> </details> <!-- ===== PDCA 実践 ===== --> <details class="fold"> <summary>
 進め方の実例（計画→実行→確認→改善）
 <span class="note">＝PDCA。回した証拠を2件掲載</span> </summary> <div class="fold-body pdca"> 
@@ -165,4 +165,25 @@ AI にどこまで任せるか（3段階）<span class="note">段階を上げる
 用語集（固有名詞のかんたん解説）<span class="note">③ふだんの言葉で言い換え</span> </summary> <div class="fold-body"> <div class="grid grid-cols-1 gap-4 md:grid-cols-2"><div class="card"><dl class="glossary"><dt>（技術）（タウリ）</dt><dd>Web 技術でパソコン用アプリを作る仕組み。本アプリの土台。</dd><dt>Tailwind CSS（テイルウインド）</dt><dd>短いクラス名を組み合わせて見た目を作る CSS フレームワーク。このダッシュボードで採用。</dd><dt>spec（スペック）</dt><dd>機能ごとの仕様書。要件→設計→タスクの順に固めていく。</dd><dt>E2E テスト</dt><dd>End to End＝端から端まで。アプリを実際に起動して通しで動くか確かめる自動テスト。</dd><dt>PDCA</dt><dd>計画(Plan)→実行(Do)→確認(Check)→改善(Act)のくり返し。</dd><dt>CSP</dt><dd>Content Security Policy。アプリの通信先や読み込み先を必要な範囲に絞るセキュリティ設定。</dd></dl></div><div class="card"><dl class="glossary"><dt>semgrep（セムグレップ）</dt><dd>コードの危険な書き方や脆弱性を自動で探すスキャナー。</dd><dt>happy-dom / insta / WebdriverIO</dt><dd>テスト用の道具。順に「画面部品の検査」「出力の固定検査」「実アプリ操作」。</dd><dt>worktree（ワークツリー）</dt><dd>リポジトリの作業用の別コピー。同時編集の衝突を避けるために使う。</dd><dt>push（プッシュ）</dt><dd>手元の変更を共有サーバー（GitHub）へ反映＝公開する操作。</dd><dt>コンダクター・オーケストレーション</dt><dd>本プロジェクトの進め方の呼び名。取りまとめ役が作業を任せ、別の役がチェックし、証拠で受け入れる体制。</dd></dl></div></div> </div> </details> <div class="foot">
 体制の正式版: <code>.kiro/steering/orchestration.md</code> ／ 詳しい記録:
 <code>.claude/reports/2026-06-27-product-state-and-handoff.md</code> ／ スタイルは Astro（ビルド時コンパイル）を利用。閲覧時のネット接続は不要です。
-</div> </div> </body></html>
+</div> </div> <!--
+      Mermaid の読み込み・初期化はページで1回だけ行う（MermaidDiagram.astro は
+      <pre class="mermaid"> の描画のみ）。file:// で直接開いても動くよう、
+      ESM import ではなく mermaid の UMD ビルド（classic script・相対パス）を使う
+      （type="module" は file:// オリジンからのロードが CORS でブロックされるため。
+      詳細は scripts/copy-mermaid-vendor.mjs のコメント参照）。
+    --> <script src="vendor/mermaid.min.js"></script> <script>
+      window.mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        themeVariables: {
+          primaryColor: "#fbf3e9",
+          primaryBorderColor: "#b08968",
+          primaryTextColor: "#2b2622",
+          lineColor: "#d6cabb",
+          fontFamily:
+            "system-ui, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif",
+        },
+        flowchart: { htmlLabels: true, curve: "basis" },
+      });
+      window.mermaid.run({ querySelector: ".mermaid" });
+    </script> </body> </html>

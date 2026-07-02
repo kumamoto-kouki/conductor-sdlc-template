@@ -308,5 +308,30 @@ const inProgressFootnote = data.board.lanes.inProgress[0]?.footnote;
         <code>.claude/reports/2026-06-27-product-state-and-handoff.md</code> ／ スタイルは Astro（ビルド時コンパイル）を利用。閲覧時のネット接続は不要です。
       </div>
     </div>
+
+    <!--
+      Mermaid の読み込み・初期化はページで1回だけ行う（MermaidDiagram.astro は
+      <pre class="mermaid"> の描画のみ）。file:// で直接開いても動くよう、
+      ESM import ではなく mermaid の UMD ビルド（classic script・相対パス）を使う
+      （type="module" は file:// オリジンからのロードが CORS でブロックされるため。
+      詳細は scripts/copy-mermaid-vendor.mjs のコメント参照）。
+    -->
+    <script src="vendor/mermaid.min.js" is:inline></script>
+    <script is:inline>
+      window.mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        themeVariables: {
+          primaryColor: "#fbf3e9",
+          primaryBorderColor: "#b08968",
+          primaryTextColor: "#2b2622",
+          lineColor: "#d6cabb",
+          fontFamily:
+            "system-ui, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif",
+        },
+        flowchart: { htmlLabels: true, curve: "basis" },
+      });
+      window.mermaid.run({ querySelector: ".mermaid" });
+    </script>
   </body>
 </html>

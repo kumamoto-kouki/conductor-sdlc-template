@@ -1,7 +1,9 @@
 ---
-// Mermaid 図のアイランド。npm の mermaid パッケージを Astro の Vite パイプラインで
-// バンドルする（CDN不使用・オフラインでも描画可能）。ページ全体を巨大な1スクリプトに
-// 巻き込まないよう、この <script> は Astro が自動的に1回だけバンドルする。
+// Mermaid 図の描画対象（<pre class="mermaid">）。
+// 実際の mermaid ライブラリ読み込み・初期化・run() はページ側
+// （status-dashboard.astro）で1回だけ行う（classic script・file:// 対応。
+// 詳細は scripts/copy-mermaid-vendor.mjs のコメント参照）。
+// このコンポーネントを複数回使っても <script> が重複しないようにするための設計。
 interface Props {
   code: string;
   ariaLabel?: string;
@@ -12,23 +14,3 @@ const { code, ariaLabel = "図", class: className = "" } = Astro.props;
 ---
 
 <pre class={`mermaid ${className}`.trim()} role="img" aria-label={ariaLabel}>{code}</pre>
-
-<script>
-  import mermaid from "mermaid";
-
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: "base",
-    themeVariables: {
-      primaryColor: "#fbf3e9",
-      primaryBorderColor: "#b08968",
-      primaryTextColor: "#2b2622",
-      lineColor: "#d6cabb",
-      fontFamily:
-        "system-ui, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif",
-    },
-    flowchart: { htmlLabels: true, curve: "basis" },
-  });
-
-  mermaid.run({ querySelector: ".mermaid" });
-</script>

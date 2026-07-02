@@ -3,6 +3,9 @@ node_modules/
 dist/
 target/
 .astro/
+# node_modules から機械的にコピーされる生成物（scripts/copy-mermaid-vendor.mjs）。
+# 最終的な出力は dashboard/vendor/ にコミットする。
+public/vendor/
 
 # オーケストレーション作業（ローカル観測専用）
 .claude/worktrees/

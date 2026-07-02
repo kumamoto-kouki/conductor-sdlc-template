@@ -136,7 +136,28 @@ export const statusSchema = z.object({
 /**
  * status.json のデータを検証する。失敗時はエラーを投げる（明確な失敗を優先し、
  * 不正データのまま生成を続行しない）。
+ *
+ * zod の ZodError をそのまま投げると、Astro のエラー表示経路で `.message` が
+ * "Required" の1語だけに切り詰められ、どのフィールドが問題かわからなくなる
+ * ことが独立レビューで判明した。そのため issues を1件ずつ整形して
+ * console.error に出したうえで、整形済みメッセージを持つ通常の Error を
+ * 投げ直す（ビルドは引き続き失敗する＝NaN の静かな漏出は防いだまま）。
  */
 export function parseStatus(rawData) {
-  return statusSchema.parse(rawData);
+  const result = statusSchema.safeParse(rawData);
+  if (result.success) {
+    return result.data;
+  }
+
+  const lines = result.error.issues.map((issue) => {
+    const path = issue.path.length > 0 ? issue.path.join(".") : "(root)";
+    return `  - ${path}: ${issue.message}`;
+  });
+  const formatted = [
+    "dashboard/status.json の検証に失敗しました（zod）。以下のフィールドを確認してください:",
+    ...lines,
+  ].join("\n");
+
+  console.error(formatted);
+  throw new Error(formatted);
 }
