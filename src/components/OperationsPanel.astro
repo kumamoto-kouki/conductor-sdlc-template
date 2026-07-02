@@ -1,0 +1,60 @@
+---
+// 運用の実行状況パネル（👩🏼‍💼 運用・運用マネージャー）。
+import KpiStat from "./KpiStat.astro";
+
+interface Props {
+  operations: Record<string, any>;
+}
+
+const { operations: op } = Astro.props;
+---
+
+<div class="mb-3 text-xs text-muted" set:html={op.intro} />
+<div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+  <KpiStat value={op.delegated} label="委譲（実装）" tone="accent" variant="lg" />
+  <KpiStat value={op.accepted} label="受理（＋直対応 R1）" tone="ok" variant="lg" />
+  <KpiStat value={op.discarded} label="破棄（古ベース）" tone="warn" variant="lg" />
+  <KpiStat value={op.reviews} label="独立レビュー" tone="info" variant="lg" />
+</div>
+<div class="mt-4 text-sm font-bold">事故 → 是正（仕組みの修正）</div>
+<table class="mt-2">
+  <tr>
+    <th>事故（仕組みの弱さ）</th>
+    <th>是正</th>
+    <th>効力</th>
+  </tr>
+  {
+    op.incidents.map((i) => (
+      <tr>
+        <td>{i.issue}</td>
+        <td>{i.fix}</td>
+        <td>{i.effect}</td>
+      </tr>
+    ))
+  }
+</table>
+<div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+  <span><b>レビュー判定</b>：{op.verdictsSummary}</span>
+</div>
+<div class="mt-4 text-sm font-bold">
+  開示の健全性（心理的安全性）
+  <span class="note">— 感情でなく機構で観測（運用）</span>
+</div>
+<div class="mb-2 text-[11px] text-muted" set:html={op.disclosureIntro} />
+<table class="mt-1">
+  <tr>
+    <th>兆候（機構で測る）</th>
+    <th>現状</th>
+  </tr>
+  {
+    op.signals.map((s) => (
+      <tr>
+        <td>{s.signal}</td>
+        <td>{s.status}</td>
+      </tr>
+    ))
+  }
+</table>
+<div class="mt-1.5 text-[11px] text-muted" set:html={op.disciplineNote} />
+<div class="mt-3 rounded-lg bg-[#f4efe7] px-3 py-2 text-xs text-muted" set:html={op.consultNote} />
+<div class="mt-2 text-[11px] text-muted" set:html={op.registryNote} />

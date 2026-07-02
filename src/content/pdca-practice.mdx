@@ -1,0 +1,28 @@
+{/* PDCA 円環図は小さい静的SVGのため、Mermaid化の効果が薄いとして維持する（計画方針どおり）。 */}
+
+<svg width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="計画・実行・確認・改善のサイクル">
+  <circle cx="75" cy="75" r="52" fill="none" stroke="#e6e0d8" stroke-width="14"></circle>
+  <circle cx="75" cy="75" r="52" fill="none" stroke="#b08968" stroke-width="14" stroke-dasharray="245 82" stroke-linecap="round" transform="rotate(-90 75 75)"></circle>
+  <text x="75" y="34" text-anchor="middle" font-size="11" fill="#2b2622">計画</text>
+  <text x="121" y="79" text-anchor="middle" font-size="11" fill="#2b2622">実行</text>
+  <text x="75" y="125" text-anchor="middle" font-size="11" fill="#2b2622">確認</text>
+  <text x="29" y="79" text-anchor="middle" font-size="11" fill="#2b2622">改善</text>
+  <text x="75" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#b08968">PDCA</text>
+</svg>
+
+<div class="steps">
+  <div class="card mb-2.5">
+    <h3>例① 品質の点検 <span class="badge badge-ok">完了</span></h3>
+    <div class="step"><b>計画</b><span>プロダクトを点検・検証・記録する計画を立てる</span></div>
+    <div class="step"><b>実行</b><span>実装と記録のあと、別の担当役（独立チェック）で再点検</span></div>
+    <div class="step"><b>確認</b><span>チェック役が <b>本物のバグ（chat.ts）</b>・通信制限の未設定・仕様の食い違いを発見</span></div>
+    <div class="step"><b>改善</b><span>3件を修正 → 再テストで <span class="badge badge-ok">全合格</span></span></div>
+  </div>
+  <div class="card">
+    <h3>例② 作業の任せ方の試行 <span class="badge badge-ok">完了</span></h3>
+    <div class="step"><b>計画</b><span>新コマンドの実装を別の作業役（AI）に任せてみる</span></div>
+    <div class="step"><b>実行</b><span>作業用の別コピーで実装し、専用ブランチに記録</span></div>
+    <div class="step"><b>確認</b><span>別のチェック役が <span class="badge badge-ok">合格</span> 判定。取りまとめ役も80件のテストを自分で実行し直して確認</span></div>
+    <div class="step"><b>改善</b><span>本体に統合し、つまずいた点を運用ルールに反映</span></div>
+  </div>
+</div>

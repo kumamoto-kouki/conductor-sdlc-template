@@ -1,0 +1,42 @@
+---
+// チーム名簿の1人分。status: "human"（実在の人間＝強調枠）／"active"（配役済・実線）／
+// "candidate"（候補・破線＝未投入）で見た目を切り替える。
+import Badge from "./Badge.astro";
+
+interface Props {
+  persona: {
+    emoji: string;
+    name: string;
+    role: string;
+    desc: string;
+    status: "human" | "active" | "candidate";
+    badge?: { text: string; tone: string };
+  };
+}
+
+const { persona } = Astro.props;
+
+const wrapperClass =
+  persona.status === "human"
+    ? "flex gap-2.5 rounded-xl bg-[#fbf3e9] p-2.5 ring-2 ring-accent"
+    : persona.status === "active"
+      ? "flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-line/60"
+      : "flex gap-2.5 rounded-xl border border-dashed border-[#7fa8cc] bg-[#f4f8fc] p-2.5";
+
+const emojiClass =
+  persona.status === "candidate"
+    ? "text-2xl leading-none opacity-70"
+    : "text-2xl leading-none";
+---
+
+<div class={wrapperClass}>
+  <span class={emojiClass} aria-hidden="true">{persona.emoji}</span>
+  <div class="min-w-0">
+    <div class="flex items-center gap-1.5 text-[13px] font-bold">
+      {persona.name}
+      {persona.badge && <Badge badge={persona.badge} />}
+    </div>
+    <div class="text-xs text-[#6f4e37]">{persona.role}</div>
+    <div class="mt-0.5 text-[11px] text-muted">{persona.desc}</div>
+  </div>
+</div>

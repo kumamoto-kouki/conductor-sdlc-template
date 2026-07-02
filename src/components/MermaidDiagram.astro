@@ -1,0 +1,16 @@
+---
+// Mermaid 図の描画対象（<pre class="mermaid">）。
+// 実際の mermaid ライブラリ読み込み・初期化・run() はページ側
+// （status-dashboard.astro）で1回だけ行う（classic script・file:// 対応。
+// 詳細は scripts/copy-mermaid-vendor.mjs のコメント参照）。
+// このコンポーネントを複数回使っても <script> が重複しないようにするための設計。
+interface Props {
+  code: string;
+  ariaLabel?: string;
+  class?: string;
+}
+
+const { code, ariaLabel = "図", class: className = "" } = Astro.props;
+---
+
+<pre class={`mermaid ${className}`.trim()} role="img" aria-label={ariaLabel}>{code}</pre>

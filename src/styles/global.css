@@ -1,0 +1,208 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* dashboard/dashboard-template.html の <style type="text/tailwindcss"> から移植。
+   Tailwind v4 CDN の @theme（CSS変数）は v3 の tailwind.config.mjs の
+   theme.extend.colors へ移し、CSS変数参照（var(--color-*)）は固定値に置換した。 */
+
+@layer base {
+  body {
+    @apply bg-bg text-fg font-sans antialiased;
+    line-height: 1.65;
+    background-image: radial-gradient(
+      1200px 600px at 100% -10%,
+      #f3ece1 0%,
+      transparent 60%
+    );
+  }
+  h1 {
+    @apply text-2xl font-extrabold tracking-tight;
+  }
+  /* セクション見出し: 左にアクセントの縦バー（下線は廃止しモダンに） */
+  h2 {
+    @apply mt-10 mb-4 flex flex-wrap items-center gap-2.5 text-lg font-bold;
+  }
+  h2::before {
+    content: "";
+    @apply h-5 w-1.5 shrink-0 rounded-full bg-accent;
+  }
+  h3 {
+    @apply m-0 mb-2 flex flex-wrap items-center gap-1.5 text-sm font-bold;
+  }
+  code {
+    @apply rounded-md px-1.5 py-0.5 text-xs;
+    background: #efe9e0;
+  }
+  table {
+    @apply w-full overflow-hidden text-[13px];
+    border-collapse: collapse;
+  }
+  th {
+    @apply text-left font-semibold text-muted;
+    padding: 9px 10px;
+    border-bottom: 1px solid #e6e0d8;
+  }
+  td {
+    @apply text-left;
+    padding: 9px 10px;
+    border-bottom: 1px solid #e6e0d8;
+  }
+  tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+@layer components {
+  .wrap {
+    @apply mx-auto max-w-[1080px] px-5 pt-7 pb-20;
+  }
+  /* ヒーロー: アクセントのグラデーション帯 */
+  .hero {
+    @apply mb-2 rounded-2xl px-6 py-7 text-white shadow-lg;
+    background: linear-gradient(135deg, #b9926e 0%, #8f6b4e 100%);
+  }
+  /* カード: 細いリング＋ソフトシャドウ＋ホバーで浮く */
+  .card {
+    @apply rounded-2xl bg-card p-5 shadow-sm ring-1 ring-line/70 transition duration-200;
+  }
+  .card:hover {
+    @apply -translate-y-0.5 shadow-md;
+  }
+  .card-updated {
+    @apply border-l-4 ring-0;
+    border-left-color: #2f6f9f;
+    background: linear-gradient(92deg, #eaf3fa, #ffffff 55%);
+  }
+  .badge {
+    @apply inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold leading-none text-white shadow-sm ring-1 ring-black/5;
+  }
+  .badge-ok {
+    @apply bg-ok;
+  }
+  .badge-bad {
+    @apply bg-bad;
+  }
+  .badge-mute {
+    @apply bg-muted;
+  }
+  .badge-info {
+    @apply bg-info;
+  }
+  .badge-warn {
+    @apply bg-warn;
+    color: #3a2c00;
+  }
+  .badge-upd {
+    @apply bg-upd;
+  }
+  .note {
+    @apply text-xs font-normal text-muted;
+  }
+  .tag {
+    @apply mt-1 text-xs leading-relaxed text-muted;
+  }
+  .kpi {
+    @apply text-4xl font-extrabold tracking-tight;
+  }
+  .kpi small {
+    @apply ml-1 align-middle text-xs font-medium text-muted;
+  }
+  .bar {
+    @apply mt-1.5 h-2 overflow-hidden rounded-full bg-line;
+  }
+  .bar > span {
+    @apply block h-full rounded-full;
+    background: linear-gradient(90deg, #b08968, #caa988);
+  }
+  .legend {
+    @apply flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted;
+  }
+  .legend > span {
+    @apply inline-flex items-center gap-1.5;
+  }
+  .changelog {
+    @apply mt-5 rounded-2xl p-5 shadow-sm ring-1 ring-[#cfe2f0];
+    background: linear-gradient(180deg, #eef6fc, #f8fbfe);
+  }
+  .changelog h2 {
+    @apply m-0 mb-2 p-0 text-base;
+    color: #2f6f9f;
+  }
+  .changelog h2::before {
+    content: none;
+  }
+  .pdca {
+    @apply flex flex-wrap items-center gap-4;
+  }
+  .pdca .steps {
+    @apply min-w-[280px] flex-1;
+  }
+  .step {
+    @apply flex gap-2 py-1 text-[13px];
+  }
+  .step b {
+    @apply inline-block min-w-[58px] text-muted;
+  }
+  .tight {
+    @apply mt-1.5 list-disc space-y-1 pl-[18px] text-[13px] marker:text-accent;
+  }
+  .l-tier {
+    @apply border-l-4 pl-3;
+    border-color: #6a8caf;
+  }
+  .glossary {
+    @apply m-0 text-[13px];
+  }
+  .glossary dt {
+    @apply mt-3 font-bold text-fg;
+  }
+  .glossary dt:first-child {
+    @apply mt-0;
+  }
+  .glossary dd {
+    @apply mt-0.5 ml-0;
+    color: #5b534c;
+  }
+  .foot {
+    @apply mt-10 pt-3 text-xs text-muted;
+    border-top: 1px solid #e6e0d8;
+  }
+  /* 折りたたみセクション（参照・詳細系をたたんで容量圧縮） */
+  details.fold {
+    @apply mt-8;
+  }
+  details.fold > summary {
+    @apply flex cursor-pointer list-none items-center gap-2 text-lg font-bold;
+  }
+  details.fold > summary::-webkit-details-marker {
+    display: none;
+  }
+  details.fold > summary::before {
+    content: "▸";
+    @apply text-base text-accent;
+  }
+  details.fold[open] > summary::before {
+    content: "▾";
+  }
+  details.fold > summary .note {
+    @apply font-normal;
+  }
+  details.fold > .fold-body {
+    @apply mt-3;
+  }
+  /* 大区分の見出し（進捗報告 / プロジェクト概要） */
+  h2.part {
+    @apply mt-12 mb-5 rounded-xl px-4 py-2.5 text-lg text-white shadow-sm;
+    background: linear-gradient(135deg, #b9926e 0%, #8f6b4e 100%);
+  }
+  h2.part:first-of-type {
+    @apply mt-6;
+  }
+  h2.part::before {
+    content: none;
+  }
+  h2.part .note {
+    @apply text-white/80;
+  }
+}

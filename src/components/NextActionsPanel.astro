@@ -1,0 +1,21 @@
+---
+// 次にやること（優先／見守り の2カード）。
+interface Props {
+  nextActions: { high: string[]; watch: string[] };
+}
+
+const { nextActions: na } = Astro.props;
+---
+
+<div class="card">
+  <h3>優先 <span class="badge badge-bad">高</span></h3>
+  <ul class="tight">
+    {na.high.map((item) => <li set:html={item} />)}
+  </ul>
+</div>
+<div class="card">
+  <h3>見守り <span class="badge badge-warn">中</span></h3>
+  <ul class="tight">
+    {na.watch.map((item) => <li set:html={item} />)}
+  </ul>
+</div>

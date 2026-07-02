@@ -1,0 +1,337 @@
+---
+// dashboard/status.json を唯一の真実として読み込み → zod 検証 → derive.mjs で計算 →
+// コンポーネントへ渡す。旧 scripts/generate-dashboard.mjs + dashboard-template.html の
+// 置き換え（.kiro/steering/operations.md 参照）。
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+import "../styles/global.css";
+import { parseStatus } from "../lib/schema.mjs";
+import { computeKpi, visibleMilestones } from "../lib/derive.mjs";
+
+import EstimateSummary from "../components/EstimateSummary.astro";
+import BoardColumn from "../components/BoardColumn.astro";
+import MilestoneCard from "../components/MilestoneCard.astro";
+import SpecsTable from "../components/SpecsTable.astro";
+import KpiStat from "../components/KpiStat.astro";
+import OperationsPanel from "../components/OperationsPanel.astro";
+import NextActionsPanel from "../components/NextActionsPanel.astro";
+import ChangelogSection from "../components/ChangelogSection.astro";
+
+import TeamStructure from "../content/team-structure.mdx";
+import ExternalServices from "../content/external-services.mdx";
+import PdcaPractice from "../content/pdca-practice.mdx";
+import AutonomyTiers from "../content/autonomy-tiers.mdx";
+import Glossary from "../content/glossary.mdx";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const STATUS_JSON_PATH = join(__dirname, "..", "..", "dashboard", "status.json");
+const rawData = JSON.parse(readFileSync(STATUS_JSON_PATH, "utf8"));
+// status.json の必須フィールドが欠けている/範囲外の場合はここで明確に失敗する
+// （NaNの静かな漏出を避ける。.kiro/steering/operations.md の evidence モデル参照）。
+const data = parseStatus(rawData);
+
+const kpiCards = computeKpi(data);
+const milestones = visibleMilestones(data);
+const inProgressFootnote = data.board.lanes.inProgress[0]?.footnote;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>（プロジェクト名） 開発ダッシュボード</title>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="hero">
+        <h1 class="text-white">（プロジェクト名） 開発ダッシュボード</h1>
+        <div class="mt-1.5 text-[13px] text-white/85">
+          スナップショット:
+          <b class="font-bold text-white">{data.changelog[0].date}</b> ／ ブランチ
+          <code class="!bg-white/15 !text-white">{data.branch}</code> ／
+          進め方: 計画→実行→確認→改善のくり返し（PDCA）で、AI が下書き・人が承認
+        </div>
+      </header>
+
+      <div
+        style="margin: 12px 0; padding: 10px 14px; border: 1px dashed #b08968; border-radius: 10px; background: #fbf3e9; font-size: 13px; color: #6f4e37;"
+      >
+        <b>📋 これはテンプレートのダッシュボードです。</b>
+        構造（見積もり・作業ボード＝カンバン・節目・機能ごとの状態・KPI・運用パネル・体制図＝Mermaid＋フェーズ別ツリー・PDCA・用語集・変更履歴）を再利用してください。<b>中の数値・タスク・節目・更新履歴は、この手法を確立した実プロジェクトの「例」</b>です。あなたのプロジェクトの内容に差し替えてください。<b>体制図のペルソナ（統括・運用・Engリーダー ほか）はこの手法の標準キャスト</b>なのでそのまま使えます（<code>.kiro/steering/role-catalog.md</code>）。
+      </div>
+
+      <!-- ===== ▼ 進捗報告 ===== -->
+      <h2 class="part">
+        📊 進捗報告 <span class="note">— いまの状況・残り・直近の変化</span>
+      </h2>
+
+      <!-- ===== 見積もり時間サマリー ===== -->
+      <div class="card card-updated">
+        <div class="mb-3 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <h3 class="!text-base">⏱ 見積もり時間（参考値）</h3>
+          <span class="note">タスク数 × 難易度 × ボリュームから算出した概算。実時間ではなく目安です。</span>
+        </div>
+        <EstimateSummary data={data} />
+      </div>
+
+      <!-- ===== 作業ボード（いま誰が何を） ===== -->
+      <h2>
+        作業ボード（いま誰が何を持っているか）
+        <span class="badge badge-upd">{data.board.updatedLabel}</span>
+        <span class="note">進行に応じて更新</span>
+      </h2>
+      <div class="card card-updated">
+        <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span class="inline-flex items-center gap-1.5 text-[13px] font-bold">
+            <span class="h-2.5 w-2.5 rounded-full bg-info"></span>
+            <span set:html={data.board.headline} />
+          </span>
+          <span class="text-xs text-muted">凡例:</span>
+          <span class="inline-flex items-center gap-1 text-xs text-muted"
+            ><span class="h-3 w-3 rounded" style="background: #b08968"></span> デザイン</span
+          >
+          <span class="inline-flex items-center gap-1 text-xs text-muted"
+            ><span class="h-3 w-3 rounded" style="background: #6a8caf"></span> エンジニア</span
+          >
+          <span class="text-xs text-muted">🔒 人手待ち</span>
+          <span class="text-xs text-muted">~Xh＝見積もり時間（参考値）</span>
+        </div>
+        <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1">
+          <span class="text-[11px] font-bold text-muted">ID 体系:</span>
+          <span class="text-[11px] text-muted"
+            ><b>M</b>＝節目（マイルストーン）／<b>K</b>＝繰越バグ修正／<b>D</b>＝デザイン／<b>V</b>＝目視。<b
+              >M 番号は節目専用</b
+            >でタスクには使わない（重複を避ける）。</span
+          >
+          <span class="text-[11px] text-muted"
+            >整合の同期: 実施＝👨🏼‍💼 統括（チケット移動時に全体を整合）／担当＝👩🏼‍💼 運用（整合を監視・起案）</span
+          >
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+          <BoardColumn
+            title="⏳ 待ち"
+            style="background: #ece7df; color: #6f675f"
+            items={data.board.lanes.waiting}
+            size="sm"
+          />
+          <BoardColumn
+            title="🔨 進行中"
+            style="background: #fbf3e0; color: #7a5b12"
+            items={data.board.lanes.inProgress}
+            size="sm"
+            footnote={inProgressFootnote}
+          />
+          <BoardColumn
+            title="🔍 レビュー中"
+            style="background: #e9f0f7; color: #2c5680"
+            items={data.board.lanes.review}
+            size="sm"
+          />
+          <BoardColumn
+            title="✅ 完了・受理"
+            style="background: #e4f0ea; color: #2e7d52"
+            items={data.board.lanes.done}
+            size="md"
+          />
+        </div>
+        <div class="mt-3 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
+          <div class="rounded-lg bg-[#f4efe7] px-3 py-2">
+            <b>次の候補</b>：{data.board.nextCandidates}
+          </div>
+          <div class="rounded-lg bg-[#f4efe7] px-3 py-2 text-muted">
+            <b>繰越</b>：{data.board.carryover}
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== マイルストーン ===== -->
+      <h2>節目（M1→M5）<span class="note">作りたいものへの到達段階</span></h2>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {milestones.map((m) => <MilestoneCard milestone={m} />)}
+      </div>
+
+      <!-- ===== spec 状態 ===== -->
+      <h2>
+        機能ごとの状態
+        <span class="note">spec＝機能の仕様書。4機能を段階管理</span>
+      </h2>
+      <div class="card">
+        <SpecsTable specs={data.specs} />
+      </div>
+
+      <!-- ===== 健全性 KPI ===== -->
+      <h2>
+        今の健全性
+        <span class="note">（数値は本日コマンドを実行し直して確認）</span>
+      </h2>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {
+          kpiCards.map((k) => (
+            <div class="card">
+              <KpiStat value={k.value} label={k.label} note={k.note} tone={k.tone} variant="card" />
+            </div>
+          ))
+        }
+      </div>
+
+      <!-- ===== 運用の実行状況（運用マネージャー 運用） ===== -->
+      <details class="fold" open>
+        <summary>
+          運用の実行状況（👩🏼‍💼 運用・運用マネージャー）
+          <span class="note">報告: 運用 → 👨🏼‍💼 統括 → あなた（PO 承認）</span>
+        </summary>
+        <div class="fold-body card card-updated">
+          <OperationsPanel operations={data.operations} />
+        </div>
+      </details>
+
+      <!-- ===== 次アクション ===== -->
+      <h2>次にやること</h2>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <NextActionsPanel nextActions={data.nextActions} />
+      </div>
+
+      <!-- ===== この版の更新（変更点を毎回ここで明示） ===== -->
+      <section class="changelog">
+        <ChangelogSection data={data} />
+      </section>
+
+      <!-- ===== ▼ プロジェクト概要 ===== -->
+      <h2 class="part">
+        📁 プロジェクト概要
+        <span class="note">— チーム・体制・進め方・用語</span>
+      </h2>
+
+      <!-- ===== 凡例 ===== -->
+      <h2>色の意味（凡例）</h2>
+      <div class="card">
+        <div class="legend">
+          <span><span class="badge badge-ok">緑</span> 完了・問題なし</span>
+          <span><span class="badge badge-warn">黄</span> 途中・要注意</span>
+          <span><span class="badge badge-bad">赤</span> 未着手・最優先</span>
+          <span><span class="badge badge-mute">灰</span> これから</span>
+          <span><span class="badge badge-upd">青</span> この版で更新した箇所</span>
+        </div>
+      </div>
+
+      <!-- ===== 検証の自動化 ===== -->
+      <h2>
+        テストを自動で回す道具（3種そろいました）
+        <span class="note">手で確認していた作業を機械にやらせる</span>
+      </h2>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div class="card">
+          <h3>画面部品テスト <span class="badge badge-ok">導入・確認済</span></h3>
+          <div class="tag">
+            道具: happy-dom。ブラウザを起動せず画面部品の組み立てだけを高速に検査。キャラ編集画面の描画を自動チェック。
+          </div>
+        </div>
+        <div class="card">
+          <h3>出力の固定検査 <span class="badge badge-ok">導入・確認済</span></h3>
+          <div class="tag">
+            道具: insta。AI への指示文の組み立て結果を「お手本」と突き合わせ、意図しない変化を自動検出。
+          </div>
+        </div>
+        <div class="card card-updated">
+          <h3>
+            実アプリ起動テスト
+            <span class="badge badge-ok">導入・確認済</span>
+            <span class="badge badge-upd">更新 6/28</span>
+          </h3>
+          <div class="tag">
+            道具: tauri-driver ＋ WebdriverIO。本物のアプリを起動し、画面に主要パーツが出るかを確認。<code
+              >pnpm e2e</code
+            > → <strong>1件 合格</strong>（手順は <code>docs/e2e-setup.md</code>）。
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 開発体制（体制図） ===== -->
+      <details class="fold">
+        <summary>
+          開発体制（だれが作り・だれが確認するか）
+          <span class="note">作る役とチェック役を必ず分ける</span>
+        </summary>
+        <div class="fold-body card card-updated">
+          <TeamStructure />
+        </div>
+      </details>
+
+      <!-- ===== 外部サービスとの関係 ===== -->
+      <details class="fold">
+        <summary>
+          外部サービスとの関係（GitHub / Claude Design）
+          <span class="note">どこで作り・どこへ出すか</span>
+        </summary>
+        <div class="fold-body card card-updated">
+          <ExternalServices />
+        </div>
+      </details>
+
+      <!-- ===== PDCA 実践 ===== -->
+      <details class="fold">
+        <summary>
+          進め方の実例（計画→実行→確認→改善）
+          <span class="note">＝PDCA。回した証拠を2件掲載</span>
+        </summary>
+        <div class="fold-body pdca">
+          <PdcaPractice />
+        </div>
+      </details>
+
+      <!-- ===== 自律ティア ===== -->
+      <details class="fold">
+        <summary>
+          AI にどこまで任せるか（3段階）<span class="note">段階を上げるほど自動、下げるほど人が関与</span>
+        </summary>
+        <div class="fold-body">
+          <AutonomyTiers />
+        </div>
+      </details>
+
+      <!-- ===== 用語集 ===== -->
+      <details class="fold">
+        <summary>
+          用語集（固有名詞のかんたん解説）<span class="note">③ふだんの言葉で言い換え</span>
+        </summary>
+        <div class="fold-body">
+          <Glossary />
+        </div>
+      </details>
+
+      <div class="foot">
+        体制の正式版: <code>.kiro/steering/orchestration.md</code> ／ 詳しい記録:
+        <code>.claude/reports/2026-06-27-product-state-and-handoff.md</code> ／ スタイルは Astro（ビルド時コンパイル）を利用。閲覧時のネット接続は不要です。
+      </div>
+    </div>
+
+    <!--
+      Mermaid の読み込み・初期化はページで1回だけ行う（MermaidDiagram.astro は
+      <pre class="mermaid"> の描画のみ）。file:// で直接開いても動くよう、
+      ESM import ではなく mermaid の UMD ビルド（classic script・相対パス）を使う
+      （type="module" は file:// オリジンからのロードが CORS でブロックされるため。
+      詳細は scripts/copy-mermaid-vendor.mjs のコメント参照）。
+    -->
+    <script src="vendor/mermaid.min.js" is:inline></script>
+    <script is:inline>
+      window.mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        themeVariables: {
+          primaryColor: "#fbf3e9",
+          primaryBorderColor: "#b08968",
+          primaryTextColor: "#2b2622",
+          lineColor: "#d6cabb",
+          fontFamily:
+            "system-ui, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif",
+        },
+        flowchart: { htmlLabels: true, curve: "basis" },
+      });
+      window.mermaid.run({ querySelector: ".mermaid" });
+    </script>
+  </body>
+</html>

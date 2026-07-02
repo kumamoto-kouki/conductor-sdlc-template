@@ -1,0 +1,208 @@
+import PersonaCard from "../components/PersonaCard.astro";
+import MermaidDiagram from "../components/MermaidDiagram.astro";
+import personas from "../data/personas.json";
+
+export const mainOrgChart = `flowchart TD
+  PO["🧑🏻‍💼 あなた（人間・PO・承認/公開）"]
+  CD["👨🏼‍💼 統括コンダクター"]
+  OPS["👩🏼‍💼 運用マネージャー<br/>運用状況の管理・相談窓口（横断）"]
+  ENGLANE["エンジニアリング・レーン"]
+  DESLANE["デザイン・レーン"]
+  ENGLEAD["Engリーダー（采配）"]
+  DESLEAD["Designリーダー（采配）"]
+  ENGMAKE["実施者（Maker）×複数<br/>実装BE・実装FE（実装）＋QA（QA/テスト）"]
+  ENGREV["レビュアー（Checker）<br/>EngRev・独立レビュー"]
+  DESMAKE["実施者（Maker）×複数<br/>デザイン実装・Claude Design＋同期"]
+  DESREV["レビュアー（Checker）<br/>デザインRev・デザイン独立レビュー"]
+
+  PO --> CD
+  CD -. 報告 .- OPS
+  CD --> ENGLANE
+  CD --> DESLANE
+  ENGLANE --> ENGLEAD
+  DESLANE --> DESLEAD
+  ENGLEAD --> ENGMAKE
+  ENGLEAD --> ENGREV
+  DESLEAD --> DESMAKE
+  DESLEAD --> DESREV
+
+  classDef lead fill:#b08968,stroke:#b08968,color:#fff,font-weight:bold;
+  classDef ops fill:#fbf3e9,stroke:#b08968,stroke-dasharray: 3 2,color:#6f4e37;
+  classDef lane fill:#eef3f7,stroke:#6a8caf;
+  classDef laneDesign fill:#eaf3fa,stroke:#2f6f9f;
+  classDef leaf fill:#fff,stroke:#6a8caf;
+  classDef leafDesign fill:#fff,stroke:#2f6f9f;
+  classDef rev fill:#fff,stroke:#2e7d52;
+  class CD lead
+  class OPS ops
+  class ENGLANE lane
+  class DESLANE laneDesign
+  class ENGMAKE leaf
+  class DESMAKE leafDesign
+  class ENGREV rev
+  class DESREV rev`;
+
+export const phaseTrees = [
+  {
+    title: "① Discovery／要件",
+    current: false,
+    code: `flowchart TD
+  PO["🧑🏻‍💼 PO"] --> CD["👨🏼‍💼 統括"]
+  CD -. 報告 .- OPS["👩🏼‍💼 運用"]
+  CD --> DESIGN["🧭 設計<br/>候補・着手前設計"]
+  classDef cand fill:#fbf7f0,stroke:#c9a36a,stroke-dasharray: 3 2;
+  class DESIGN cand`,
+  },
+  {
+    title: "② 設計",
+    current: false,
+    code: `flowchart TD
+  PO["🧑🏻‍💼 PO"] --> CD["👨🏼‍💼 統括"]
+  CD -. 報告 .- OPS["👩🏼‍💼 運用"]
+  CD --> DESIGN["🧭 設計<br/>候補・主担当"]
+  CD --> DREV["🕵🏼‍♀️ デザインRev<br/>観点助言"]
+  CD --> EREV["🕵🏼‍♂️ EngRev<br/>観点助言"]
+  classDef cand fill:#fbf7f0,stroke:#c9a36a,stroke-dasharray: 3 2;
+  class DESIGN cand`,
+  },
+  {
+    title: "③ 実装",
+    current: true,
+    code: `flowchart TD
+  PO["🧑🏻‍💼 PO"] --> CD["👨🏼‍💼 統括"]
+  CD -. 報告 .- OPS["👩🏼‍💼 運用"]
+  CD --> BE["👨🏼‍💻 実装BE<br/>実装"]
+  CD --> FE["👩🏼‍💻 実装FE<br/>実装"]
+  CD --> DES["👩🏼‍🎨 デザイン実装<br/>実装"]
+  CD --> QA["🔬 QA<br/>QA・テスト"]`,
+  },
+  {
+    title: "④ レビュー／受理",
+    current: false,
+    code: `flowchart TD
+  PO["🧑🏻‍💼 PO"] --> CD["👨🏼‍💼 統括"]
+  CD -. 報告 .- OPS["👩🏼‍💼 運用"]
+  CD --> DREV["🕵🏼‍♀️ デザインRev<br/>受理"]
+  CD --> EREV["🕵🏼‍♂️ EngRev<br/>受理"]
+  CD --> SEC["🔐 セキュ<br/>候補"]
+  CD --> PERF["⚡ パフォ<br/>候補"]
+  classDef rev fill:#fff,stroke:#2e7d52;
+  classDef cand fill:#fbf7f0,stroke:#7fa8cc,stroke-dasharray: 3 2;
+  class DREV,EREV rev
+  class SEC,PERF cand`,
+  },
+  {
+    title: "⑤ 公開（push）前",
+    current: false,
+    code: `flowchart TD
+  PO["🧑🏻‍💼 PO・承認"] --> CD["👨🏼‍💼 統括"]
+  CD -. 報告 .- OPS["👩🏼‍💼 運用"]
+  CD --> SEC["🔐 セキュリティ監査<br/>候補・公開前"]
+  classDef cand fill:#fbf7f0,stroke:#7fa8cc,stroke-dasharray: 3 2;
+  class SEC cand`,
+  },
+  {
+    title: "⑥ 引き継ぎ",
+    current: false,
+    code: `flowchart TD
+  PO["🧑🏻‍💼 PO"] --> CD["👨🏼‍💼 統括"]
+  CD -. 報告 .- OPS["👩🏼‍💼 運用"]
+  CD --> HANDOFF["👩🏼‍💼 運用<br/>引き継ぎ主"]
+  CD --> WRITER["✍️ ライター<br/>候補"]
+  classDef cand fill:#fbf7f0,stroke:#7fa8cc,stroke-dasharray: 3 2;
+  class WRITER cand`,
+  },
+];
+
+{/* チーム名簿（擬人化ペルソナ＋専門性。配役済＋候補を合流表示） */}
+
+<div class="mb-1 text-xs font-bold text-muted">
+  チーム（あなた＋担当ペルソナ）
+  <span class="note">正本: <code>role-catalog.md</code></span>
+</div>
+<div class="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted">
+  <span>実線＝配役済（現役）</span>
+  <span><span class="badge badge-warn">▰</span> これまで投入すべきだった（後追いで凌いだ＝仕組みの弱さ・blameless）</span>
+  <span><span class="badge badge-info">▱</span> これから投入する（破線＝候補）</span>
+</div>
+
+<div class="mb-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+  {personas.map((p) => <PersonaCard persona={p} />)}
+</div>
+
+{/* チームの約束（心理的安全性） */}
+
+<div class="mb-4 rounded-xl bg-[#e9f0ea] px-4 py-3 text-[12.5px] ring-1 ring-[#cfe2d6]">
+  <b>💬 チームの約束 — 心理的安全性</b>
+  <div class="mt-1 text-muted">
+    このチームは心理的安全性を常に担保しています。失敗・不明点・反対意見を安心して出せ、レビューは<b>人格ではなく成果物</b>に向けます。「分からない」「やり直したい」と言える率直さと、互いへの敬意を両立し、円滑なコミュニケーションを保ちます（🕵🏼‍♂️ EngRevの指摘は 👨🏼‍💻 実装BE を責めるためでなく、品質を一緒に上げるためのものです）。
+  </div>
+</div>
+
+<div class="mt-3 text-[11px] text-muted">
+  ※ <b>🧑🏻‍💼 あなたは実在の人間</b>（プロダクトオーナー＝大方針・承認・公開判断）。担当名（👨🏼‍💼 統括・👩🏼‍💼 運用・🧑🏼‍💼 Engリーダー・🧑🏼‍🎨 Designリーダー・👩🏼‍🎨 デザイン実装・🕵🏼‍♀️ デザインRev・👨🏼‍💻 実装BE・👩🏼‍💻 実装FE・🕵🏼‍♂️ EngRev・👨🏼‍🔬 QA）は AI エージェントの役割ペルソナです（実在の個人ではありません）。
+</div>
+
+<MermaidDiagram
+  code={mainOrgChart}
+  ariaLabel="開発体制の図。人間の下に統括コンダクター、その横に運用マネージャー（横断支援）、その下にエンジニアリングとデザインの2レーン、各レーンに采配リーダー（Engリーダー・Designリーダー）・実施者・レビュアー"
+  class="mx-auto max-w-[760px]"
+/>
+
+<table class="mt-3 text-[13px]">
+  <tr><th>観点</th><th>内容</th></tr>
+  <tr>
+    <td><b>担当ペルソナ</b></td>
+    <td>統括・運用・Engリーダー・Designリーダー・デザイン実装・デザインRev・実装BE・実装FE・EngRev・QAは AI エージェントの役割ペルソナ（実在の個人ではありません）。各役を「担当者」として固定し、責任の所在を明確にしています。<b>統括は実装に着手せず采配に専念し、采配は各レーン・リーダー（Engリーダー・Designリーダー）へ委譲</b>します。</td>
+  </tr>
+  <tr>
+    <td><b>👩🏼‍💼 運用（運用マネージャー・横断支援）</b></td>
+    <td>図の破線は報告系統（運用→統括→PO）。運用の実行状況の管理と相談窓口を担い、受理判断には不介入（独立性で統括の自己評価バイアスを避ける）。</td>
+  </tr>
+  <tr>
+    <td><b>2つのレーン</b></td>
+    <td>エンジニアリング（実装）とデザイン。どちらも同じ三役（コンダクター・実施者・レビュアー）。</td>
+  </tr>
+  <tr>
+    <td><b>実施者（作る役）は複数が並行</b></td>
+    <td>機能やコンポーネントごとに別々の作業者が同時に動く（図のカードの重なり）。コンダクターと受理（レビュー）が集約点。</td>
+  </tr>
+  <tr>
+    <td><b>作る役とチェック役は必ず別</b></td>
+    <td>自分で作って自分で合格を出さない（甘い判定を防ぐ）。受理は「証拠」で行う。</td>
+  </tr>
+  <tr>
+    <td><b>デザインの証拠</b></td>
+    <td>見た目の好みでなく、コントラスト比（読みやすさ）・状態網羅・原則8（AI開示）の遵守・実装できるか、で判定。</td>
+  </tr>
+  <tr>
+    <td><b>デザインの作り方</b></td>
+    <td>claude.ai/design で生成（文面は <code>docs/design-brief.md</code>）→ レビュー → <code>/design-sync</code> で1部品ずつコードへ取り込み → 公開は人間。</td>
+  </tr>
+</table>
+
+{/* フェーズ別 投入計画（ツリー体制図・現在フェーズ表示） */}
+
+<div class="mt-6 mb-1 text-xs font-bold text-muted">フェーズ別 投入計画（ツリー体制図）</div>
+<div class="mb-2 rounded-lg bg-[#fbeede] px-3 py-2 text-[12px] ring-1 ring-accent">
+  <b>▶ 現在のフェーズ：③ 実装</b>（④ レビュー／受理ゲートと往復中）。直近は M1（非アクティブ編集の一覧更新）を実装し、受理ゲート待ち。
+</div>
+<div class="mb-3 text-[11px] text-muted">
+  各ツリー：<b>PO → 統括＋運用（横断）→ そのフェーズで動く役</b>。実線＝配役済（現役）／破線＝候補（未投入）。現在フェーズのカードは強調表示。
+</div>
+
+<div class="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
+  {phaseTrees.map((phase) => (
+    <div class={phase.current ? "rounded-xl bg-[#fbf3e9] p-2.5 ring-2 ring-accent" : "rounded-xl bg-card p-2.5 ring-1 ring-line/60"}>
+      <div class="mb-1 flex items-center gap-2 text-[12px] font-bold">
+        {phase.title}
+        {phase.current && <span class="badge badge-bad">▶ いまここ</span>}
+      </div>
+      <MermaidDiagram code={phase.code} ariaLabel={`${phase.title}フェーズの体制ツリー`} />
+    </div>
+  ))}
+</div>
+
+<div class="mt-2.5 rounded-lg bg-[#e9f0ea] px-3 py-2 text-[11px] text-muted ring-1 ring-[#cfe2d6]">
+  <b>横断（全期間）</b>：👩🏼‍💼 運用（運用マネージャー）＝運用状況の管理・相談窓口。フェーズに依らず常時。
+</div>

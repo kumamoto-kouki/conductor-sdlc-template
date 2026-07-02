@@ -1,0 +1,23 @@
+---
+// バッジ（達成/完了/警告などの状態表示）。
+// badge.text は evidence（検証状態モデル）から自動でサフィックスが付く場合がある
+// （po-signoff のみで他の実証系が無い場合に「（実機未）」を付記）。
+import { TONE_CLASS, badgeTextWithEvidenceSuffix } from "../lib/derive.mjs";
+
+interface Props {
+  badge?: { text: string; tone: string } | null;
+  evidence?: string[];
+}
+
+const { badge, evidence = [] } = Astro.props;
+const text = badge ? badgeTextWithEvidenceSuffix(badge.text, evidence) : "";
+const toneClass = badge ? TONE_CLASS[badge.tone] || "badge-mute" : "";
+---
+
+{
+  badge && (
+    <span class={`badge ${toneClass}`}>
+      {text}
+    </span>
+  )
+}
