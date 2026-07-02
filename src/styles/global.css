@@ -17,7 +17,7 @@
   --c-accent-hover: #3a48b0;
   --c-accent-fg: #ffffff;
   --c-accent-soft: #e9ecfb;
-  --c-ok: #17845a;
+  --c-ok: #146a48; /* 独立レビュー是正: 元#17845aはbadge-okが4.095:1でWCAG AA本文基準(4.5:1)未達だったため、5.765:1になるよう調整 */
   --c-ok-soft: #e2f4ea;
   --c-warn: #8f6508;
   --c-warn-soft: #f9f0d8;
