@@ -4,18 +4,32 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: "#faf8f4",
-        card: "#ffffff",
-        fg: "#2b2622",
-        muted: "#8a817a",
-        line: "#e6e0d8",
-        accent: "#b08968",
-        ok: "#2e7d52",
-        warn: "#d9a441",
-        bad: "#b00020",
-        info: "#3a6ea5",
-        upd: "#2f6f9f",
-        updbg: "#eaf3fa",
+        bg: "var(--c-bg)",
+        card: "var(--c-card)",
+        surface: "var(--c-surface)",
+        fg: "var(--c-fg)",
+        muted: "var(--c-muted)",
+        line: "var(--c-line)",
+        accent: {
+          DEFAULT: "var(--c-accent)",
+          hover: "var(--c-accent-hover)",
+          fg: "var(--c-accent-fg)",
+          soft: "var(--c-accent-soft)",
+        },
+        ok: { DEFAULT: "var(--c-ok)", soft: "var(--c-ok-soft)" },
+        warn: { DEFAULT: "var(--c-warn)", soft: "var(--c-warn-soft)" },
+        bad: { DEFAULT: "var(--c-bad)", soft: "var(--c-bad-soft)" },
+        info: { DEFAULT: "var(--c-info)", soft: "var(--c-info-soft)" },
+        lane: { design: "var(--c-lane-design)", eng: "var(--c-lane-eng)" },
+        // 案Aのトークンセットに upd/updbg は無いため、既存コンポーネント
+        // （badge-upd 等）が前提にする旧トークン名を後方互換で残す
+        // （意味的に近い accent へエイリアス）。
+        upd: "var(--c-accent)",
+        updbg: "var(--c-accent-soft)",
+      },
+      boxShadow: {
+        card: "var(--sh-card)",
+        "card-hover": "var(--sh-card-hover)",
       },
       fontFamily: {
         sans: [

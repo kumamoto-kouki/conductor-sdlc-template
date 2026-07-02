@@ -18,10 +18,10 @@ const { persona } = Astro.props;
 
 const wrapperClass =
   persona.status === "human"
-    ? "flex gap-2.5 rounded-xl bg-[#fbf3e9] p-2.5 ring-2 ring-accent"
+    ? "flex gap-2.5 rounded-xl bg-accent-soft p-2.5 ring-2 ring-accent"
     : persona.status === "active"
       ? "flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-line/60"
-      : "flex gap-2.5 rounded-xl border border-dashed border-[#7fa8cc] bg-[#f4f8fc] p-2.5";
+      : "flex gap-2.5 rounded-xl border border-dashed border-info bg-info-soft p-2.5";
 
 const emojiClass =
   persona.status === "candidate"
@@ -36,7 +36,7 @@ const emojiClass =
       {persona.name}
       {persona.badge && <Badge badge={persona.badge} />}
     </div>
-    <div class="text-xs text-[#6f4e37]">{persona.role}</div>
+    <div class="text-xs text-muted">{persona.role}</div>
     <div class="mt-0.5 text-[11px] text-muted">{persona.desc}</div>
   </div>
 </div>

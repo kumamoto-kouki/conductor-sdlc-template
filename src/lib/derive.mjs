@@ -11,7 +11,10 @@ export const TONE_CLASS = {
   upd: "badge-upd",
 };
 
-export const LANE_COLOR = { design: "#b08968", eng: "#6a8caf" };
+export const LANE_COLOR = {
+  design: "var(--c-lane-design)",
+  eng: "var(--c-lane-eng)",
+};
 
 // 検証状態モデル（evidence）: 受理の裏付け種別。badge text はここから自動生成し、
 // 手書きで個別管理しない（二重管理の再発防止・.kiro/steering/operations.md 参照）。

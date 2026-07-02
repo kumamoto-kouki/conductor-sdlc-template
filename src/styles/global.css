@@ -2,9 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
+/* デザインリファイン案A「Indigo / Cool Slate」のトークン（docs/design-brief.md への
+   claude.ai/design 提案そのもの。改変せず適用）。ライト/ダーク両方を prefers-color-scheme
+   で自動切替（トグルUI無し）。 */
+:root {
+  color-scheme: light dark;
+  --c-bg: #f5f7fb; /* 背景 */
+  --c-card: #ffffff; /* カード背景 */
+  --c-surface: #eef1f7; /* インセット面（カンバン列・進捗バー地） */
+  --c-fg: #1c2333; /* 本文 */
+  --c-muted: #5b667d; /* 補助文字 */
+  --c-line: #e2e7f0; /* 罫線 */
+  --c-accent: #4655c4; /* アクセント */
+  --c-accent-hover: #3a48b0;
+  --c-accent-fg: #ffffff;
+  --c-accent-soft: #e9ecfb;
+  --c-ok: #17845a;
+  --c-ok-soft: #e2f4ea;
+  --c-warn: #8f6508;
+  --c-warn-soft: #f9f0d8;
+  --c-bad: #c11b30;
+  --c-bad-soft: #fbe8ea;
+  --c-info: #2563c9;
+  --c-info-soft: #e7effb;
+  --c-lane-design: #7452c9;
+  --c-lane-eng: #0c7f92;
+  --sh-card:
+    0 1px 2px rgba(16, 24, 40, 0.05), 0 4px 14px rgba(16, 24, 40, 0.06);
+  --sh-card-hover:
+    0 2px 4px rgba(16, 24, 40, 0.06), 0 10px 24px rgba(16, 24, 40, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-bg: #0e1220;
+    --c-card: #171d2f;
+    --c-surface: #1e2539;
+    --c-fg: #e7eaf4;
+    --c-muted: #9aa4bc;
+    --c-line: #2b3450;
+    --c-accent: #97a3f6;
+    --c-accent-hover: #aeb8f8;
+    --c-accent-fg: #10142a;
+    --c-accent-soft: #252e57;
+    --c-ok: #53cd92;
+    --c-ok-soft: #15382a;
+    --c-warn: #e3b34f;
+    --c-warn-soft: #3a2f14;
+    --c-bad: #f4808d;
+    --c-bad-soft: #431c23;
+    --c-info: #74abf8;
+    --c-info-soft: #172c4e;
+    --c-lane-design: #b09af2;
+    --c-lane-eng: #53c6da;
+    --sh-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 18px rgba(0, 0, 0, 0.3);
+    --sh-card-hover:
+      0 2px 4px rgba(0, 0, 0, 0.4), 0 12px 28px rgba(0, 0, 0, 0.45);
+  }
+}
+
 /* dashboard/dashboard-template.html の <style type="text/tailwindcss"> から移植。
    Tailwind v4 CDN の @theme（CSS変数）は v3 の tailwind.config.mjs の
-   theme.extend.colors へ移し、CSS変数参照（var(--color-*)）は固定値に置換した。 */
+   theme.extend.colors へ移し、CSS変数参照（var(--color-*)）は固定値に置換した。
+   （案A適用後は固定値でなく上記 CSS 変数（トークン）参照へ揃えている。） */
 
 @layer base {
   body {
@@ -12,7 +72,7 @@
     line-height: 1.65;
     background-image: radial-gradient(
       1200px 600px at 100% -10%,
-      #f3ece1 0%,
+      var(--c-accent-soft) 0%,
       transparent 60%
     );
   }
@@ -32,7 +92,7 @@
   }
   code {
     @apply rounded-md px-1.5 py-0.5 text-xs;
-    background: #efe9e0;
+    background: var(--c-surface);
   }
   table {
     @apply w-full overflow-hidden text-[13px];
@@ -41,12 +101,12 @@
   th {
     @apply text-left font-semibold text-muted;
     padding: 9px 10px;
-    border-bottom: 1px solid #e6e0d8;
+    border-bottom: 1px solid var(--c-line);
   }
   td {
     @apply text-left;
     padding: 9px 10px;
-    border-bottom: 1px solid #e6e0d8;
+    border-bottom: 1px solid var(--c-line);
   }
   tr:last-child td {
     border-bottom: 0;
@@ -60,41 +120,62 @@
   /* ヒーロー: アクセントのグラデーション帯 */
   .hero {
     @apply mb-2 rounded-2xl px-6 py-7 text-white shadow-lg;
-    background: linear-gradient(135deg, #b9926e 0%, #8f6b4e 100%);
+    background: linear-gradient(
+      135deg,
+      var(--c-accent) 0%,
+      var(--c-accent-hover) 100%
+    );
   }
-  /* カード: 細いリング＋ソフトシャドウ＋ホバーで浮く */
+  /* カード: 案A「Indigo / Cool Slate」の仕様（ソフトシャドウ＋ホバーで浮く＋focus-within） */
   .card {
-    @apply rounded-2xl bg-card p-5 shadow-sm ring-1 ring-line/70 transition duration-200;
+    background: var(--c-card);
+    border-radius: 16px;
+    padding: 22px 24px;
+    box-shadow: var(--sh-card);
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
   }
   .card:hover {
-    @apply -translate-y-0.5 shadow-md;
+    transform: translateY(-2px);
+    box-shadow: var(--sh-card-hover);
+  }
+  .card:focus-within {
+    box-shadow:
+      0 0 0 3px var(--c-accent-soft),
+      var(--sh-card);
   }
   .card-updated {
-    @apply border-l-4 ring-0;
-    border-left-color: #2f6f9f;
-    background: linear-gradient(92deg, #eaf3fa, #ffffff 55%);
+    @apply border-l-4;
+    border-left-color: var(--c-accent);
+    background: linear-gradient(92deg, var(--c-accent-soft), var(--c-card) 55%);
   }
   .badge {
-    @apply inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold leading-none text-white shadow-sm ring-1 ring-black/5;
+    @apply inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold leading-none;
   }
   .badge-ok {
-    @apply bg-ok;
+    background: var(--c-ok-soft);
+    color: var(--c-ok);
   }
   .badge-bad {
-    @apply bg-bad;
+    background: var(--c-bad-soft);
+    color: var(--c-bad);
   }
   .badge-mute {
-    @apply bg-muted;
+    background: var(--c-surface);
+    color: var(--c-muted);
   }
   .badge-info {
-    @apply bg-info;
+    background: var(--c-info-soft);
+    color: var(--c-info);
   }
   .badge-warn {
-    @apply bg-warn;
-    color: #3a2c00;
+    background: var(--c-warn-soft);
+    color: var(--c-warn);
   }
   .badge-upd {
-    @apply bg-upd;
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
   }
   .note {
     @apply text-xs font-normal text-muted;
@@ -103,17 +184,23 @@
     @apply mt-1 text-xs leading-relaxed text-muted;
   }
   .kpi {
-    @apply text-4xl font-extrabold tracking-tight;
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--c-fg);
   }
   .kpi small {
     @apply ml-1 align-middle text-xs font-medium text-muted;
   }
   .bar {
-    @apply mt-1.5 h-2 overflow-hidden rounded-full bg-line;
+    @apply mt-1.5 overflow-hidden rounded-full;
+    height: 6px;
+    background: var(--c-surface);
   }
   .bar > span {
     @apply block h-full rounded-full;
-    background: linear-gradient(90deg, #b08968, #caa988);
+    background: var(--c-accent);
   }
   .legend {
     @apply flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted;
@@ -122,12 +209,16 @@
     @apply inline-flex items-center gap-1.5;
   }
   .changelog {
-    @apply mt-5 rounded-2xl p-5 shadow-sm ring-1 ring-[#cfe2f0];
-    background: linear-gradient(180deg, #eef6fc, #f8fbfe);
+    @apply mt-5 rounded-2xl p-5 shadow-sm ring-1 ring-[var(--c-accent-soft)];
+    background: linear-gradient(
+      180deg,
+      var(--c-accent-soft),
+      var(--c-card) 70%
+    );
   }
   .changelog h2 {
     @apply m-0 mb-2 p-0 text-base;
-    color: #2f6f9f;
+    color: var(--c-accent);
   }
   .changelog h2::before {
     content: none;
@@ -149,7 +240,7 @@
   }
   .l-tier {
     @apply border-l-4 pl-3;
-    border-color: #6a8caf;
+    border-color: var(--c-info);
   }
   .glossary {
     @apply m-0 text-[13px];
@@ -162,11 +253,11 @@
   }
   .glossary dd {
     @apply mt-0.5 ml-0;
-    color: #5b534c;
+    color: var(--c-muted);
   }
   .foot {
     @apply mt-10 pt-3 text-xs text-muted;
-    border-top: 1px solid #e6e0d8;
+    border-top: 1px solid var(--c-line);
   }
   /* 折りたたみセクション（参照・詳細系をたたんで容量圧縮） */
   details.fold {
@@ -194,7 +285,11 @@
   /* 大区分の見出し（進捗報告 / プロジェクト概要） */
   h2.part {
     @apply mt-12 mb-5 rounded-xl px-4 py-2.5 text-lg text-white shadow-sm;
-    background: linear-gradient(135deg, #b9926e 0%, #8f6b4e 100%);
+    background: linear-gradient(
+      135deg,
+      var(--c-accent) 0%,
+      var(--c-accent-hover) 100%
+    );
   }
   h2.part:first-of-type {
     @apply mt-6;

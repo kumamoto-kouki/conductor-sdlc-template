@@ -12,10 +12,12 @@ export const servicesDiagram = `flowchart LR
   GH -. "clone / pull" .-> LOCAL
   GATE -.-> LOCAL
 
-  classDef cdn fill:#eaf3fa,stroke:#2f6f9f;
-  classDef local fill:#fff,stroke:#b08968,stroke-width:2px;
-  classDef gh fill:#f3f1ee,stroke:#2b2622;
-  classDef gate fill:#fff,stroke:#b00020,color:#b00020;
+  %% Mermaid の classDef は CSS の var() を解釈できないため、案Aトークンのライトモード
+  %% 相当値を直接埋め込む（全体の背景・文字・線色は themeVariables 側で自動追随）。
+  classDef cdn fill:#e7effb,stroke:#2563c9,color:#1c2333;
+  classDef local fill:#ffffff,stroke:#4655c4,stroke-width:2px,color:#1c2333;
+  classDef gh fill:#eef1f7,stroke:#1c2333,color:#1c2333;
+  classDef gate fill:#ffffff,stroke:#c11b30,color:#c11b30;
   class CDN cdn
   class LOCAL local
   class GH gh

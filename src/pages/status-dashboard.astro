@@ -57,7 +57,7 @@ const inProgressFootnote = data.board.lanes.inProgress[0]?.footnote;
       </header>
 
       <div
-        style="margin: 12px 0; padding: 10px 14px; border: 1px dashed #b08968; border-radius: 10px; background: #fbf3e9; font-size: 13px; color: #6f4e37;"
+        style="margin: 12px 0; padding: 10px 14px; border: 1px dashed var(--c-accent); border-radius: 10px; background: var(--c-accent-soft); font-size: 13px; color: var(--c-accent);"
       >
         <b>📋 これはテンプレートのダッシュボードです。</b>
         構造（見積もり・作業ボード＝カンバン・節目・機能ごとの状態・KPI・運用パネル・体制図＝Mermaid＋フェーズ別ツリー・PDCA・用語集・変更履歴）を再利用してください。<b>中の数値・タスク・節目・更新履歴は、この手法を確立した実プロジェクトの「例」</b>です。あなたのプロジェクトの内容に差し替えてください。<b>体制図のペルソナ（統括・運用・Engリーダー ほか）はこの手法の標準キャスト</b>なのでそのまま使えます（<code>.kiro/steering/role-catalog.md</code>）。
@@ -91,10 +91,10 @@ const inProgressFootnote = data.board.lanes.inProgress[0]?.footnote;
           </span>
           <span class="text-xs text-muted">凡例:</span>
           <span class="inline-flex items-center gap-1 text-xs text-muted"
-            ><span class="h-3 w-3 rounded" style="background: #b08968"></span> デザイン</span
+            ><span class="h-3 w-3 rounded" style="background: var(--c-lane-design)"></span> デザイン</span
           >
           <span class="inline-flex items-center gap-1 text-xs text-muted"
-            ><span class="h-3 w-3 rounded" style="background: #6a8caf"></span> エンジニア</span
+            ><span class="h-3 w-3 rounded" style="background: var(--c-lane-eng)"></span> エンジニア</span
           >
           <span class="text-xs text-muted">🔒 人手待ち</span>
           <span class="text-xs text-muted">~Xh＝見積もり時間（参考値）</span>
@@ -114,35 +114,35 @@ const inProgressFootnote = data.board.lanes.inProgress[0]?.footnote;
         <div class="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
           <BoardColumn
             title="⏳ 待ち"
-            style="background: #ece7df; color: #6f675f"
+            style="background: var(--c-surface); color: var(--c-muted)"
             items={data.board.lanes.waiting}
             size="sm"
           />
           <BoardColumn
             title="🔨 進行中"
-            style="background: #fbf3e0; color: #7a5b12"
+            style="background: var(--c-warn-soft); color: var(--c-warn)"
             items={data.board.lanes.inProgress}
             size="sm"
             footnote={inProgressFootnote}
           />
           <BoardColumn
             title="🔍 レビュー中"
-            style="background: #e9f0f7; color: #2c5680"
+            style="background: var(--c-info-soft); color: var(--c-info)"
             items={data.board.lanes.review}
             size="sm"
           />
           <BoardColumn
             title="✅ 完了・受理"
-            style="background: #e4f0ea; color: #2e7d52"
+            style="background: var(--c-ok-soft); color: var(--c-ok)"
             items={data.board.lanes.done}
             size="md"
           />
         </div>
         <div class="mt-3 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
-          <div class="rounded-lg bg-[#f4efe7] px-3 py-2">
+          <div class="rounded-lg bg-surface px-3 py-2">
             <b>次の候補</b>：{data.board.nextCandidates}
           </div>
-          <div class="rounded-lg bg-[#f4efe7] px-3 py-2 text-muted">
+          <div class="rounded-lg bg-surface px-3 py-2 text-muted">
             <b>繰越</b>：{data.board.carryover}
           </div>
         </div>
@@ -318,14 +318,23 @@ const inProgressFootnote = data.board.lanes.inProgress[0]?.footnote;
     -->
     <script src="vendor/mermaid.min.js" is:inline></script>
     <script is:inline>
+      // 案A「Indigo / Cool Slate」トークンとの連携。Mermaid は生の CSS 変数文字列を
+      // 解釈できないため getComputedStyle で計算値へ解決してから渡す
+      // （ライト/ダークどちらで読み込まれても :root の現在値に自動追随する）。
+      function css(varName) {
+        return getComputedStyle(document.documentElement)
+          .getPropertyValue(varName)
+          .trim();
+      }
       window.mermaid.initialize({
         startOnLoad: false,
         theme: "base",
         themeVariables: {
-          primaryColor: "#fbf3e9",
-          primaryBorderColor: "#b08968",
-          primaryTextColor: "#2b2622",
-          lineColor: "#d6cabb",
+          primaryColor: css("--c-card"),
+          primaryTextColor: css("--c-fg"),
+          primaryBorderColor: css("--c-line"),
+          lineColor: css("--c-muted"),
+          clusterBkg: css("--c-surface"),
           fontFamily:
             "system-ui, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif",
         },
