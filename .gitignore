@@ -2,6 +2,7 @@
 node_modules/
 dist/
 target/
+.astro/
 
 # オーケストレーション作業（ローカル観測専用）
 .claude/worktrees/

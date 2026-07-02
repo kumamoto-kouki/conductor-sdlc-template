@@ -1,0 +1,20 @@
+{
+  "name": "conductor-sdlc-template-dashboard",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Astro ベースの開発ダッシュボード（dashboard/status.json を唯一の真実としてビルド時に静的HTML化する）",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.0.0",
+    "@astrojs/tailwind": "^5.1.0",
+    "astro": "^5.0.0",
+    "mermaid": "^11.4.0",
+    "tailwindcss": "^3.4.0",
+    "zod": "^3.23.0"
+  }
+}
