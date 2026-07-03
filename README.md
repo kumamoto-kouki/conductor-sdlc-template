@@ -21,7 +21,7 @@
 2. **プロダクトを記入**: `product.md`・`tech.md`・`structure.md` を埋める（`/kiro-steering` で対話生成してもよい）。
 3. **起動チェックリスト**（運用パラメータは最初に確定する。後付けにすると「未定義のまま進めてドリフト」の温床になる＝実プロジェクトでの反省）：
    - [ ] `product.md`・`tech.md`・`structure.md` を記入した（`/kiro-steering` で対話生成も可）
-   - [ ] **配役を1度確定**：`role-catalog.md` の標準キャスト（統括=統括／Engリーダー・Designリーダー=レーンリーダー／運用=運用／実装BE・実装FE・デザイン実装=Maker／EngRev・デザインRev=Checker／QA=QA）から、今回動かす役を選ぶ。候補ロスターは必要フェーズで投入
+   - [ ] **規模プリセット（S/M/L）を選んでから配役を確定**：`role-catalog.md` の「規模別プリセット」で S（小規模・実験）／M（標準）／L（大規模）のどれかを選び、標準キャスト（統括=統括／Engリーダー・Designリーダー=レーンリーダー／運用=運用／実装BE・実装FE・デザイン実装=Maker／EngRev・デザインRev=Checker／QA=QA）から今回動かす役を選ぶ。候補ロスターは必要フェーズで投入。Maker≠Checker（規律C）はプリセットに関わらず不変
    - [ ] **運用パラメータを確定**：レビュー中の WIP 上限（既定 3）／整合の実施＝統括・担当＝運用／ID 体系（M＝節目専用・K＝繰越・D＝デザイン・V＝目視、節目 ID とタスク ID を衝突させない）
    - [ ] `npm install` を実行した（初回のみ。Astro ＋ Mermaid ＋ Tailwind 等の依存を取得）
    - [ ] `dashboard/status.json` を初期化した（ダッシュボードをデータ駆動で運用する場合。`dashboard/status-dashboard.html` は Astro のビルド生成物なので**手編集しない**）
