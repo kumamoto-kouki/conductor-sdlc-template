@@ -33,6 +33,7 @@ flowchart LR
 - **ダッシュボードは生成物・手編集しない**（2026-07-02 追加・PO、2026-07-02 Astro移行・PO）：`dashboard/status-dashboard.html` は `dashboard/status.json` を唯一の真実として Astro（`src/pages/status-dashboard.astro` ＋ `src/components/` ＋ `src/content/*.mdx`）がビルド時に生成する静的HTML（`docs/` はドキュメント専用に分離し、ダッシュボードのデータ・ソース・生成物一式は `dashboard/` と `src/` に集約）。状態更新は `dashboard/status.json` のみを編集し、`npm install`（初回のみ）＋ `npm run build` で都度再生成する（ブラウザ実行時レンダリングは `file://` で JS 実行が制限される環境があり実際に発生したため撤去。生成物なら「手編集しない」規約も強制しやすく、git diff でレンダリング結果そのものを見れる）。**実施＝👨🏼‍💼 統括**（チケット移動と同一コミットで json 更新＋ビルドを行う）／**担当＝👩🏼‍💼 運用**（`status.json`＝実態になっているかを監視）。
 - **見積もり（⑤）は独立データを持たない**：`status.json` に `estimates[]` のような別配列は作らない。⑤見積もりは `milestones[]` の `difficulty`/`estimateH`/`progress` から算出する派生値（全体進捗% = Σ(estimateH×progress) / Σ estimateH）。節目と見積もりが別々の数値を持つと食い違う事故（KPI 77% vs 内訳表 85% 等）の再発防止であり、二重管理を避けるための意図的な設計。
 - **検証状態モデル（evidence）**（2026-07-02 追加・PO）：節目・spec 表の達成表示には**自動テスト／実機目視／実API疎通／PO判断**のいずれかの裏付け種別を明示する（`status.json` の `milestones[]`/`specs[]` の `evidence: string[]`）。実証ログが無ければ「無い」と正直に書く（`po-signoff` のみで他の実証系が無い場合は badge に「実機未」を明記し、実装完了と実機・実API確認の差を曖昧にしない）。badge text は `evidence` から自動生成し、手書きの個別管理はしない（二重管理の再発防止）。
+- **この整合設計はオントロジー的構造**（2026-07-03 追加・PO）：status.json＝エンティティ＋型付き属性、派生計算＝関係の明示化、整合チェックリスト＝制約。ガードレール（deny）・独立レビューも含め、エージェント信頼性の外部知見との対応と、プロジェクトが大規模化した際のナレッジグラフ導入判断は `.claude/playbooks/knowledge-graph.md` を参照。
 
 ## 開示の健全性（心理的安全性）
 
