@@ -2,9 +2,12 @@
 # テンプレート一式を新規プロジェクトディレクトリへ複製し、git初期化・プレースホルダ置換までを行う。
 #   使い方: scripts/init-project.sh <target-dir> [project-name]
 #
-# 除外（生成物・ローカル専用ディレクトリはコピーしない）:
+# 除外（ローカル専用・再生成される中間物のみコピーしない）:
 #   .git / node_modules / .orchestration / .claude/worktrees /
-#   dashboard/_astro / dashboard/vendor / public/vendor
+#   .claude/settings.local.json / .astro / public/vendor
+# 注意: dashboard/_astro と dashboard/vendor は除外しない。テンプレが git コミット済みの
+# 配布資産であり、これを除外すると npm install 前のダッシュボード表示が CSS/mermaid
+# 参照切れになる（独立レビュー指摘 F1）。
 #
 # [project-name] を指定すると、README.md 等の「（プロジェクト名）」プレースホルダを置換する。
 # 複製先には VERSION の内容を TEMPLATE_VERSION として記録する（派生元バージョンの追跡。
@@ -36,8 +39,8 @@ rsync -a \
   --exclude='node_modules/' \
   --exclude='.orchestration/' \
   --exclude='.claude/worktrees/' \
-  --exclude='dashboard/_astro/' \
-  --exclude='dashboard/vendor/' \
+  --exclude='.claude/settings.local.json' \
+  --exclude='.astro/' \
   --exclude='public/vendor/' \
   "$ROOT"/ "$TARGET"/
 
@@ -62,13 +65,15 @@ if [ -n "$PROJECT_NAME" ]; then
   done
 fi
 
-# git 初期化 + 初回コミット
+# git 初期化 + 初回コミット（user.name/email 未設定の環境でも失敗しないようフォールバックを渡す）
 (
   cd "$TARGET"
   git init -q
   git add -A
   base_version="$(cat "$TARGET/TEMPLATE_VERSION" 2>/dev/null || echo unknown)"
-  git commit -q -m "chore: initialize project from conductor-sdlc-template (base VERSION ${base_version})"
+  git -c user.name="$(git config user.name 2>/dev/null || echo project-init)" \
+    -c user.email="$(git config user.email 2>/dev/null || echo project-init@local)" \
+    commit -q -m "chore: initialize project from conductor-sdlc-template (base VERSION ${base_version})"
 )
 
 echo ""
