@@ -4,20 +4,22 @@
 
 ## 何が入っているか
 
-| 要素                   | 場所                                                   | 内容                                                                                                                                  |
-| ---------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| SDLC エンジン          | `.claude/skills/kiro-*`                                | Discovery→Requirements→Design→Tasks→Impl→Review→Verify の 17 スキル                                                                   |
-| 体制・運用（正本）     | `.kiro/steering/`                                      | `orchestration.md`（中核モデル）／`operations.md`（運用統治）／`role-catalog.md`（配役）／`review-checklists.md`／`README.md`（索引） |
-| 判断基準（lazy）       | `.claude/rules/`                                       | パス連動で必要時だけ読む規約。実例は `_examples/`                                                                                     |
-| 振り返り               | `.claude/reports/`                                     | 実装後の学びを記録し正本へ格上げ                                                                                                      |
-| ガードレール           | `.claude/settings.json`                                | 破壊的操作の deny・作業系の allow                                                                                                     |
-| 並行開発の道具         | `scripts/`                                             | `swarm-up.sh`／`swarm-down.sh`／`dev-dashboard.sh`                                                                                    |
-| 可視化                 | `dashboard/`＋`src/`（Astro）                          | `status.json`（唯一の真実）＋Astro（`npm install`＋`npm run build`）でHTML生成。`docs/` はドキュメント専用に分離                      |
-| プロダクト記憶（雛形） | `.kiro/steering/product.md`・`tech.md`・`structure.md` | 空テンプレ（記入して使う）                                                                                                            |
+| 要素                   | 場所                                                   | 内容                                                                                                                                                        |
+| ---------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SDLC エンジン          | `.claude/skills/kiro-*`                                | Discovery→Requirements→Design→Tasks→Impl→Review→Verify の 17 スキル                                                                                         |
+| 体制・運用（正本）     | `.kiro/steering/`                                      | `orchestration.md`（中核モデル）／`operations.md`（運用統治）／`role-catalog.md`（配役）／`review-checklists.md`／`README.md`（索引）                       |
+| 判断基準（lazy）       | `.claude/rules/`                                       | パス連動で必要時だけ読む規約。実例は `_examples/`                                                                                                           |
+| プレイブック           | `.claude/playbooks/`                                   | `delegation.md`（委譲雛形）／`knowledge-graph.md`（大規模化判断）／`full-sdlc.md`（超上流〜保守運用マッピング）／`template-feedback.md`（テンプレへの還流） |
+| 振り返り               | `.claude/reports/`                                     | 実装後の学びを記録し正本へ格上げ                                                                                                                            |
+| ガードレール           | `.claude/settings.json`                                | 破壊的操作の deny・作業系の allow                                                                                                                           |
+| 並行開発の道具         | `scripts/`                                             | `swarm-up.sh`／`swarm-down.sh`／`dev-dashboard.sh`                                                                                                          |
+| セットアップ・還流     | `scripts/`・`VERSION`                                  | `init-project.sh`（複製・初期化）／`collect-template-feedback.sh`（派生プロジェクトからの知見収集）                                                         |
+| 可視化                 | `dashboard/`＋`src/`（Astro）                          | `status.json`（唯一の真実）＋Astro（`npm install`＋`npm run build`）でHTML生成。`docs/` はドキュメント専用に分離                                            |
+| プロダクト記憶（雛形） | `.kiro/steering/product.md`・`tech.md`・`structure.md` | 空テンプレ（記入して使う）                                                                                                                                  |
 
 ## 始め方（新規プロジェクト）
 
-1. **複製**: このディレクトリを新プロジェクト名でコピーする。
+1. **複製**: `scripts/init-project.sh <複製先パス> [プロジェクト名]` を実行する（手動コピーでも可）。除外・プレースホルダ置換・git初期化・`TEMPLATE_VERSION` 記録まで自動で行う。GitHub で公開する場合は、テンプレートリポジトリ化（`Use this template` ボタン）も複製手段の選択肢になる。
 2. **プロダクトを記入**: `product.md`・`tech.md`・`structure.md` を埋める（`/kiro-steering` で対話生成してもよい）。
 3. **起動チェックリスト**（運用パラメータは最初に確定する。後付けにすると「未定義のまま進めてドリフト」の温床になる＝実プロジェクトでの反省）：
    - [ ] `product.md`・`tech.md`・`structure.md` を記入した（`/kiro-steering` で対話生成も可）
