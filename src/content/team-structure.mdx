@@ -197,7 +197,7 @@ export const phaseTrees = [
 
 <div class="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
   {phaseTrees.map((phase) => (
-    <div class={phase.current ? "rounded-xl bg-accent-soft p-2.5 ring-2 ring-accent" : "rounded-xl bg-card p-2.5 ring-1 ring-line/60"}>
+    <div class={phase.current ? "rounded-xl bg-accent-soft p-2.5 ring-2 ring-accent" : "rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]"}>
       <div class="mb-1 flex items-center gap-2 text-[12px] font-bold">
         {phase.title}
         {phase.current && <span class="badge badge-bad">▶ いまここ</span>}

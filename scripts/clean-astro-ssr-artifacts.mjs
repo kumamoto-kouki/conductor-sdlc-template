@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // astro build の内部SSR専用アーティファクト（dashboard/manifest_*.mjs・chunks/・pages/・
-// _noop-middleware.mjs・noop-entrypoint.mjs・renderers.mjs）をビルド後に削除する。
+// _noop-middleware.mjs・noop-entrypoint.mjs・renderers.mjs・.prerender/）をビルド後に
+// 削除する。
 //
 // なぜ必要か: dashboard/ には status.json（唯一の真実・手編集される）が同居するため、
 // astro.config.mjs で Vite の emptyOutDir を無効化している（有効だと status.json ごと
@@ -13,6 +14,13 @@
 // 途中終了する場合）に manifest_*.mjs 等とは別名の内部ファイル
 // （_noop-middleware.mjs・noop-entrypoint.mjs・renderers.mjs）も残留することが
 // 判明したため、固定ファイル名としてリストに追加した（2026-07-02）。
+//
+// Astro 7 では SSR 内部バンドルの配置が outDir 直下ばら撒きから
+// dashboard/.prerender/ ディレクトリ1つへの集約に変わった。成功ビルドでは Astro
+// 自身が .prerender/ を消すが、ビルド途中で失敗（zod 検証エラー等）すると丸ごと
+// 残留することを Astro 7.0.6 移行時の失敗ビルド検証で確認したため、削除対象に
+// 追加した（2026-07-04）。旧レイアウトの項目も、過去ビルドの残骸を掃除できるよう
+// リストに残している。
 //
 // 使い方: astro build の直後に実行する（package.json の "build" スクリプト参照）。
 
@@ -33,7 +41,8 @@ let removed = 0;
 
 for (const entry of readdirSync(DASHBOARD_DIR)) {
   const isSsrManifest = /^manifest_.*\.mjs$/.test(entry);
-  const isSsrDir = entry === "chunks" || entry === "pages";
+  const isSsrDir =
+    entry === "chunks" || entry === "pages" || entry === ".prerender";
   const isFixedSsrFile = FIXED_SSR_FILE_NAMES.has(entry);
   if (!isSsrManifest && !isSsrDir && !isFixedSsrFile) continue;
 

@@ -1,6 +1,15 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind v4: @tailwind base/components/utilities は単一の @import に統合。
+   既存の tailwind.config.mjs（theme.extend のトークン）は @config 経由の
+   互換レイヤーでそのまま再利用する（設定の二重管理を避ける）。
+
+   source(none) + @source でクラス走査を src/ 配下だけに明示制限する。
+   Tailwind v4 の自動ソース検出は生成物の dashboard/status-dashboard.html まで
+   走査してしまい、「前回ビルドの HTML に含まれるクラスが今回の CSS に混入する」
+   自己参照ループでビルドが非決定的になることを Astro 7 移行時に実測で確認した
+   （src/ から消したはずの旧 !text-3xl 系クラスが CSS に残り続けた）。 */
+@import "tailwindcss" source(none);
+@source "../";
+@config "../../tailwind.config.mjs";
 
 /* デザインリファイン案A「Indigo / Cool Slate」のトークン（docs/design-brief.md への
    claude.ai/design 提案そのもの。改変せず適用）。ライト/ダーク両方を prefers-color-scheme
@@ -209,7 +218,7 @@
     @apply inline-flex items-center gap-1.5;
   }
   .changelog {
-    @apply mt-5 rounded-2xl p-5 shadow-sm ring-1 ring-[var(--c-accent-soft)];
+    @apply mt-5 rounded-2xl p-5 shadow-xs ring-1 ring-[var(--c-accent-soft)];
     background: linear-gradient(
       180deg,
       var(--c-accent-soft),
@@ -284,7 +293,7 @@
   }
   /* 大区分の見出し（進捗報告 / プロジェクト概要） */
   h2.part {
-    @apply mt-12 mb-5 rounded-xl px-4 py-2.5 text-lg text-white shadow-sm;
+    @apply mt-12 mb-5 rounded-xl px-4 py-2.5 text-lg text-white shadow-xs;
     background: linear-gradient(
       135deg,
       var(--c-accent) 0%,

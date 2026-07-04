@@ -18,13 +18,17 @@ const { value, label, note = "", tone = "accent", variant = "lg" } = Astro.props
 {
   variant === "lg" ? (
     <div>
-      <div class={`kpi !text-3xl text-${tone}`}>{value}</div>
+      <div class={`kpi text-3xl! text-${tone}`}>{value}</div>
       <div class="tag">{label}</div>
     </div>
   ) : (
     <div>
+      {/* {value} と <small> の間に空白を入れない: 視覚上の間隔は small 側の ml-1 が
+          担っており、Astro 5 の compressHTML はここの空白を除去していた。Astro 7 は
+          compressHTML: false 運用（astro.config.mjs 参照）のため、空白を書くと
+          そのまま出力されて既存の見た目より間隔が広がってしまう。 */}
       <div class={`kpi text-${tone}`}>
-        {value} <small>{label}</small>
+        {value}<small>{label}</small>
       </div>
       <div class="tag">{note}</div>
     </div>

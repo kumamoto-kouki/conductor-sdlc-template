@@ -3,8 +3,7 @@
 // コンポーネントへ渡す。旧 scripts/generate-dashboard.mjs + dashboard-template.html の
 // 置き換え（.kiro/steering/operations.md 参照）。
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 
 import "../styles/global.css";
 import { parseStatus } from "../lib/schema.mjs";
@@ -25,8 +24,14 @@ import PdcaPractice from "../content/pdca-practice.mdx";
 import AutonomyTiers from "../content/autonomy-tiers.mdx";
 import Glossary from "../content/glossary.mdx";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const STATUS_JSON_PATH = join(__dirname, "..", "..", "dashboard", "status.json");
+// __dirname 起点の相対パス（"../.."）は Astro のビルド内部で生成される SSR チャンクの
+// 配置階層に依存してしまい壊れやすい（Astro 7 で dashboard/.prerender/chunks/ という
+// 階層が追加され、以前の "2階層上がれば repo root" という前提が崩れ
+// dashboard/dashboard/status.json を読もうとして ENOENT になった＝実際に発生）。
+// astro build / astro dev はどちらもプロジェクトルートから起動される
+// （package.json の "build"/"dev" スクリプト参照）ため、process.cwd() で
+// リポジトリルートを取得すれば Astro の内部出力レイアウトに依存しない。
+const STATUS_JSON_PATH = join(process.cwd(), "dashboard", "status.json");
 const rawData = JSON.parse(readFileSync(STATUS_JSON_PATH, "utf8"));
 // status.json の必須フィールドが欠けている/範囲外の場合はここで明確に失敗する
 // （NaNの静かな漏出を避ける。.kiro/steering/operations.md の evidence モデル参照）。
@@ -51,7 +56,7 @@ const inProgressFootnote = data.board.lanes.inProgress[0]?.footnote;
         <div class="mt-1.5 text-[13px] text-white/85">
           スナップショット:
           <b class="font-bold text-white">{data.changelog[0].date}</b> ／ ブランチ
-          <code class="!bg-white/15 !text-white">{data.branch}</code> ／
+          <code class="bg-white/15! text-white!">{data.branch}</code> ／
           進め方: 計画→実行→確認→改善のくり返し（PDCA）で、AI が下書き・人が承認
         </div>
       </header>
@@ -71,7 +76,7 @@ const inProgressFootnote = data.board.lanes.inProgress[0]?.footnote;
       <!-- ===== 見積もり時間サマリー ===== -->
       <div class="card card-updated">
         <div class="mb-3 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <h3 class="!text-base">⏱ 見積もり時間（参考値）</h3>
+          <h3 class="text-base!">⏱ 見積もり時間（参考値）</h3>
           <span class="note">タスク数 × 難易度 × ボリュームから算出した概算。実時間ではなく目安です。</span>
         </div>
         <EstimateSummary data={data} />

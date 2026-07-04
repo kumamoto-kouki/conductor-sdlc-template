@@ -1,4 +1,9 @@
 /** @type {import('tailwindcss').Config} */
+// Tailwind v4 では本ファイルは src/styles/global.css の @config から互換レイヤーとして
+// 読み込まれる（theme.extend のトークン定義の正本）。クラス走査の対象はこの content
+// ではなく global.css の source(none) + @source "../" が決める点に注意（v4 は content
+// を尊重せず自動検出で生成物の dashboard/*.html まで走査し、ビルドが非決定になる
+// ことを実測したため明示制限している）。
 export default {
   content: ["./src/**/*.{astro,html,js,jsx,ts,tsx,md,mdx}"],
   theme: {
