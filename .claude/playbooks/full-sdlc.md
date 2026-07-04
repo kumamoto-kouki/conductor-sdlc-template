@@ -64,14 +64,22 @@ brief.md のセクションに厳密に一致しない場合（例：ステー�
 
 - **`status.json` 整合**：`operations.md` の移動時整合チェックリスト6項目（①ボード②節目③spec
   表④KPI⑤見積もり⑥更新履歴）を、チケット移動が無い節目でも定期的に流す（ドリフトの早期検出）。
-- **依存更新の棚卸し**：`package.json`／`Cargo.toml` 等の依存が古くなっていないか確認する
-  （破壊的変更を伴う更新は spec 化して `/kiro-spec-quick` で扱う。定常運用の直接パッチは軽微
-  修正に限る＝委譲規律 A の「軽微は例外」と同じ線引き）。
+- **依存更新の棚卸し（四半期ごと）**：`npm outdated` で `package.json` の依存（Astro／
+  Mermaid／Tailwind／zod 等）が古くなっていないか確認する。メジャーバージョンの更改が
+  あれば、`scripts/verify-dashboard.mjs`（`npm run verify`）をゲートに追随作業を行う
+  （決定性・実描画・失敗ビルド残留等の受理基準を通してから更新を確定させる。破壊的変更を
+  伴う更新は spec 化して `/kiro-spec-quick` で扱う。定常運用の直接パッチは軽微修正に限る＝
+  委譲規律 A の「軽微は例外」と同じ線引き）。
 - **`.claude/rules/` の GC**：`.claude/rules/README.md` の手入れ規約どおり、対応するコード/
   パターンが消えたルールを削除する。
 - **steering の陳腐化点検**：`.kiro/steering/*.md` が実態と乖離していないか（例：配役表に載って
   いない役が実際に動いている、規模プリセットが実態と合わなくなった等）を確認し、乖離があれば
   正本を更新する。
+- **検証ハーネス／pre-commitフックは整合チェックリストの機械化**：`scripts/verify-dashboard.mjs`
+  （`.claude/rules/dashboard-verification.md` の検証基準を1コマンドで実行）と
+  `.githooks/pre-commit`（ビルド入力変更時の再ビルド漏れ防止）は、上記「`status.json` 整合」
+  および `operations.md` の整合規約を毎回手作業で確認する代わりに機械で担保するもの。人手の
+  定期チェックを置き換えるのではなく、ドリフトを早期に検知する下地として併用する。
 
 ### 2. 障害対応
 
