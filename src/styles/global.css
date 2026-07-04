@@ -159,7 +159,13 @@
   h3 {
     @apply m-0 mb-2 flex flex-wrap items-center gap-1.5 text-sm font-bold;
   }
-  code {
+  /* インラインcode（本文中のチップ）専用。fencedコードブロック（shikiが
+     出力する pre.astro-code > code、および pre.mermaid-fallback 内の code）は
+     ここから除外する：pre 内部の code にまでチップ用の背景/パディングが波及すると、
+     shiki が pre 自身に付ける本来の配色（github-dark: bg #24292e / fg #e1e4e8、
+     11:1）の上に淡色背景が重なり「暗色ブロックの中に淡色チップ＋低コントラスト
+     文字」という表示崩れになる（2026-07-04 実機スクリーンショットで発見）。 */
+  :not(pre) > code {
     @apply rounded-md px-1.5 py-0.5 text-xs;
     background: var(--c-surface);
   }
