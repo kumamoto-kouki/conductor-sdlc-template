@@ -30,7 +30,7 @@
    - [ ] `git config core.hooksPath .githooks` を実行した（`scripts/init-project.sh` 経由の複製では自動設定済み。既存リポジトリへ後から導入した場合のみ手動実行が必要。dashboard/ のビルド入力変更時に生成物の再ビルド漏れをpre-commitで防ぐ）
 4. **Discovery→仕様**: `/kiro-discovery "アイデア"` → `/kiro-spec-quick <feature>`（または個別スキル）で `.kiro/specs/<feature>/` を作る。各フェーズは人間承認。
 5. **実装**: `/kiro-impl <feature>`。**規律A＝統括は実装せず、レーンリーダーの采配でワーカーが worktree 並行実装 → 独立レビューで受理**。
-6. **可視化**: `dashboard/status.json` を更新し `npm run build` で `dashboard/status-dashboard.html` を再生成して進行を映す。**状態遷移トリガー**（着手→進行中→レビュー中→完了）で実施=統括が同一コミットで json 更新＋ビルド、担当=運用が「json＝実態」を監視。
+6. **可視化**: `dashboard/status.json` を更新し `npm run build` で `dashboard/status-dashboard.html` を再生成して進行を映す。**状態遷移トリガー**（着手→進行中→レビュー中→完了）で実施=統括が同一コミットで json 更新＋ビルド、担当=運用が「json＝実態」を監視。**正式な閲覧は `npm run preview`（＝`scripts/serve-dashboard.sh`。Astro内蔵・追加依存ゼロ）でブラウザから開く**。`dashboard/status-dashboard.html` を file:// で直接開くこともできるが、その場合は Mermaid 図が表示されない（コア情報＝進捗・ボード・KPI 等のテキストは読める）フォールバック表示になる。
 7. **振り返り**: 節目で `.claude/reports/` に学びを残し、2 回目の判断は正本（steering／rules）へ格上げ。
 
 ## この手法の核（守るもの）

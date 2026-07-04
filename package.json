@@ -6,8 +6,9 @@
   "description": "Astro ベースの開発ダッシュボード（dashboard/status.json を唯一の真実としてビルド時に静的HTML化する）",
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/preclean-astro-output.mjs && node scripts/copy-mermaid-vendor.mjs && astro build && node scripts/relativize-asset-paths.mjs; s=$?; node scripts/clean-astro-ssr-artifacts.mjs; exit $s",
+    "build": "node scripts/preclean-astro-output.mjs && astro build && node scripts/relativize-asset-paths.mjs; s=$?; node scripts/clean-astro-ssr-artifacts.mjs; exit $s",
     "preview": "astro preview",
+    "serve": "bash scripts/serve-dashboard.sh",
     "verify": "node scripts/verify-dashboard.mjs"
   },
   "dependencies": {

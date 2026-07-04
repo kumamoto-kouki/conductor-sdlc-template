@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>（プロジェクト名） 開発ダッシュボード</title>
-  <link rel="stylesheet" href="_astro/status-dashboard.CJnOO96q.css"></head>
+  <link rel="stylesheet" href="_astro/status-dashboard.DfSdxj-O.css"></head>
   <body>
     <div class="wrap">
       <header class="hero">
@@ -917,35 +917,40 @@
     </div>
 
     <!--
-      Mermaid の読み込み・初期化はページで1回だけ行う（MermaidDiagram.astro は
-      <pre class="mermaid"> の描画のみ）。file:// で直接開いても動くよう、
-      ESM import ではなく mermaid の UMD ビルド（classic script・相対パス）を使う
-      （type="module" は file:// オリジンからのロードが CORS でブロックされるため。
-      詳細は scripts/copy-mermaid-vendor.mjs のコメント参照）。
+      正式な閲覧方式は npm run preview（Astro 内蔵サーバー）経由（PO決定・2026-07-04・
+      .claude/rules/dashboard-verification.md 参照）。この前提のもと Mermaid は
+      ESM import に戻し、Vite のコード分割で使う図種別（flowchart 系）のチャンクだけを
+      遅延取得させる（旧 UMD 一括バンドル dashboard/vendor/mermaid.min.js ≒3.5MB を撤去）。
+      読み込み・初期化はページで1回だけ行う（MermaidDiagram.astro は
+      <pre class="mermaid"> の描画のみ）。
+
+      file:// 直開きは正式閲覧のフォールバック（コア表示のみ・Mermaid描画は要求しない）。
+      Astro は下の（属性なし）<script> を1個の外部モジュールファイルへバンドルし
+      type="module" src="..." として出力する。file:// オリジンからの外部モジュール
+      スクリプトの取得はブラウザの CORS 制約でブロックされ、スクリプト本体は一切
+      実行されない（インラインの type="module" は本体取得が不要なため実行されてしまい
+      判定に使えない＝実際に試して確認済み）。この「外部モジュールが1行も実行され
+      ない」性質を逆手に取り、モジュール本体の先頭でフラグを立てることで
+      「モジュールが実行されたかどうか」を検知する（Mermaid本体の初期化完了を
+      待つものではない。import 文は他の文より先に評価されるため、モジュール
+      グラフの取得自体が失敗すればこの行も含め一切実行されない）。
     -->
-    <script src="vendor/mermaid.min.js"></script><script>
-      // 案A「Indigo / Cool Slate」トークンとの連携。Mermaid は生の CSS 変数文字列を
-      // 解釈できないため getComputedStyle で計算値へ解決してから渡す
-      // （ライト/ダークどちらで読み込まれても :root の現在値に自動追随する）。
-      function css(varName) {
-        return getComputedStyle(document.documentElement)
-          .getPropertyValue(varName)
-          .trim();
-      }
-      window.mermaid.initialize({
-        startOnLoad: false,
-        theme: "base",
-        themeVariables: {
-          primaryColor: css("--c-card"),
-          primaryTextColor: css("--c-fg"),
-          primaryBorderColor: css("--c-line"),
-          lineColor: css("--c-muted"),
-          clusterBkg: css("--c-surface"),
-          fontFamily:
-            "system-ui, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif",
-        },
-        flowchart: { htmlLabels: true, curve: "basis" },
+    <script>
+      // file:// 等で下のモジュールが実行されなかった場合、生の
+      // <pre class="mermaid">…コード…</pre> がテキストのまま崩れて見えるのを防ぎ、
+      // 控えめな案内プレースホルダーへ置き換える（要件: 壊れて見えないこと。
+      // Mermaid自体の描画は npm run preview に譲る）。
+      document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(() => {
+          if (document.documentElement.dataset.mermaidModuleRan === "1") return;
+          document
+            .querySelectorAll("pre.mermaid:not([data-processed])")
+            .forEach((el) => {
+              el.textContent =
+                "この図はサーバー閲覧（npm run preview）で表示されます。";
+              el.classList.add("mermaid-fallback");
+            });
+        }, 300);
       });
-      window.mermaid.run({ querySelector: ".mermaid" });
-    </script></body>
+    </script><script type="module" src="_astro/status-dashboard.astro_astro_type_script_index_0_lang.Ch9uHiwW.js"></script></body>
 </html>

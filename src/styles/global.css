@@ -309,4 +309,14 @@
   h2.part .note {
     @apply text-white/80;
   }
+  /* file:// フォールバック（Mermaidモジュールが実行できない環境向けの案内表示）。
+     生の図コードがそのまま見えて崩れることを防ぐ（.claude/rules/dashboard-verification.md
+     の file:// フォールバック要件参照）。正式閲覧（npm run preview）を促す。 */
+  pre.mermaid-fallback {
+    @apply rounded-lg border border-dashed px-3 py-2.5 text-xs whitespace-normal;
+    border-color: var(--c-line);
+    background: var(--c-surface);
+    color: var(--c-muted);
+    font-family: inherit;
+  }
 }

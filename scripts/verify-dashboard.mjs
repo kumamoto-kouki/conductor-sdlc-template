@@ -3,18 +3,19 @@
 //   使い方: node scripts/verify-dashboard.mjs   （または npm run verify）
 //
 // なぜ必要か: .claude/rules/dashboard-verification.md に定めた検証基準
-// （① file:// 直開きは不変条件 ② 見た目の変更は実描画で受理 ③「情報量を減らさない」は
-// 機械カウントで証明 ④ 失敗ビルド後の残留も検証対象）を、毎回手作業で確認していると
-// 抜け漏れる。このスクリプトは同基準を1コマンドで機械化し、CI・pre-commit・手動確認の
-// いずれからも同じ判定基準で回せるようにする。個々のチェックの「なぜ」は同ファイルを
-// 参照（各チェックの見出しコメントにも該当箇所を記す）。
+// （① 正式閲覧はサーバー経由（npm run preview）・file://はコア表示のフォールバック
+// ② 見た目の変更は実描画で受理（http＝正式閲覧相当／file://＝フォールバック確認の2段）
+// ③「情報量を減らさない」は機械カウントで証明 ④ 失敗ビルド後の残留も検証対象）を、
+// 毎回手作業で確認していると抜け漏れる。このスクリプトは同基準を1コマンドで機械化し、
+// CI・pre-commit・手動確認のいずれからも同じ判定基準で回せるようにする。個々の
+// チェックの「なぜ」は同ファイルを参照（各チェックの見出しコメントにも該当箇所を記す）。
 //
 // 依存パッケージなし（node標準のみ、既存スクリプトの作法を踏襲）。
 // 1つの失敗で止めず、すべてのチェックを実行してから合否をまとめて報告する
 // （個々の失敗の因果関係を1回のログで把握できるようにするため）。
 // ✅=合格 ❌=失敗（exit 1の原因） ⚠=要確認だが失敗扱いにしない ⏭=環境要因でスキップ。
 
-import { execSync, spawnSync } from "node:child_process";
+import { execSync, spawn, spawnSync } from "node:child_process";
 import {
   readFileSync,
   writeFileSync,
@@ -100,10 +101,15 @@ function diffHashTrees(a, b) {
 
 function stripComments(html) {
   // HTMLコメント（例: <!-- ... <pre class="mermaid"> の描画のみ ... --> という
-  // 説明文コメント）を先に除去してから正規表現で判定する。除去しないと、
-  // コメント本文に含まれる説明文の中の文字列を実要素と誤検出する
-  // （status-dashboard.html 末尾の Mermaid 読み込み説明コメントで実際に起きた）。
-  return html.replace(/<!--[\s\S]*?-->/g, "");
+  // 説明文コメント）と <script>...</script> の本文を先に除去してから正規表現で
+  // 判定する。除去しないと、コメントやスクリプト内の説明文・文字列リテラルに
+  // 含まれる文字列を実要素と誤検出する（status-dashboard.html 末尾の Mermaid
+  // 読み込み説明コメントで実際に起きた。file:// フォールバック用スクリプトの
+  // コード中に例示として書いた `<pre class="mermaid">…コード…</pre>` という
+  // 文字列が、未処理のMermaid要素として誤検出された実績もある）。
+  return html
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/g, "");
 }
 
 function countElements(html) {
@@ -180,9 +186,19 @@ function checkCommitIntegrity() {
   }
 }
 
-// ---- 3. 実描画スモーク: headless chromium で file:// を開きMermaidの実描画を確認 ----
-// (dashboard-verification.md: 「見た目に関わる変更は実ブラウザ描画で受理する。構文チェックや
-//  DOM存在確認は『表示されるが壊れている』を2回すり抜けた実績がある」)
+// ---- 3. 実描画スモーク（2段構え） ----
+// (dashboard-verification.md: 「正式閲覧はサーバー経由（npm run preview）。file://は
+//  コア表示のフォールバック」「実描画検証は2段構え。①http検証（正式閲覧相当）
+//  ②file://検証（フォールバック確認）」)
+//
+// 3a. http検証: astro preview を子プロセスで起動し、実際のURLを headless chromium で
+//     開いてMermaidの実描画（正式閲覧での見え方）を確認する。
+// 3b. file://検証: file:// で開いた際に CSS が適用されていること、および
+//     Mermaidモジュールが実行できない環境向けのプレースホルダーが生コードの露出を
+//     防いでいることを確認する（Mermaid実描画自体は要求しない）。
+//
+// 構文チェック（mermaid.parse() 等）やDOM存在確認だけでは「表示されるが壊れている」を
+// 2回すり抜けた実績があるため、どちらも実際にブラウザで開いて確認する。
 function findChromium() {
   const candidates = [
     "chromium",
@@ -197,18 +213,54 @@ function findChromium() {
   return null;
 }
 
-function checkRenderSmoke() {
-  const NAME = "3. 実描画スモーク（headless chromiumでのMermaid描画確認）";
-  const chromiumBin = findChromium();
-  if (!chromiumBin) {
-    record(
-      NAME,
-      "skip",
-      "chromium/chromium-browser/google-chrome のいずれも見つかりません。" +
-        "この環境ではスキップします（既存のprettierベストエフォート方針と同じfail-soft）。",
-    );
-    return;
-  }
+// astro preview の起動完了（"Local  http://localhost:PORT/" のログ行）を待つ。
+// 既定ポートが使用中の場合 astro 自身が別ポートへ自動フォールバックするため、
+// 実際に採番されたURLをログから読み取る（固定ポートを仮定しない）。
+function waitForPreviewReady(proc, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    let buf = "";
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      reject(
+        new Error(
+          `astro preview の起動待ちがタイムアウトしました\n出力:\n${buf}`,
+        ),
+      );
+    }, timeoutMs);
+    function onData(chunk) {
+      buf += chunk.toString();
+      const m = buf.match(/Local\s+(http:\/\/\S+)/);
+      if (m && !settled) {
+        settled = true;
+        clearTimeout(timer);
+        resolve(m[1]);
+      }
+    }
+    proc.stdout.on("data", onData);
+    proc.stderr.on("data", onData);
+    proc.on("error", (e) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(e);
+    });
+    proc.on("exit", (code) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(
+        new Error(
+          `astro preview が早期終了しました（exit ${code}）\n出力:\n${buf}`,
+        ),
+      );
+    });
+  });
+}
+
+async function checkRenderSmokeHttp(chromiumBin) {
+  const NAME = "3a. 実描画スモーク（http・astro preview経由。正式閲覧相当）";
   if (!existsSync(HTML_PATH)) {
     record(
       NAME,
@@ -218,14 +270,15 @@ function checkRenderSmoke() {
     return;
   }
 
-  // snap版chromium等はホーム外のパス（/tmp直下等）を読めない場合があるため、
-  // $HOME配下の一時ディレクトリへコピーしてから file:// で開く
-  // （.claude/rules/dashboard-verification.md の運用メモに準拠）。
-  let tmpDir;
+  const astroBin = join(ROOT, "node_modules", ".bin", "astro");
+  let proc;
   try {
-    tmpDir = mkdtempSync(join(homedir(), ".verify-dashboard-smoke-"));
-    cpSync(DASHBOARD_DIR, join(tmpDir, "dashboard"), { recursive: true });
-    const targetHtml = join(tmpDir, "dashboard", "status-dashboard.html");
+    proc = spawn(astroBin, ["preview"], {
+      cwd: ROOT,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    const baseUrl = await waitForPreviewReady(proc, 15000);
+    const targetUrl = new URL("status-dashboard.html", baseUrl).toString();
 
     const run = spawnSync(
       chromiumBin,
@@ -235,7 +288,7 @@ function checkRenderSmoke() {
         "--no-sandbox",
         "--virtual-time-budget=8000",
         "--dump-dom",
-        `file://${targetHtml}`,
+        targetUrl,
       ],
       { encoding: "utf8", timeout: 30000 },
     );
@@ -256,23 +309,169 @@ function checkRenderSmoke() {
       dom.match(/<pre class="mermaid[^"]*"(?![^>]*data-processed)[^>]*>/g) ||
       [];
 
+    // 期待図数はビルド済みHTML内の <pre class="mermaid"> 実数から動的に導出する
+    // （独立レビュー指摘: 8のハードコードは図の増減で「図の総数以上」の意味から乖離する）。
+    // HTMLコメントとscriptブロックは除外する: フォールバック用スクリプトのJSコメントと
+    // HTML内の説明コメントに同じ文字列が書かれており、素朴なカウントだと過剰計上する。
+    // 除去順序が重要: コメント→scriptの順で除去する。逆順だと、コメント本文中の
+    // "<script>" という文字列にscript除去regexが食いつき、コメントの閉じ(-->)ごと
+    // 後続の実</script>まで誤って消費し、コメント前半が残骸として残る（実測で発生）。
+    const builtHtml = readFileSync(HTML_PATH, "utf8")
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .replace(/<script[\s\S]*?<\/script>/g, "");
+    const expected = (builtHtml.match(/<pre class="mermaid/g) || []).length;
+
+    // 空描画検知（独立レビューが実証した盲点）: MermaidのID衝突
+    // （deterministicIds無効時、Date.now()由来のidが同一ミリ秒で衝突し、
+    // data-processed="true"かつ<svg>は存在するのに中身が空になる）では、
+    // svg数・processed数のカウントだけでは全条件を素通りする。
+    // 各mermaid svgセグメントに実描画要素（path/text/rect等）が含まれるかまで検査する。
+    const mermaidSvgSegments =
+      dom.match(/<svg[^>]*id="mermaid-[\s\S]*?<\/svg>/g) || [];
+    const emptySvgs = mermaidSvgSegments.filter(
+      (seg) => !/<(path|text|rect|polygon|circle|line|tspan)[\s>]/.test(seg),
+    );
+
     const problems = [];
-    if (svgCount < 8)
-      problems.push(`Mermaid <svg> 数が不足: ${svgCount}（期待 >= 8）`);
-    if (processedCount < 8)
+    if (svgCount < expected)
       problems.push(
-        `data-processed="true" 数が不足: ${processedCount}（期待 >= 8）`,
+        `Mermaid <svg> 数が不足: ${svgCount}（期待 >= ${expected}）`,
+      );
+    if (processedCount < expected)
+      problems.push(
+        `data-processed="true" 数が不足: ${processedCount}（期待 >= ${expected}）`,
       );
     if (unprocessed.length > 0)
       problems.push(
         `未処理の <pre class="mermaid"> が残留: ${unprocessed.length}件`,
+      );
+    if (emptySvgs.length > 0)
+      problems.push(
+        `中身が空のMermaid svg: ${emptySvgs.length}件（processed=trueでも実描画要素なし＝ID衝突等の空描画）`,
       );
 
     if (problems.length === 0) {
       record(
         NAME,
         "pass",
-        `svg=${svgCount} data-processed=${processedCount} 未処理残留=0`,
+        `URL=${targetUrl} svg=${svgCount} data-processed=${processedCount}/${expected} 未処理残留=0 空svg=0`,
+      );
+    } else {
+      record(NAME, "fail", `URL=${targetUrl}\n${problems.join("\n")}`);
+    }
+  } catch (e) {
+    record(NAME, "fail", `検証中に例外: ${e.message}`);
+  } finally {
+    // astro preview は確実に終了させる（残留プロセスがポートを専有し続けるのを防ぐ）。
+    if (proc && proc.exitCode === null && proc.signalCode === null) {
+      proc.kill("SIGTERM");
+    }
+  }
+}
+
+function checkRenderSmokeFileFallback(chromiumBin) {
+  const NAME =
+    "3b. file://フォールバック（CSS適用＋Mermaidプレースホルダー表示）";
+  if (!existsSync(HTML_PATH)) {
+    record(NAME, "fail", `${HTML_PATH} が存在しません`);
+    return;
+  }
+
+  // snap版chromium等はホーム外のパス（/tmp直下等）を読めない場合があるため、
+  // $HOME配下の一時ディレクトリへコピーしてから file:// で開く
+  // （.claude/rules/dashboard-verification.md の運用メモに準拠）。
+  let tmpDir;
+  try {
+    tmpDir = mkdtempSync(join(homedir(), ".verify-dashboard-file-fallback-"));
+    cpSync(DASHBOARD_DIR, join(tmpDir, "dashboard"), { recursive: true });
+    const targetHtml = join(tmpDir, "dashboard", "status-dashboard.html");
+
+    // CSSが実際に適用されているかは --dump-dom（生マークアップ）だけでは分からない
+    // ため、検証用コピーにだけ計測スクリプトを注入し、getComputedStyle の結果を
+    // data属性へ書き出させる（本番HTMLは書き換えない。依存パッケージなしの方針を
+    // 保つため画像のピクセル比較ではなくDOM計測で代替する）。
+    let html = readFileSync(targetHtml, "utf8");
+    const probe = `
+<script>
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      var accent = getComputedStyle(document.documentElement)
+        .getPropertyValue("--c-accent")
+        .trim();
+      var bodyBg = getComputedStyle(document.body).backgroundColor;
+      document.documentElement.setAttribute(
+        "data-css-check",
+        accent + "|" + bodyBg,
+      );
+    }, 500);
+  });
+</script>`;
+    html = html.replace("</body>", `${probe}\n</body>`);
+    writeFileSync(targetHtml, html);
+
+    const run = spawnSync(
+      chromiumBin,
+      [
+        "--headless",
+        "--disable-gpu",
+        "--no-sandbox",
+        "--virtual-time-budget=3000",
+        "--dump-dom",
+        `file://${targetHtml}`,
+      ],
+      { encoding: "utf8", timeout: 30000 },
+    );
+
+    if (run.error || run.status !== 0) {
+      record(
+        NAME,
+        "fail",
+        `chromium の実行が失敗しました（exit ${run.status}）\n${run.stderr || run.error?.message || ""}`,
+      );
+      return;
+    }
+
+    const dom = run.stdout || "";
+    const problems = [];
+
+    const cssMatch = dom.match(/data-css-check="([^"]*)"/);
+    if (!cssMatch || !cssMatch[1].split("|")[0]) {
+      problems.push(
+        "--c-accent トークンが解決できません（file://でCSSが適用されていない可能性）",
+      );
+    }
+
+    const stripped = stripComments(dom);
+    const mermaidTags =
+      stripped.match(
+        /<pre class="[^"]*\bmermaid\b[^"]*"[^>]*>[\s\S]*?<\/pre>/g,
+      ) || [];
+    const fallbackTags = mermaidTags.filter((tag) =>
+      /mermaid-fallback/.test(tag),
+    );
+    const rawExposed = mermaidTags.filter(
+      (tag) => !/mermaid-fallback/.test(tag) && /flowchart/.test(tag),
+    );
+
+    if (mermaidTags.length === 0) {
+      problems.push('<pre class="mermaid"> が見つかりません');
+    } else if (fallbackTags.length === 0) {
+      problems.push(
+        "mermaid-fallback プレースホルダーが1件も適用されていません" +
+          "（file://でMermaidモジュールが実行された、または検知ロジックが機能していない可能性）",
+      );
+    }
+    if (rawExposed.length > 0) {
+      problems.push(
+        `生のMermaidコードがプレースホルダーに置き換わらず露出しています: ${rawExposed.length}件`,
+      );
+    }
+
+    if (problems.length === 0) {
+      record(
+        NAME,
+        "pass",
+        `CSS適用確認（--c-accent=${cssMatch[1].split("|")[0]}）／プレースホルダー適用=${fallbackTags.length}件／生露出=0`,
       );
     } else {
       record(NAME, "fail", problems.join("\n"));
@@ -282,6 +481,28 @@ function checkRenderSmoke() {
   } finally {
     if (tmpDir) rmSync(tmpDir, { recursive: true, force: true });
   }
+}
+
+async function checkRenderSmoke() {
+  const chromiumBin = findChromium();
+  if (!chromiumBin) {
+    const detail =
+      "chromium/chromium-browser/google-chrome のいずれも見つかりません。" +
+      "この環境ではスキップします（既存のprettierベストエフォート方針と同じfail-soft）。";
+    record(
+      "3a. 実描画スモーク（http・astro preview経由。正式閲覧相当）",
+      "skip",
+      detail,
+    );
+    record(
+      "3b. file://フォールバック（CSS適用＋Mermaidプレースホルダー表示）",
+      "skip",
+      detail,
+    );
+    return;
+  }
+  await checkRenderSmokeHttp(chromiumBin);
+  checkRenderSmokeFileFallback(chromiumBin);
 }
 
 // ---- 4. 要素数レポート: h2/h3/tr/li/badge等の出現数をHEADコミット版と比較 ----
@@ -437,35 +658,41 @@ function checkNoNaNOrUndefined() {
   }
 }
 
-console.log("=== dashboard 検証ハーネス（scripts/verify-dashboard.mjs） ===\n");
-
-checkDeterminism();
-checkCommitIntegrity();
-checkRenderSmoke();
-checkElementCountReport();
-checkNoNaNOrUndefined();
-checkFailedBuildResidue();
-
-console.log("\n=== 結果一覧 ===");
-for (const r of results) {
-  const icon =
-    r.status === "pass"
-      ? "✅"
-      : r.status === "fail"
-        ? "❌"
-        : r.status === "warn"
-          ? "⚠"
-          : "⏭";
-  console.log(`${icon} ${r.name}`);
-}
-
-const hasFail = results.some((r) => r.status === "fail");
-if (hasFail) {
-  console.log("\n❌ 失敗したチェックがあります（詳細は上記ログ参照）。");
-  process.exit(1);
-} else {
+async function main() {
   console.log(
-    "\n✅ すべてのチェックに合格しました（⚠/⏭ があれば個別に確認してください）。",
+    "=== dashboard 検証ハーネス（scripts/verify-dashboard.mjs） ===\n",
   );
-  process.exit(0);
+
+  checkDeterminism();
+  checkCommitIntegrity();
+  await checkRenderSmoke();
+  checkElementCountReport();
+  checkNoNaNOrUndefined();
+  checkFailedBuildResidue();
+
+  console.log("\n=== 結果一覧 ===");
+  for (const r of results) {
+    const icon =
+      r.status === "pass"
+        ? "✅"
+        : r.status === "fail"
+          ? "❌"
+          : r.status === "warn"
+            ? "⚠"
+            : "⏭";
+    console.log(`${icon} ${r.name}`);
+  }
+
+  const hasFail = results.some((r) => r.status === "fail");
+  if (hasFail) {
+    console.log("\n❌ 失敗したチェックがあります（詳細は上記ログ参照）。");
+    process.exit(1);
+  } else {
+    console.log(
+      "\n✅ すべてのチェックに合格しました（⚠/⏭ があれば個別に確認してください）。",
+    );
+    process.exit(0);
+  }
 }
+
+main();
