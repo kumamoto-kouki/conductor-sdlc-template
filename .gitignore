@@ -9,5 +9,8 @@ target/
 .orchestration/
 .claude/settings.local.json
 
+# Serena（コード検索MCP・マシンローカル導入。テンプレ標準装備化はPO判断待ち）
+.serena/
+
 # OS/エディタ
 .DS_Store
