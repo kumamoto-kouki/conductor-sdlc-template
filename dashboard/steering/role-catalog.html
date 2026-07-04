@@ -294,7 +294,26 @@ wave 境界・マイルストーン境界などの<strong>節目で見直す</st
 
 
 
-<table><thead><tr><th>候補</th><th>役割</th><th>投入の目安（いつ）</th><th>状態</th></tr></thead><tbody><tr><td>🧭 設計（アーキテクト）</td><td>着手前の設計判断（UX・データモデル・I/F）</td><td>新 spec／大機能の<strong>着手前</strong>（即興設計を避ける）</td><td>候補</td></tr><tr><td>🔐 セキュリティ監査</td><td>脆弱性・脅威分析</td><td>外部 I/O・認証・公開（push/リリース）前</td><td>候補</td></tr><tr><td>⚡ パフォーマンス監査</td><td>起動/レンダ/バンドル</td><td>パフォ問題発生時・リリース前</td><td>候補</td></tr><tr><td>✍️ テクニカルライター</td><td>reports/引き継ぎ/ユーザー文書</td><td>引き継ぎ・ドキュメント整備フェーズ</td><td>候補</td></tr></tbody></table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>候補</th><th>役割</th><th>投入の目安（いつ）</th><th>状態</th></tr></thead><tbody><tr><td>🧭 設計（アーキテクト）</td><td>着手前の設計判断（UX・データモデル・I/F）</td><td>新 spec／大機能の<strong>着手前</strong>（即興設計を避ける）</td><td>候補</td></tr><tr><td>🔐 セキュリティ監査</td><td>脆弱性・脅威分析</td><td>外部 I/O・認証・公開（push/リリース）前</td><td>候補</td></tr><tr><td>⚡ パフォーマンス監査</td><td>起動/レンダ/バンドル</td><td>パフォ問題発生時・リリース前</td><td>候補</td></tr><tr><td>✍️ テクニカルライター</td><td>reports/引き継ぎ/ユーザー文書</td><td>引き継ぎ・ドキュメント整備フェーズ</td><td>候補</td></tr><tr><td>🙋 エンドユーザー代弁</td><td>利用者視点の要求・受け入れ観点の代弁（ペルソナ）</td><td>Discovery／要件定義と、節目の受け入れレビュー</td><td>候補</td></tr><tr><td>🏭 現場代弁</td><td>運用現場・業務フロー制約の代弁（ペルソナ）</td><td>Discovery／要件定義と、運用設計のレビュー</td><td>候補</td></tr><tr><td>🤝 ステークホルダー代弁</td><td>経営・関係部門の関心事（費用対効果・期日・リスク）の代弁</td><td>Discovery と、マイルストーン境界の報告・判断場面</td><td>候補</td></tr></tbody></table>
+<p><strong>代弁ペルソナ（🙋/🏭/🤝）の誤用ガード</strong>：代弁ペルソナは<strong>実在の人間の代替ではない</strong>。実在のエンドユーザー・現場担当・ステークホルダーに直接当たれる場合はそちらが正であり、代弁はあくまで<strong>視点の抜け防止</strong>（要求定義・受け入れレビューで需要側の観点が誰にも代弁されないまま進む事故の予防）。実在者の声と代弁の見解が食い違ったら実在者を優先し、食い違い自体を開示する。</p>
 <h2 id="マイルストーンフェーズ別の投入計画目安">マイルストーン／フェーズ別の投入計画（目安）</h2>
 
 
@@ -346,7 +365,7 @@ wave 境界・マイルストーン境界などの<strong>節目で見直す</st
 
 
 
-<table><thead><tr><th>フェーズ</th><th>主に動く役</th><th>補助で投入を検討</th></tr></thead><tbody><tr><td>Discovery／要件</td><td>統括・（設計）</td><td>—</td></tr><tr><td>設計</td><td>設計（アーキテクト）・各レビュアー</td><td>—</td></tr><tr><td>実装</td><td>実装BE/実装FE/デザイン実装（実施者群）・QA</td><td>—</td></tr><tr><td>レビュー／受理</td><td>デザインRev/EngRev（レビュアー）・統括</td><td>セキュリティ・パフォ</td></tr><tr><td>公開（push/リリース）前</td><td>統括・PO</td><td>セキュリティ監査</td></tr><tr><td>保守運用</td><td>運用・統括</td><td>実装系をスポット投入</td></tr><tr><td>引き継ぎ</td><td>運用・統括</td><td>テクニカルライター</td></tr><tr><td>全期間（横断）</td><td>運用（運用状況・相談窓口）</td><td>—</td></tr></tbody></table>
+<table><thead><tr><th>フェーズ</th><th>主に動く役</th><th>補助で投入を検討</th></tr></thead><tbody><tr><td>Discovery／要件</td><td>統括・（設計）</td><td>エンドユーザー代弁・現場代弁・ステークホルダー代弁</td></tr><tr><td>設計</td><td>設計（アーキテクト）・各レビュアー</td><td>現場代弁（運用設計のレビュー）</td></tr><tr><td>実装</td><td>実装BE/実装FE/デザイン実装（実施者群）・QA</td><td>—</td></tr><tr><td>レビュー／受理</td><td>デザインRev/EngRev（レビュアー）・統括</td><td>セキュリティ・パフォ・エンドユーザー代弁（受け入れ）</td></tr><tr><td>公開（push/リリース）前</td><td>統括・PO</td><td>セキュリティ監査</td></tr><tr><td>保守運用</td><td>運用・統括</td><td>実装系をスポット投入</td></tr><tr><td>引き継ぎ</td><td>運用・統括</td><td>テクニカルライター</td></tr><tr><td>全期間（横断）</td><td>運用（運用状況・相談窓口）</td><td>ステークホルダー代弁（節目報告・判断場面）</td></tr></tbody></table>
 <h2 id="次プロジェクトへseed">次プロジェクトへ（seed）</h2>
 <p>この配役表＋候補ロスターを seed として引き継ぎ、立ち上げ時に agent-skills のロスター（code-reviewer / test-engineer / security-auditor / web-performance-auditor）と<strong>統合した配役表</strong>を最初に確定する。背骨（Kiro か agent-skills）はそのとき1つ選ぶ（二重ツール回避）。</p>
       </div>
