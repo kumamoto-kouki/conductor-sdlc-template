@@ -21,7 +21,9 @@ const { specs } = Astro.props;
   </tr>
   {
     specs.map((s) => (
-      <tr>
+      // ボード→spec リンク（Wave3 #3）の着地点。id が無い spec は従来どおり
+      // アンカー無しで描画される（後方互換）。
+      <tr id={s.id ? `spec-${s.id}` : undefined}>
         <td>{s.name}</td>
         <td>{s.stage}</td>
         <td>{s.impl}</td>

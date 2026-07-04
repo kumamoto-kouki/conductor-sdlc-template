@@ -1,11 +1,90 @@
 <!DOCTYPE html>
 <html lang="ja">
   <head>
+    <script>
+  (function () {
+    try {
+      var v = localStorage.getItem("dashboard-theme");
+      if (v === "light" || v === "dark") {
+        document.documentElement.setAttribute("data-theme", v);
+      }
+    } catch (e) {
+      // localStorage が使えない環境（file:// の一部ブラウザ等）では何もしない
+      // ＝auto と同じ既定の見た目にフォールバックする。
+    }
+  })();
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>（プロジェクト名） 開発ダッシュボード</title>
-  <link rel="stylesheet" href="_astro/global.DMEAz_nQ.css"></head>
+  <link rel="stylesheet" href="_astro/ThemeInitInline.Ca_BBx_O.css"></head>
   <body>
+    <header class="site-nav">
+  <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
+    <ul class="site-nav-links">
+      <li>
+            <a href="status-dashboard.html" aria-current="page" class="is-active">
+              📊 ダッシュボード
+            </a>
+          </li><li>
+            <a href="reports.html" class>
+              📝 振り返り
+            </a>
+          </li><li>
+            <a href="steering.html" class>
+              🧭 ステアリング
+            </a>
+          </li>
+    </ul>
+    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="表示テーマの切り替え（自動/ライト/ダーク）">
+      🌓 自動
+    </button>
+  </nav>
+</header>
+
+<script>
+  (function () {
+    var KEY = "dashboard-theme";
+    var STATES = ["auto", "light", "dark"];
+    var LABELS = { auto: "🌓 自動", light: "☀️ ライト", dark: "🌙 ダーク" };
+    var btn = document.getElementById("theme-toggle");
+
+    function currentState() {
+      var v = null;
+      try {
+        v = localStorage.getItem(KEY);
+      } catch (e) {}
+      return STATES.indexOf(v) === -1 ? "auto" : v;
+    }
+
+    function apply(state) {
+      if (state === "auto") {
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", state);
+      }
+      if (btn) {
+        btn.textContent = LABELS[state];
+        btn.setAttribute(
+          "aria-label",
+          "表示テーマの切り替え（現在: " + LABELS[state] + "）",
+        );
+      }
+    }
+
+    apply(currentState());
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = STATES[(STATES.indexOf(currentState()) + 1) % STATES.length];
+        try {
+          localStorage.setItem(KEY, next);
+        } catch (e) {}
+        apply(next);
+      });
+    }
+  })();
+</script>
     <div class="wrap">
       <header class="hero">
         <h1 class="text-white">（プロジェクト名） 開発ダッシュボード</h1>
@@ -145,15 +224,35 @@
           <span class="text-[11px] text-muted">整合の同期: 実施＝👨🏼‍💼 統括（チケット移動時に全体を整合）／担当＝👩🏼‍💼 運用（整合を監視・起案）</span>
         </div>
 
+        <!-- ===== ボードフィルタ（Wave3 #4・vanilla JS） =====
+             既定は全件表示（情報量不変の原則）。JS が動かない環境でも
+             select 自体は表示されるだけで全カードは見えたまま（非表示は
+             JSでの絞り込み操作後のみ発生する）。 -->
+        <div class="board-filter" role="group" aria-label="作業ボードの絞り込み">
+          <label class="board-filter-label" for="board-filter-lane">レーンで絞り込み</label>
+          <select id="board-filter-lane" class="board-filter-select">
+            <option value="all">すべて</option>
+            <option value="design">デザイン</option>
+            <option value="eng">エンジニア</option>
+          </select>
+          <label class="board-filter-label" for="board-filter-actor">担当で絞り込み</label>
+          <select id="board-filter-actor" class="board-filter-select">
+            <option value="all">すべて</option>
+            <option value="🧑🏻‍💼">PO サインオフ</option><option value="👩🏼‍🎨🕵🏼‍♀️">デザイン実装(実装)→デザインRev(レビュー)</option><option value="👨🏼‍💼👨🏼‍🔬🛡️">統括＋QA → EngRev APPROVED</option><option value="👨🏼‍💼">統括</option><option value="🧩🕵🏼‍♂️">実装FE(実装)→EngRev(レビュー)</option><option value="👨🏼‍💻🕵🏼‍♂️">実装BE(実装)→EngRev(レビュー)</option>
+          </select>
+          <span class="board-filter-count text-[11px] text-muted" id="board-filter-count" aria-live="polite"></span>
+        </div>
+
         <div class="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
           <!-- もとは ring-line/70（実描画は v3 preflight 既定の薄い青リング。経緯は
      BoardCard.astro のコメント参照）。見た目維持のため実際の色を明示。 -->
 <div class="overflow-hidden rounded-xl ring-1 ring-[rgb(59_130_246/0.5)]">
   <div class="px-3 py-1.5 text-xs font-bold" style="background: var(--c-surface); color: var(--c-muted)">⏳ 待ち</div>
   <div class="space-y-1.5 p-2">
-        <div class="flex items-center gap-1.5 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="キャラ窓のダークモード実機目視（pnpm tauri dev＝人手）">
+        <div class="board-card flex items-center gap-1.5 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="キャラ窓のダークモード実機目視（pnpm tauri dev＝人手）" data-lane="design" data-actors>
   <span class="grid h-5 w-6 flex-none place-items-center rounded text-[10px] font-bold text-white" style="background: var(--c-lane-design)">V1</span>
   <span class="min-w-0 flex-1 text-[11px] font-semibold">🔒 ダーク目視</span>
+  
   <span class="flex-none rounded bg-surface px-1.5 text-[10px] font-bold text-muted">~0.5h</span>
 </div>
         
@@ -164,9 +263,12 @@
 <div class="overflow-hidden rounded-xl ring-1 ring-[rgb(59_130_246/0.5)]">
   <div class="px-3 py-1.5 text-xs font-bold" style="background: var(--c-warn-soft); color: var(--c-warn)">🔨 進行中</div>
   <div class="space-y-1.5 p-2">
-        <div class="flex items-center gap-1.5 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="M5 Google ドライブ同期。実装完了(機能B 23/23・OAuth/GDrive/keyring・Rustテスト緑)。実OAuth疎通は Google Cloud OAuthアプリ登録(client_id/secret)が必要＝PO 判断中">
+        <div class="board-card flex items-center gap-1.5 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="M5 Google ドライブ同期。実装完了(機能B 23/23・OAuth/GDrive/keyring・Rustテスト緑)。実OAuth疎通は Google Cloud OAuthアプリ登録(client_id/secret)が必要＝PO 判断中" data-lane="eng" data-actors="🧑🏻‍💼">
   <span class="grid h-5 w-6 flex-none place-items-center rounded text-[10px] font-bold text-white" style="background: var(--c-lane-eng)">M5</span>
   <span class="min-w-0 flex-1 text-[11px] font-semibold">🔒 GDrive同期</span>
+  <a href="#spec-funcB" class="flex-none rounded bg-surface px-1.5 text-[10px] font-bold text-accent no-underline hover:underline" title="機能ごとの状態(spec)表の該当行へ">
+        仕様→
+      </a>
   <span style="font-size: 10px" title="PO 判断中">🧑🏻‍💼</span>
 </div>
         <div class="px-1 pt-0.5 text-[10px] text-muted">着手したカードはここへ。M5 は実装済・実 OAuth 疎通の扱いを PO 判断中。</div>
@@ -183,53 +285,69 @@
 <div class="overflow-hidden rounded-xl ring-1 ring-[rgb(59_130_246/0.5)]">
   <div class="px-3 py-1.5 text-xs font-bold" style="background: var(--c-ok-soft); color: var(--c-ok)">✅ 完了・受理</div>
   <div class="space-y-1.5 p-2">
-        <div class="flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="M3 モデルと実対話のサインオフ。実装完了(機能C/chat・自動テスト緑が裏付け)。実機・実APIの実対話確認は PO 判断でサインオフ(実証ログは本セッション未取得)">
+        <div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="M3 モデルと実対話のサインオフ。実装完了(機能C/chat・自動テスト緑が裏付け)。実機・実APIの実対話確認は PO 判断でサインオフ(実証ログは本セッション未取得)" data-lane="eng" data-actors="🧑🏻‍💼">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-eng); font-size: 11px">M3</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">実機対話（PO サインオフ）</span>
+  <a href="#spec-funcC" class="flex-none rounded bg-surface px-1.5 text-[10px] font-bold text-accent no-underline hover:underline" title="機能ごとの状態(spec)表の該当行へ">
+        仕様→
+      </a>
   <span style="font-size: 11px" title="PO サインオフ">🧑🏻‍💼</span>
-</div><div class="flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="カードに実アバター画像(createAvatar＋onerror頭文字フォールバック)。Designリーダー采配→デザイン実装(実装・worktree)→デザインRev 独立レビュー APPROVED。画面側 173→178・統合ブランチへ merge＋worktree 撤去">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="カードに実アバター画像(createAvatar＋onerror頭文字フォールバック)。Designリーダー采配→デザイン実装(実装・worktree)→デザインRev 独立レビュー APPROVED。画面側 173→178・統合ブランチへ merge＋worktree 撤去" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">D2</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">アバター画像</span>
+  
   <span style="font-size: 11px" title="デザイン実装(実装)→デザインRev APPROVED">👩🏼‍🎨🕵🏼‍♀️</span>
-</div><div class="flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="繰越5件 K1一覧更新/K2選択ハイライト/K3visual復元/K4削除UI/K5switcher全隠し。統括(実装)＋QA → EngRev APPROVED(独立レビュー・必須是正なし)">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="繰越5件 K1一覧更新/K2選択ハイライト/K3visual復元/K4削除UI/K5switcher全隠し。統括(実装)＋QA → EngRev APPROVED(独立レビュー・必須是正なし)" data-lane="eng" data-actors="👨🏼‍💼👨🏼‍🔬🛡️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-eng); font-size: 10px">K1-5</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">繰越5件</span>
+  
   <span style="font-size: 11px" title="統括＋QA → EngRev APPROVED">👨🏼‍💼👨🏼‍🔬🛡️</span>
-</div><div class="flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="カスタムキャラのカード表示＋編集→同id更新 / デザイン実装(実装)→デザインRev(レビュー)。繰越: 一覧更新/選択ハイライト/visual復元">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="カスタムキャラのカード表示＋編集→同id更新 / デザイン実装(実装)→デザインRev(レビュー)。繰越: 一覧更新/選択ハイライト/visual復元" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">E2</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">キャラ編集</span>
+  
   <span style="font-size: 11px" title="デザイン実装(実装)→デザインRev(レビュー)">👩🏼‍🎨🕵🏼‍♀️</span>
-</div><div class="flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="listen の unlisten 回収（character窓）/ 統括（統括・軽微直）">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="listen の unlisten 回収（character窓）/ 統括（統括・軽微直）" data-lane="eng" data-actors="👨🏼‍💼">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-eng); font-size: 11px">R1</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">listen解除</span>
+  
   <span style="font-size: 11px" title="統括（統括・軽微をコンダクター直）">👨🏼‍💼</span>
-</div><div class="flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="テーマのライブ同期(character窓)＋themeテスト二重化解消 / デザイン実装(実装)→デザインRev(レビュー)">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="テーマのライブ同期(character窓)＋themeテスト二重化解消 / デザイン実装(実装)→デザインRev(レビュー)" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">A4</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">テーマ同期</span>
+  
   <span style="font-size: 11px" title="デザイン実装(実装)→デザインRev(レビュー)">👩🏼‍🎨🕵🏼‍♀️</span>
-</div><div class="flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="観察日記(原則9) ON/OFF トグルを編集UIに追加 / 実装FE(実装)→EngRev(レビュー)">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="観察日記(原則9) ON/OFF トグルを編集UIに追加 / 実装FE(実装)→EngRev(レビュー)" data-lane="eng" data-actors="🧩🕵🏼‍♂️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-eng); font-size: 11px">D1</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">日記ON/OFF</span>
+  
   <span style="font-size: 11px" title="実装FE(実装)→EngRev(レビュー)">🧩🕵🏼‍♂️</span>
-</div><div class="flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="フォント同梱＋CSP / 統括">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="フォント同梱＋CSP / 統括" data-lane="design" data-actors="👨🏼‍💼">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">B</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">フォント同梱</span>
+  
   <span style="font-size: 11px" title="統括">👨🏼‍💼</span>
-</div><div class="flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="観察日記 機能D / 実装BE(実装)→EngRev(レビュー)">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="観察日記 機能D / 実装BE(実装)→EngRev(レビュー)" data-lane="eng" data-actors="👨🏼‍💻🕵🏼‍♂️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-eng); font-size: 11px">C</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">観察日記</span>
+  <a href="#spec-funcD" class="flex-none rounded bg-surface px-1.5 text-[10px] font-bold text-accent no-underline hover:underline" title="機能ごとの状態(spec)表の該当行へ">
+        仕様→
+      </a>
   <span style="font-size: 11px" title="実装BE(実装)→EngRev(レビュー)">👨🏼‍💻🕵🏼‍♂️</span>
-</div><div class="flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="UI リスタイル(mtt-体裁) / デザイン実装(実装)→デザインRev(レビュー)">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="UI リスタイル(mtt-体裁) / デザイン実装(実装)→デザインRev(レビュー)" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">A</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">UIリスタイル</span>
+  
   <span style="font-size: 11px" title="デザイン実装(実装)→デザインRev(レビュー)">👩🏼‍🎨🕵🏼‍♀️</span>
-</div><div class="flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="UI第2弾(設定折りたたみ/モデルカード/アバター) / デザイン実装→デザインRev">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="UI第2弾(設定折りたたみ/モデルカード/アバター) / デザイン実装→デザインRev" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">A2</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">UI第2弾</span>
+  
   <span style="font-size: 11px" title="デザイン実装(実装)→デザインRev(レビュー)">👩🏼‍🎨🕵🏼‍♀️</span>
-</div><div class="flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="ライト/ダーク切替＋dead CSS / デザイン実装→デザインRev">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="ライト/ダーク切替＋dead CSS / デザイン実装→デザインRev" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">A3</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">テーマ切替</span>
+  
   <span style="font-size: 11px" title="デザイン実装(実装)→デザインRev(レビュー)">👩🏼‍🎨🕵🏼‍♀️</span>
 </div>
         
@@ -246,7 +364,39 @@
         </div>
       </div>
 
-      <!-- ===== マイルストーン ===== -->
+      <script>
+        // ボードフィルタ（Wave3 #4）: レーン・担当の両方を満たすカードだけを表示する
+        // （AND条件）。DOMからの削除ではなく hidden 属性の切り替えに留める
+        // （「情報量を減らさない」＝機械カウント対象の要素そのものは残す。
+        // .claude/rules/dashboard-verification.md 参照）。既定値は両方 "all"＝
+        // 全件表示（情報量不変の原則）。
+        (function () {
+          var laneSel = document.getElementById("board-filter-lane");
+          var actorSel = document.getElementById("board-filter-actor");
+          var countEl = document.getElementById("board-filter-count");
+          function apply() {
+            var lane = laneSel ? laneSel.value : "all";
+            var actor = actorSel ? actorSel.value : "all";
+            var cards = document.querySelectorAll(".board-card");
+            var shown = 0;
+            cards.forEach(function (card) {
+              var laneMatch = lane === "all" || card.dataset.lane === lane;
+              var actorMatch = actor === "all" || card.dataset.actors === actor;
+              var visible = laneMatch && actorMatch;
+              card.hidden = !visible;
+              if (visible) shown++;
+            });
+            if (countEl) {
+              countEl.textContent =
+                lane === "all" && actor === "all"
+                  ? ""
+                  : shown + " / " + cards.length + " 件を表示中";
+            }
+          }
+          if (laneSel) laneSel.addEventListener("change", apply);
+          if (actorSel) actorSel.addEventListener("change", apply);
+        })();
+      </script><!-- ===== マイルストーン ===== -->
       <h2>節目（M1→M5）<span class="note">作りたいものへの到達段階</span></h2>
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div class="card">
@@ -312,7 +462,7 @@
     <th>裏付け</th>
     <th>状態</th>
   </tr>
-  <tr>
+  <tr id="spec-funcB">
         <td>保存まわり（機能B）</td>
         <td>仕様確定</td>
         <td>全23項目</td>
@@ -323,7 +473,7 @@
       完了
     </span>
         </td>
-      </tr><tr>
+      </tr><tr id="spec-funcA">
         <td>キャラ表示（機能A）</td>
         <td>仕様確定</td>
         <td>全18項目＋繰越K1〜K5＋D2</td>
@@ -334,7 +484,7 @@
       完了
     </span>
         </td>
-      </tr><tr>
+      </tr><tr id="spec-funcC">
         <td>モデル切替・対話（機能C）</td>
         <td>タスク化済</td>
         <td>全18 ＋ 汎用生成コマンド</td>
@@ -345,7 +495,7 @@
       完了
     </span>
         </td>
-      </tr><tr>
+      </tr><tr id="spec-funcD">
         <td>観察日記（機能D）</td>
         <td>タスク化済</td>
         <td>全8タスク（generate_text 経由）</td>
@@ -906,7 +1056,36 @@
           用語集（固有名詞のかんたん解説）<span class="note">③ふだんの言葉で言い換え</span>
         </summary>
         <div class="fold-body">
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2"><div class="card"><dl class="glossary"><dt>（技術）（タウリ）</dt><dd>Web 技術でパソコン用アプリを作る仕組み。本アプリの土台。</dd><dt>Tailwind CSS（テイルウインド）</dt><dd>短いクラス名を組み合わせて見た目を作る CSS フレームワーク。このダッシュボードで採用。</dd><dt>spec（スペック）</dt><dd>機能ごとの仕様書。要件→設計→タスクの順に固めていく。</dd><dt>E2E テスト</dt><dd>End to End＝端から端まで。アプリを実際に起動して通しで動くか確かめる自動テスト。</dd><dt>PDCA</dt><dd>計画(Plan)→実行(Do)→確認(Check)→改善(Act)のくり返し。</dd><dt>CSP</dt><dd>Content Security Policy。アプリの通信先や読み込み先を必要な範囲に絞るセキュリティ設定。</dd></dl></div><div class="card"><dl class="glossary"><dt>semgrep（セムグレップ）</dt><dd>コードの危険な書き方や脆弱性を自動で探すスキャナー。</dd><dt>happy-dom / insta / WebdriverIO</dt><dd>テスト用の道具。順に「画面部品の検査」「出力の固定検査」「実アプリ操作」。</dd><dt>worktree（ワークツリー）</dt><dd>リポジトリの作業用の別コピー。同時編集の衝突を避けるために使う。</dd><dt>push（プッシュ）</dt><dd>手元の変更を共有サーバー（GitHub）へ反映＝公開する操作。</dd><dt>コンダクター・オーケストレーション</dt><dd>本プロジェクトの進め方の呼び名。取りまとめ役が作業を任せ、別の役がチェックし、証拠で受け入れる体制。</dd></dl></div></div>
+          <div class="glossary-search-wrap"><label for="glossary-search" class="glossary-search-label">🔍 用語集を検索</label><input type="search" id="glossary-search" class="glossary-search-input" placeholder="用語や説明文の一部を入力（例: テスト・Tauri）" autocomplete="off"/><span id="glossary-search-count" class="glossary-search-count text-[11px] text-muted" aria-live="polite"></span></div>
+<div class="grid grid-cols-1 gap-4 md:grid-cols-2" id="glossary-grid"><div class="card"><dl class="glossary"><dt>（技術）（タウリ）</dt><dd>Web 技術でパソコン用アプリを作る仕組み。本アプリの土台。</dd><dt>Tailwind CSS（テイルウインド）</dt><dd>短いクラス名を組み合わせて見た目を作る CSS フレームワーク。このダッシュボードで採用。</dd><dt>spec（スペック）</dt><dd>機能ごとの仕様書。要件→設計→タスクの順に固めていく。</dd><dt>E2E テスト</dt><dd>End to End＝端から端まで。アプリを実際に起動して通しで動くか確かめる自動テスト。</dd><dt>PDCA</dt><dd>計画(Plan)→実行(Do)→確認(Check)→改善(Act)のくり返し。</dd><dt>CSP</dt><dd>Content Security Policy。アプリの通信先や読み込み先を必要な範囲に絞るセキュリティ設定。</dd></dl></div><div class="card"><dl class="glossary"><dt>semgrep（セムグレップ）</dt><dd>コードの危険な書き方や脆弱性を自動で探すスキャナー。</dd><dt>happy-dom / insta / WebdriverIO</dt><dd>テスト用の道具。順に「画面部品の検査」「出力の固定検査」「実アプリ操作」。</dd><dt>worktree（ワークツリー）</dt><dd>リポジトリの作業用の別コピー。同時編集の衝突を避けるために使う。</dd><dt>push（プッシュ）</dt><dd>手元の変更を共有サーバー（GitHub）へ反映＝公開する操作。</dd><dt>コンダクター・オーケストレーション</dt><dd>本プロジェクトの進め方の呼び名。取りまとめ役が作業を任せ、別の役がチェックし、証拠で受け入れる体制。</dd></dl></div></div>
+          <script>
+  (function () {
+    var input = document.getElementById("glossary-search");
+    var countEl = document.getElementById("glossary-search-count");
+    var grid = document.getElementById("glossary-grid");
+    if (!input || !grid) return;
+    var dts = grid.querySelectorAll("dl.glossary dt");
+
+    function apply() {
+      var q = input.value.trim().toLowerCase();
+      var shown = 0;
+      var total = dts.length;
+      dts.forEach(function (dt) {
+        var dd = dt.nextElementSibling;
+        var text = (
+          dt.textContent + " " + (dd ? dd.textContent : "")
+        ).toLowerCase();
+        var match = q === "" || text.indexOf(q) !== -1;
+        dt.hidden = !match;
+        if (dd) dd.hidden = !match;
+        if (match) shown++;
+      });
+      countEl.textContent = q === "" ? "" : shown + " / " + total + " 件";
+    }
+
+    input.addEventListener("input", apply);
+  })();
+</script>
         </div>
       </details>
 
@@ -917,40 +1096,30 @@
     </div>
 
     <!--
-      正式な閲覧方式は npm run preview（Astro 内蔵サーバー）経由（PO決定・2026-07-04・
-      .claude/rules/dashboard-verification.md 参照）。この前提のもと Mermaid は
-      ESM import に戻し、Vite のコード分割で使う図種別（flowchart 系）のチャンクだけを
-      遅延取得させる（旧 UMD 一括バンドル dashboard/vendor/mermaid.min.js ≒3.5MB を撤去）。
-      読み込み・初期化はページで1回だけ行う（MermaidDiagram.astro は
-      <pre class="mermaid"> の描画のみ）。
-
-      file:// 直開きは正式閲覧のフォールバック（コア表示のみ・Mermaid描画は要求しない）。
-      Astro は下の（属性なし）<script> を1個の外部モジュールファイルへバンドルし
-      type="module" src="..." として出力する。file:// オリジンからの外部モジュール
-      スクリプトの取得はブラウザの CORS 制約でブロックされ、スクリプト本体は一切
-      実行されない（インラインの type="module" は本体取得が不要なため実行されてしまい
-      判定に使えない＝実際に試して確認済み）。この「外部モジュールが1行も実行され
-      ない」性質を逆手に取り、モジュール本体の先頭でフラグを立てることで
-      「モジュールが実行されたかどうか」を検知する（Mermaid本体の初期化完了を
-      待つものではない。import 文は他の文より先に評価されるため、モジュール
-      グラフの取得自体が失敗すればこの行も含め一切実行されない）。
+      Mermaid の読み込み・初期化・実行は src/components/MermaidRuntime.astro に
+      抽出済み（ポータル化＝Wave3 #3 に伴い、ステアリング詳細ページ
+      src/pages/steering/[slug].astro でも同じ ESM パターンを再利用するため）。
+      スクリプトの中身自体は変更していない（詳しい設計意図は同コンポーネントの
+      コメント参照）。
     -->
     <script>
-      // file:// 等で下のモジュールが実行されなかった場合、生の
-      // <pre class="mermaid">…コード…</pre> がテキストのまま崩れて見えるのを防ぎ、
-      // 控えめな案内プレースホルダーへ置き換える（要件: 壊れて見えないこと。
-      // Mermaid自体の描画は npm run preview に譲る）。
-      document.addEventListener("DOMContentLoaded", () => {
-        setTimeout(() => {
-          if (document.documentElement.dataset.mermaidModuleRan === "1") return;
-          document
-            .querySelectorAll("pre.mermaid:not([data-processed])")
-            .forEach((el) => {
-              el.textContent =
-                "この図はサーバー閲覧（npm run preview）で表示されます。";
-              el.classList.add("mermaid-fallback");
-            });
-        }, 300);
-      });
-    </script><script type="module" src="_astro/status-dashboard.astro_astro_type_script_index_0_lang.DRGBZBxC.js"></script></body>
+  // file:// 等で下のモジュールが実行されなかった場合、生の
+  // <pre class="mermaid">…コード…</pre> がテキストのまま崩れて見えるのを防ぎ、
+  // 控えめな案内プレースホルダーへ置き換える（要件: 壊れて見えないこと。
+  // Mermaid自体の描画は npm run preview に譲る）。
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      if (document.documentElement.dataset.mermaidModuleRan === "1") return;
+      document
+        .querySelectorAll("pre.mermaid:not([data-processed])")
+        .forEach((el) => {
+          el.textContent =
+            "この図はサーバー閲覧（npm run preview）で表示されます。";
+          el.classList.add("mermaid-fallback");
+        });
+    }, 300);
+  });
+</script>
+<script type="module" src="_astro/MermaidRuntime.astro_astro_type_script_index_0_lang.CuuccSeU.js"></script>
+  </body>
 </html>

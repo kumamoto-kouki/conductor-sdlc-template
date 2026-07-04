@@ -1,4 +1,16 @@
-<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+<div class="glossary-search-wrap">
+  <label for="glossary-search" class="glossary-search-label">🔍 用語集を検索</label>
+  <input
+    type="search"
+    id="glossary-search"
+    class="glossary-search-input"
+    placeholder="用語や説明文の一部を入力（例: テスト・Tauri）"
+    autocomplete="off"
+  />
+  <span id="glossary-search-count" class="glossary-search-count text-[11px] text-muted" aria-live="polite"></span>
+</div>
+
+<div class="grid grid-cols-1 gap-4 md:grid-cols-2" id="glossary-grid">
   <div class="card">
     <dl class="glossary">
       <dt>（技術）（タウリ）</dt>

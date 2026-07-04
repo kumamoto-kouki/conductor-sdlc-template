@@ -17,6 +17,10 @@ import KpiStat from "../components/KpiStat.astro";
 import OperationsPanel from "../components/OperationsPanel.astro";
 import NextActionsPanel from "../components/NextActionsPanel.astro";
 import ChangelogSection from "../components/ChangelogSection.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import ThemeInitInline from "../components/ThemeInitInline.astro";
+import MermaidRuntime from "../components/MermaidRuntime.astro";
+import GlossarySearchScript from "../components/GlossarySearchScript.astro";
 
 import TeamStructure from "../content/team-structure.mdx";
 import ExternalServices from "../content/external-services.mdx";
@@ -40,16 +44,34 @@ const data = parseStatus(rawData);
 const kpiCards = computeKpi(data);
 const milestones = visibleMilestones(data);
 const inProgressFootnote = data.board.lanes.inProgress[0]?.footnote;
+
+// ボードフィルタ（Wave3 #4）: 担当（actors）の選択肢は status.json の実データから
+// 動的に導出する（手書きの固定リストにしない＝データが増減しても追随する）。
+// 表示ラベルは actorsTip（人が読める説明）を使う。同じ actors 値に複数の
+// actorsTip がある場合は最初に出現したものを代表ラベルにする。
+const allBoardCards = [
+  ...data.board.lanes.waiting,
+  ...data.board.lanes.inProgress,
+  ...data.board.lanes.review,
+  ...data.board.lanes.done,
+];
+const actorFilterOptions = [...new Map(
+  allBoardCards
+    .filter((c) => c.actors)
+    .map((c) => [c.actors, c.actorsTip || c.actors]),
+).entries()].map(([value, label]) => ({ value, label }));
 ---
 
 <!doctype html>
 <html lang="ja">
   <head>
+    <ThemeInitInline />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>（プロジェクト名） 開発ダッシュボード</title>
   </head>
   <body>
+    <SiteHeader depth={0} active="dashboard" />
     <div class="wrap">
       <header class="hero">
         <h1 class="text-white">（プロジェクト名） 開発ダッシュボード</h1>
@@ -116,6 +138,25 @@ const inProgressFootnote = data.board.lanes.inProgress[0]?.footnote;
           >
         </div>
 
+        <!-- ===== ボードフィルタ（Wave3 #4・vanilla JS） =====
+             既定は全件表示（情報量不変の原則）。JS が動かない環境でも
+             select 自体は表示されるだけで全カードは見えたまま（非表示は
+             JSでの絞り込み操作後のみ発生する）。 -->
+        <div class="board-filter" role="group" aria-label="作業ボードの絞り込み">
+          <label class="board-filter-label" for="board-filter-lane">レーンで絞り込み</label>
+          <select id="board-filter-lane" class="board-filter-select">
+            <option value="all">すべて</option>
+            <option value="design">デザイン</option>
+            <option value="eng">エンジニア</option>
+          </select>
+          <label class="board-filter-label" for="board-filter-actor">担当で絞り込み</label>
+          <select id="board-filter-actor" class="board-filter-select">
+            <option value="all">すべて</option>
+            {actorFilterOptions.map((o) => <option value={o.value}>{o.label}</option>)}
+          </select>
+          <span class="board-filter-count text-[11px] text-muted" id="board-filter-count" aria-live="polite"></span>
+        </div>
+
         <div class="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
           <BoardColumn
             title="⏳ 待ち"
@@ -152,6 +193,40 @@ const inProgressFootnote = data.board.lanes.inProgress[0]?.footnote;
           </div>
         </div>
       </div>
+
+      <script is:inline>
+        // ボードフィルタ（Wave3 #4）: レーン・担当の両方を満たすカードだけを表示する
+        // （AND条件）。DOMからの削除ではなく hidden 属性の切り替えに留める
+        // （「情報量を減らさない」＝機械カウント対象の要素そのものは残す。
+        // .claude/rules/dashboard-verification.md 参照）。既定値は両方 "all"＝
+        // 全件表示（情報量不変の原則）。
+        (function () {
+          var laneSel = document.getElementById("board-filter-lane");
+          var actorSel = document.getElementById("board-filter-actor");
+          var countEl = document.getElementById("board-filter-count");
+          function apply() {
+            var lane = laneSel ? laneSel.value : "all";
+            var actor = actorSel ? actorSel.value : "all";
+            var cards = document.querySelectorAll(".board-card");
+            var shown = 0;
+            cards.forEach(function (card) {
+              var laneMatch = lane === "all" || card.dataset.lane === lane;
+              var actorMatch = actor === "all" || card.dataset.actors === actor;
+              var visible = laneMatch && actorMatch;
+              card.hidden = !visible;
+              if (visible) shown++;
+            });
+            if (countEl) {
+              countEl.textContent =
+                lane === "all" && actor === "all"
+                  ? ""
+                  : shown + " / " + cards.length + " 件を表示中";
+            }
+          }
+          if (laneSel) laneSel.addEventListener("change", apply);
+          if (actorSel) actorSel.addEventListener("change", apply);
+        })();
+      </script>
 
       <!-- ===== マイルストーン ===== -->
       <h2>節目（M1→M5）<span class="note">作りたいものへの到達段階</span></h2>
@@ -305,6 +380,7 @@ const inProgressFootnote = data.board.lanes.inProgress[0]?.footnote;
         </summary>
         <div class="fold-body">
           <Glossary />
+          <GlossarySearchScript />
         </div>
       </details>
 
@@ -315,78 +391,12 @@ const inProgressFootnote = data.board.lanes.inProgress[0]?.footnote;
     </div>
 
     <!--
-      正式な閲覧方式は npm run preview（Astro 内蔵サーバー）経由（PO決定・2026-07-04・
-      .claude/rules/dashboard-verification.md 参照）。この前提のもと Mermaid は
-      ESM import に戻し、Vite のコード分割で使う図種別（flowchart 系）のチャンクだけを
-      遅延取得させる（旧 UMD 一括バンドル dashboard/vendor/mermaid.min.js ≒3.5MB を撤去）。
-      読み込み・初期化はページで1回だけ行う（MermaidDiagram.astro は
-      <pre class="mermaid"> の描画のみ）。
-
-      file:// 直開きは正式閲覧のフォールバック（コア表示のみ・Mermaid描画は要求しない）。
-      Astro は下の（属性なし）<script> を1個の外部モジュールファイルへバンドルし
-      type="module" src="..." として出力する。file:// オリジンからの外部モジュール
-      スクリプトの取得はブラウザの CORS 制約でブロックされ、スクリプト本体は一切
-      実行されない（インラインの type="module" は本体取得が不要なため実行されてしまい
-      判定に使えない＝実際に試して確認済み）。この「外部モジュールが1行も実行され
-      ない」性質を逆手に取り、モジュール本体の先頭でフラグを立てることで
-      「モジュールが実行されたかどうか」を検知する（Mermaid本体の初期化完了を
-      待つものではない。import 文は他の文より先に評価されるため、モジュール
-      グラフの取得自体が失敗すればこの行も含め一切実行されない）。
+      Mermaid の読み込み・初期化・実行は src/components/MermaidRuntime.astro に
+      抽出済み（ポータル化＝Wave3 #3 に伴い、ステアリング詳細ページ
+      src/pages/steering/[slug].astro でも同じ ESM パターンを再利用するため）。
+      スクリプトの中身自体は変更していない（詳しい設計意図は同コンポーネントの
+      コメント参照）。
     -->
-    <script is:inline>
-      // file:// 等で下のモジュールが実行されなかった場合、生の
-      // <pre class="mermaid">…コード…</pre> がテキストのまま崩れて見えるのを防ぎ、
-      // 控えめな案内プレースホルダーへ置き換える（要件: 壊れて見えないこと。
-      // Mermaid自体の描画は npm run preview に譲る）。
-      document.addEventListener("DOMContentLoaded", () => {
-        setTimeout(() => {
-          if (document.documentElement.dataset.mermaidModuleRan === "1") return;
-          document
-            .querySelectorAll("pre.mermaid:not([data-processed])")
-            .forEach((el) => {
-              el.textContent =
-                "この図はサーバー閲覧（npm run preview）で表示されます。";
-              el.classList.add("mermaid-fallback");
-            });
-        }, 300);
-      });
-    </script>
-    <script>
-      import mermaid from "mermaid";
-
-      // モジュール本体が実際に実行されたことを示すフラグ（上のフォールバック用
-      // 判定スクリプトが参照する。file://でこの外部モジュール自体の取得が
-      // ブロックされれば、この行を含め一切実行されない）。
-      document.documentElement.dataset.mermaidModuleRan = "1";
-
-      // 案A「Indigo / Cool Slate」トークンとの連携。Mermaid は生の CSS 変数文字列を
-      // 解釈できないため getComputedStyle で計算値へ解決してから渡す
-      // （ライト/ダークどちらで読み込まれても :root の現在値に自動追随する）。
-      function css(varName) {
-        return getComputedStyle(document.documentElement)
-          .getPropertyValue(varName)
-          .trim();
-      }
-      mermaid.initialize({
-        startOnLoad: false,
-        // 既定のID生成（Date.now()ミリ秒）は、レイアウトエンジンが暖機した後の
-        // 高速連続レンダリングで複数の図が同一ミリ秒に収まりID衝突を起こしうる
-        // （後発の図のSVGが空の<g></g>になる実害を実機検証で確認済み）。
-        // deterministicIds: true でカウンタベースの一意なID生成に切り替える。
-        deterministicIds: true,
-        theme: "base",
-        themeVariables: {
-          primaryColor: css("--c-card"),
-          primaryTextColor: css("--c-fg"),
-          primaryBorderColor: css("--c-line"),
-          lineColor: css("--c-muted"),
-          clusterBkg: css("--c-surface"),
-          fontFamily:
-            "system-ui, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif",
-        },
-        flowchart: { htmlLabels: true, curve: "basis" },
-      });
-      mermaid.run({ querySelector: ".mermaid" });
-    </script>
+    <MermaidRuntime />
   </body>
 </html>
