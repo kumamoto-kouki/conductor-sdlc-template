@@ -90,6 +90,7 @@
   ],
   "specs": [
     {
+      "id": "funcB",
       "name": "保存まわり（機能B）",
       "stage": "仕様確定",
       "impl": "全23項目",
@@ -102,6 +103,7 @@
       "evidence": ["auto-test"]
     },
     {
+      "id": "funcA",
       "name": "キャラ表示（機能A）",
       "stage": "仕様確定",
       "impl": "全18項目＋繰越K1〜K5＋D2",
@@ -114,6 +116,7 @@
       "evidence": ["auto-test"]
     },
     {
+      "id": "funcC",
       "name": "モデル切替・対話（機能C）",
       "stage": "タスク化済",
       "impl": "全18 ＋ 汎用生成コマンド",
@@ -126,6 +129,7 @@
       "evidence": ["auto-test"]
     },
     {
+      "id": "funcD",
       "name": "観察日記（機能D）",
       "stage": "タスク化済",
       "impl": "全8タスク（generate_text 経由）",
@@ -173,7 +177,8 @@
           "actors": "🧑🏻‍💼",
           "actorsTip": "PO 判断中",
           "tip": "M5 Google ドライブ同期。実装完了(機能B 23/23・OAuth/GDrive/keyring・Rustテスト緑)。実OAuth疎通は Google Cloud OAuthアプリ登録(client_id/secret)が必要＝PO 判断中",
-          "footnote": "着手したカードはここへ。M5 は実装済・実 OAuth 疎通の扱いを PO 判断中。"
+          "footnote": "着手したカードはここへ。M5 は実装済・実 OAuth 疎通の扱いを PO 判断中。",
+          "specRef": "funcB"
         }
       ],
       "review": [],
@@ -184,7 +189,8 @@
           "title": "実機対話（PO サインオフ）",
           "actors": "🧑🏻‍💼",
           "actorsTip": "PO サインオフ",
-          "tip": "M3 モデルと実対話のサインオフ。実装完了(機能C/chat・自動テスト緑が裏付け)。実機・実APIの実対話確認は PO 判断でサインオフ(実証ログは本セッション未取得)"
+          "tip": "M3 モデルと実対話のサインオフ。実装完了(機能C/chat・自動テスト緑が裏付け)。実機・実APIの実対話確認は PO 判断でサインオフ(実証ログは本セッション未取得)",
+          "specRef": "funcC"
         },
         {
           "id": "D2",
@@ -248,7 +254,8 @@
           "title": "観察日記",
           "actors": "👨🏼‍💻🕵🏼‍♂️",
           "actorsTip": "実装BE(実装)→EngRev(レビュー)",
-          "tip": "観察日記 機能D / 実装BE(実装)→EngRev(レビュー)"
+          "tip": "観察日記 機能D / 実装BE(実装)→EngRev(レビュー)",
+          "specRef": "funcD"
         },
         {
           "id": "A",

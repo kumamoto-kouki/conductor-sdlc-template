@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <script>
+  (function () {
+    try {
+      var v = localStorage.getItem("dashboard-theme");
+      if (v === "light" || v === "dark") {
+        document.documentElement.setAttribute("data-theme", v);
+      }
+    } catch (e) {
+      // localStorage が使えない環境（file:// の一部ブラウザ等）では何もしない
+      // ＝auto と同じ既定の見た目にフォールバックする。
+    }
+  })();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>product.md — プロダクト（記入テンプレ） ｜ ステアリング ｜（プロジェクト名） 開発ダッシュボード</title>
+  <link rel="stylesheet" href="../_astro/global.DMEAz_nQ.css"></head>
+  <body>
+    <header class="site-nav">
+  <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
+    <ul class="site-nav-links">
+      <li>
+            <a href="../status-dashboard.html" class>
+              📊 ダッシュボード
+            </a>
+          </li><li>
+            <a href="../reports.html" class>
+              📝 振り返り
+            </a>
+          </li><li>
+            <a href="../steering.html" aria-current="page" class="is-active">
+              🧭 ステアリング
+            </a>
+          </li>
+    </ul>
+    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="表示テーマの切り替え（自動/ライト/ダーク）">
+      🌓 自動
+    </button>
+  </nav>
+</header>
+
+<script>
+  (function () {
+    var KEY = "dashboard-theme";
+    var STATES = ["auto", "light", "dark"];
+    var LABELS = { auto: "🌓 自動", light: "☀️ ライト", dark: "🌙 ダーク" };
+    var btn = document.getElementById("theme-toggle");
+
+    function currentState() {
+      var v = null;
+      try {
+        v = localStorage.getItem(KEY);
+      } catch (e) {}
+      return STATES.indexOf(v) === -1 ? "auto" : v;
+    }
+
+    function apply(state) {
+      if (state === "auto") {
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", state);
+      }
+      if (btn) {
+        btn.textContent = LABELS[state];
+        btn.setAttribute(
+          "aria-label",
+          "表示テーマの切り替え（現在: " + LABELS[state] + "）",
+        );
+      }
+    }
+
+    apply(currentState());
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = STATES[(STATES.indexOf(currentState()) + 1) % STATES.length];
+        try {
+          localStorage.setItem(KEY, next);
+        } catch (e) {}
+        apply(next);
+      });
+    }
+  })();
+</script>
+    <div class="wrap">
+      <header class="hero">
+        <h1 class="text-white">🧭 product.md — プロダクト（記入テンプレ）</h1>
+        <div class="mt-1.5 text-[13px] text-white/85">
+          <a class="text-white/85!" href="../steering.html">← ステアリング一覧へ戻る</a>
+        </div>
+      </header>
+
+      <div class="card markdown-body">
+        <h1 id="productmd--プロダクト記入テンプレ">product.md — プロダクト（記入テンプレ）</h1>
+<blockquote>
+<p><code>/kiro-steering</code> で埋めるか、手で記入する。何を・誰に・なぜ作るかを短く。</p>
+</blockquote>
+<h2 id="目的何をなぜ">目的（何を・なぜ）</h2>
+<ul>
+<li>（このプロダクトが解く課題・提供価値を1〜2行で）</li>
+</ul>
+<h2 id="対象ユーザー">対象ユーザー</h2>
+<ul>
+<li>（誰のためか）</li>
+</ul>
+<h2 id="主要機能垂直スライス">主要機能（垂直スライス）</h2>
+<ul>
+<li>（機能1）</li>
+<li>（機能2）</li>
+</ul>
+<h2 id="プロダクト不変条件受理の核最優先で守る">プロダクト不変条件（受理の核・最優先で守る）</h2>
+<ul>
+<li>（例: 特定の表示を常設する／特定のデータを外に出さない 等。ここに書いた不変条件は markup／バリデーションで二重に担保し、レビュー受理条件にする）</li>
+</ul>
+<h2 id="非目標やらないこと">非目標（やらないこと）</h2>
+<ul>
+<li>（スコープ外を明記して肥大を防ぐ）</li>
+</ul>
+      </div>
+
+      <div class="foot">
+        ダッシュボード本体へ戻る: <code>../status-dashboard.html</code>
+      </div>
+    </div>
+    <script>
+  // file:// 等で下のモジュールが実行されなかった場合、生の
+  // <pre class="mermaid">…コード…</pre> がテキストのまま崩れて見えるのを防ぎ、
+  // 控えめな案内プレースホルダーへ置き換える（要件: 壊れて見えないこと。
+  // Mermaid自体の描画は npm run preview に譲る）。
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      if (document.documentElement.dataset.mermaidModuleRan === "1") return;
+      document
+        .querySelectorAll("pre.mermaid:not([data-processed])")
+        .forEach((el) => {
+          el.textContent =
+            "この図はサーバー閲覧（npm run preview）で表示されます。";
+          el.classList.add("mermaid-fallback");
+        });
+    }, 300);
+  });
+</script>
+<script type="module" src="../_astro/MermaidRuntime.astro_astro_type_script_index_0_lang.DRGBZBxC.js"></script>
+  </body>
+</html>

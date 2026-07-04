@@ -1,0 +1,88 @@
+---
+// ポータル化（Wave3 #3・#4）: 全ページ共通のヘッダーナビ＋ダークモードトグル。
+// リンクは相対パスで組み立てる（npm run preview だけでなく file:// でも
+// ページ間遷移できるようにするため。.claude/rules/dashboard-verification.md の
+// 「正式閲覧はサーバー経由・file://はコア表示のフォールバック」を踏まえ、
+// フォールバック時もナビゲーション自体は機能する状態を維持する）。
+//
+// depth: dashboard/ 直下からの深さ（0=status-dashboard.html・reports.html・
+// steering.html、1=reports/<slug>.html・steering/<slug>.html）。
+// ネスト先からルートへ戻る相対パスの計算に使う
+// （scripts/relativize-asset-paths.mjs のネスト対応と同じ考え方）。
+interface Props {
+  depth?: 0 | 1;
+  active?: "dashboard" | "reports" | "steering" | null;
+}
+
+const { depth = 0, active = null } = Astro.props;
+const prefix = depth > 0 ? "../".repeat(depth) : "";
+
+const links = [
+  { key: "dashboard", href: `${prefix}status-dashboard.html`, label: "📊 ダッシュボード" },
+  { key: "reports", href: `${prefix}reports.html`, label: "📝 振り返り" },
+  { key: "steering", href: `${prefix}steering.html`, label: "🧭 ステアリング" },
+];
+---
+
+<header class="site-nav">
+  <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
+    <ul class="site-nav-links">
+      {
+        links.map((l) => (
+          <li>
+            <a href={l.href} aria-current={active === l.key ? "page" : undefined} class={active === l.key ? "is-active" : ""}>
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="表示テーマの切り替え（自動/ライト/ダーク）">
+      🌓 自動
+    </button>
+  </nav>
+</header>
+
+<script is:inline>
+  (function () {
+    var KEY = "dashboard-theme";
+    var STATES = ["auto", "light", "dark"];
+    var LABELS = { auto: "🌓 自動", light: "☀️ ライト", dark: "🌙 ダーク" };
+    var btn = document.getElementById("theme-toggle");
+
+    function currentState() {
+      var v = null;
+      try {
+        v = localStorage.getItem(KEY);
+      } catch (e) {}
+      return STATES.indexOf(v) === -1 ? "auto" : v;
+    }
+
+    function apply(state) {
+      if (state === "auto") {
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", state);
+      }
+      if (btn) {
+        btn.textContent = LABELS[state];
+        btn.setAttribute(
+          "aria-label",
+          "表示テーマの切り替え（現在: " + LABELS[state] + "）",
+        );
+      }
+    }
+
+    apply(currentState());
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = STATES[(STATES.indexOf(currentState()) + 1) % STATES.length];
+        try {
+          localStorage.setItem(KEY, next);
+        } catch (e) {}
+        apply(next);
+      });
+    }
+  })();
+</script>

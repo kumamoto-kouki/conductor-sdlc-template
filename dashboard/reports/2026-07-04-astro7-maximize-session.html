@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <script>
+  (function () {
+    try {
+      var v = localStorage.getItem("dashboard-theme");
+      if (v === "light" || v === "dark") {
+        document.documentElement.setAttribute("data-theme", v);
+      }
+    } catch (e) {
+      // localStorage が使えない環境（file:// の一部ブラウザ等）では何もしない
+      // ＝auto と同じ既定の見た目にフォールバックする。
+    }
+  })();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026-07-04 振り返り：Astro 7移行・SSG比較・Astro最大化 Wave 1/2 ｜ 振り返り ｜（プロジェクト名） 開発ダッシュボード</title>
+  <link rel="stylesheet" href="../_astro/global.DMEAz_nQ.css"></head>
+  <body>
+    <header class="site-nav">
+  <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
+    <ul class="site-nav-links">
+      <li>
+            <a href="../status-dashboard.html" class>
+              📊 ダッシュボード
+            </a>
+          </li><li>
+            <a href="../reports.html" aria-current="page" class="is-active">
+              📝 振り返り
+            </a>
+          </li><li>
+            <a href="../steering.html" class>
+              🧭 ステアリング
+            </a>
+          </li>
+    </ul>
+    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="表示テーマの切り替え（自動/ライト/ダーク）">
+      🌓 自動
+    </button>
+  </nav>
+</header>
+
+<script>
+  (function () {
+    var KEY = "dashboard-theme";
+    var STATES = ["auto", "light", "dark"];
+    var LABELS = { auto: "🌓 自動", light: "☀️ ライト", dark: "🌙 ダーク" };
+    var btn = document.getElementById("theme-toggle");
+
+    function currentState() {
+      var v = null;
+      try {
+        v = localStorage.getItem(KEY);
+      } catch (e) {}
+      return STATES.indexOf(v) === -1 ? "auto" : v;
+    }
+
+    function apply(state) {
+      if (state === "auto") {
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", state);
+      }
+      if (btn) {
+        btn.textContent = LABELS[state];
+        btn.setAttribute(
+          "aria-label",
+          "表示テーマの切り替え（現在: " + LABELS[state] + "）",
+        );
+      }
+    }
+
+    apply(currentState());
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = STATES[(STATES.indexOf(currentState()) + 1) % STATES.length];
+        try {
+          localStorage.setItem(KEY, next);
+        } catch (e) {}
+        apply(next);
+      });
+    }
+  })();
+</script>
+    <div class="wrap">
+      <header class="hero">
+        <h1 class="text-white">📝 2026-07-04 振り返り：Astro 7移行・SSG比較・Astro最大化 Wave 1/2</h1>
+        <div class="mt-1.5 text-[13px] text-white/85">
+          <a class="text-white/85!" href="../reports.html">← 振り返り一覧へ戻る</a>
+        </div>
+      </header>
+
+      <div class="card markdown-body">
+        <h1 id="2026-07-04-振り返りastro-7移行ssg比較astro最大化-wave-12">2026-07-04 振り返り：Astro 7移行・SSG比較・Astro最大化 Wave 1/2</h1>
+<p>前レポート（<code>2026-07-03-astro-design-ontology-session.md</code>・<code>2026-07-04-ssg-comparison.md</code>）以降のまとまり。</p>
+<h2 id="何を実装したか">何を実装したか</h2>
+<ol>
+<li><strong>Astro 7移行</strong>（5.18.2→7.0.6・Tailwind v4化・独立レビューAPPROVED）</li>
+<li><strong>SSG比較検証</strong>（別レポート済み→PO判断でAstro継続を決定）</li>
+<li><strong>Astro最大化 Wave 1</strong>：検証ハーネス <code>scripts/verify-dashboard.mjs</code>（<code>npm run verify</code>）＋pre-commitフックによる「ビルド入力↔生成物」整合の機械化＋保守運用文書</li>
+<li><strong>Astro最大化 Wave 2</strong>：正式閲覧をサーバー経由（<code>npm run preview</code>）へ変更・file://はプレースホルダー付きフォールバックへ格下げ・Mermaid ESM復帰（ランタイム転送量 3.5MB→763KB・独立実測）</li>
+</ol>
+<h2 id="詰まった点繰り返した判断">詰まった点・繰り返した判断</h2>
+<ul>
+<li><strong>検証ハーネス自身の盲点が2回見つかった</strong>（今日の最重要の学び）。①Wave 1：「要素数減少⚠」パスがE2E未検証のまま出荷されかけた（Makerが正直に開示→レビュアーが実証）。②Wave 2：ハーネスのスモークが「data-processed=true かつ svg 存在」だけを見ており、<strong>空描画</strong>（svgはあるが中身が空＝MermaidのID衝突の実際の故障モード）を素通しすることをレビュアーが実証。どちらも<strong>負のテスト＝検知すべき故障を意図的に起こし、チェックが実際に落ちることを証明</strong>してから受理した。「チェックを足したら、そのチェックが落ちるところを一度見る」——これを <code>dashboard-verification.md</code> へ格上げ（2回効いたため）。</li>
+<li><strong>メジャー追随の本当のコストを実測</strong>：Astro 5→7 は破壊的変更6件。中でも「Tailwind v4 が生成物のHTMLまでクラス走査し、前回ビルドのクラスが今回のCSSへ混入する非決定ビルド」「<code>compressHTML</code> が意味のある空白を削る」は、決定性チェックとピクセル比較ゲートがなければ静かに通っていた。ハーネス恒久化（Wave 1）はこの経験の直接の対策。</li>
+<li><strong>壊れた中間コミットは squash でmainに持ち込まない</strong>：Wave 2 のブランチに「その時点でビルド不能」なコミットが混入（bisect不能点）。履歴の正直さよりmainのbisect可能性を優先し、squashマージを統括の履歴方針として採用した。</li>
+<li><strong>正規表現によるHTML加工は除去順序に罠がある</strong>：HTMLコメント内に <code>&#x3C;script></code> という文字列があると、先にscript除去をかけた場合コメント本文へ食いつき残骸が残る（コメント→scriptの順で除去する）。ハーネス是正中に実測で発見。</li>
+<li><strong>パイプライン変更時は「旧構成が残した中間物」も掃除対象</strong>：旧ビルドの <code>public/vendor/</code> が残っていると、Astroがビルドごとに <code>dashboard/vendor/</code> へ複製し続け、新ハーネスのコミット整合チェックが落ち続ける。原因はソース側の残骸だった。</li>
+<li><strong>Mermaidの実バグを発見・修正</strong>：デフォルトのID生成が <code>Date.now()</code> のため、同一ミリ秒内に複数図が描画されるとIDが衝突し図が空になる（この環境で6/6再現）。<code>deterministicIds: true</code> で修正。Makerの発見をレビュアーが「修正を外して再現」で裏付けた検証の好例。</li>
+<li><strong>新機能が既存の主経路を壊す型の回帰</strong>：Wave 1 のpre-commitフック導入が <code>init-project.sh</code> の初回コミットを100%ブロックする回帰を生んだ（node_modules不在の新規派生では必ずビルド失敗）。単体では正しい2機能の相互作用であり、独立レビューの統合テスト（initの実実行）が捕捉した。</li>
+</ul>
+<h2 id="clauderules-化"><code>.claude/rules/</code> 化</h2>
+<ul>
+<li>「検証チェックの追加・変更は負のテストで実証する」を <code>dashboard-verification.md</code> へ追記（本レポートと同時）。</li>
+</ul>
+<h2 id="スキル化の候補">スキル化の候補</h2>
+<ul>
+<li>なし（検証はハーネスに集約済み。委譲雛形は delegation.md で運用中）。</li>
+</ul>
+<h2 id="次回への持ち越し">次回への持ち越し</h2>
+<ul>
+<li><strong>Wave 3</strong>：#3ポータル化（reports/steeringのブラウズページ化）＋#4アイランド対話性（ボードフィルタ・用語集検索・ダークトグル）——PO承認済み・未着手</li>
+<li><strong>青リング本来色化</strong>（33箇所・<code>ring-line</code> へ。見た目が変わるためスクリーンショット前後比較つきで受理する小タスク）</li>
+<li><strong>PO判断待ち</strong>：<code>git push</code>（mainに未公開コミット多数）／SSG PoCブランチ2本（<code>feat/ssg-poc-npm</code>・<code>feat/ssg-poc-alt</code>）の保持・削除</li>
+</ul>
+      </div>
+
+      <div class="foot">
+        ダッシュボード本体へ戻る: <code>../status-dashboard.html</code>
+      </div>
+    </div>
+  </body>
+</html>

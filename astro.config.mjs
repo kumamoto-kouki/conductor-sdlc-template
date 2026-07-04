@@ -2,6 +2,54 @@ import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
 import tailwindcss from "@tailwindcss/vite";
 
+// ポータル化（Wave3 #3）: .kiro/steering/*.md の ```mermaid コードフェンスを、
+// 本体ページ（status-dashboard.astro）と同じ `<pre class="mermaid">生コード</pre>`
+// 構造へ変換する、依存ゼロの小さな rehype プラグイン。
+//
+// なぜ自前実装か: unist-util-visit 等は Astro の内部依存として node_modules に
+// 存在するが package.json に明示依存していないため import すると壊れやすい
+// （新規npm依存の追加は禁止＝PO決定）。hast ツリーは単純な type/tagName/children
+// を持つプレーンオブジェクトなので、再帰的な手書き走査で十分に書ける。
+//
+// 変換対象: remark-rehype がコードフェンスから生成する
+// `<pre><code class="language-mermaid">生コード</code></pre>` という定型構造
+// （shiki のシンタックスハイライトは markdown.syntaxHighlight.excludeLangs で
+// "mermaid" を除外し、この定型構造を壊させない。下記 markdown 設定参照）。
+function rehypeMermaidFence() {
+  function transformChildren(node) {
+    if (!node || !Array.isArray(node.children)) return;
+    node.children = node.children.map((child) => {
+      const codeChild = child?.children?.[0];
+      const isMermaidPre =
+        child?.type === "element" &&
+        child.tagName === "pre" &&
+        Array.isArray(child.children) &&
+        child.children.length === 1 &&
+        codeChild?.type === "element" &&
+        codeChild.tagName === "code" &&
+        Array.isArray(codeChild.properties?.className) &&
+        codeChild.properties.className.includes("language-mermaid");
+      if (isMermaidPre) {
+        const text = codeChild.children
+          .filter((c) => c.type === "text")
+          .map((c) => c.value)
+          .join("");
+        return {
+          type: "element",
+          tagName: "pre",
+          properties: { className: ["mermaid"] },
+          children: [{ type: "text", value: text }],
+        };
+      }
+      transformChildren(child);
+      return child;
+    });
+  }
+  return (tree) => {
+    transformChildren(tree);
+  };
+}
+
 // https://astro.build/config
 export default defineConfig({
   // 現状は完全静的出力（ゼロ依存のビルド時HTML生成を Astro に置き換えたもの）。
@@ -20,6 +68,21 @@ export default defineConfig({
     format: "file",
   },
   integrations: [mdx()],
+  // ポータル化（Wave3 #3）で content collections 経由の Markdown
+  // （.claude/reports/*.md・.kiro/steering/*.md）に Mermaid コードフェンスの
+  // 変換を効かせる。excludeLangs で "mermaid" を shiki のハイライト対象から外し
+  // （外さないと shiki が pre>code.language-mermaid をハイライト用の複雑な構造へ
+  // 作り替えてしまい、rehypeMermaidFence が期待する定型構造に一致しなくなる）、
+  // rehypePlugins は shiki の後段で実行される（@astrojs/markdown-remark の
+  // パイプライン順序）ため、shiki が手を付けなかった mermaid ブロックだけを
+  // このプラグインが変換する。
+  markdown: {
+    syntaxHighlight: {
+      type: "shiki",
+      excludeLangs: ["math", "mermaid"],
+    },
+    rehypePlugins: [rehypeMermaidFence],
+  },
   // Astro 7 では @astrojs/tailwind（peer: astro ^3〜^5）が非対応になったため、
   // Tailwind v4 公式の Vite プラグイン方式へ移行（tailwind.config.mjs は
   // global.css の @config で読み込み、既存トークンをそのまま再利用する）。

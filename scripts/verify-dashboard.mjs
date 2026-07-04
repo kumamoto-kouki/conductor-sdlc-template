@@ -28,13 +28,29 @@ import {
 import { createHash } from "node:crypto";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
-import { dirname, join, relative } from "node:path";
+import { dirname, join, relative, sep } from "node:path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const DASHBOARD_DIR = join(ROOT, "dashboard");
 const STATUS_JSON = join(DASHBOARD_DIR, "status.json");
 const HTML_PATH = join(DASHBOARD_DIR, "status-dashboard.html");
+
+// ポータル化（Wave3 #3）で dashboard/reports/**・dashboard/steering/** の
+// ネストしたページが増えたため、レンダースモーク・NaN漏れチェックは
+// status-dashboard.html 決め打ちから「dashboard/ 配下の全 *.html」へ一般化する。
+function findAllHtmlFiles(dir) {
+  const results = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...findAllHtmlFiles(full));
+    } else if (entry.isFile() && entry.name.endsWith(".html")) {
+      results.push(full);
+    }
+  }
+  return results;
+}
 
 const results = []; // { name, status: "pass" | "fail" | "warn" | "skip", detail }
 
@@ -259,13 +275,80 @@ function waitForPreviewReady(proc, timeoutMs) {
   });
 }
 
+// 1ページ分の実描画チェック（http・dump-dom結果から判定）。
+// ポータル化（Wave3 #3）で dashboard/reports/**・dashboard/steering/** の
+// 複数ページに対象が広がったため、status-dashboard.html 専用だった判定ロジックを
+// 「任意の1ページ分の dom 文字列 + そのページの built html」から結果を返す形に
+// 切り出し、全ページに同じ基準を適用できるようにした。
+function evaluateRenderSmokeDom(dom, builtHtml, label) {
+  const strippedDom = stripComments(dom);
+  const svgCount = (strippedDom.match(/<svg[\s>]/g) || []).length;
+  const processedCount = (strippedDom.match(/data-processed="true"/g) || [])
+    .length;
+  const unprocessed =
+    strippedDom.match(
+      /<pre class="mermaid[^"]*"(?![^>]*data-processed)[^>]*>/g,
+    ) || [];
+
+  // 期待図数はビルド済みHTML内の <pre class="mermaid"> 実数から動的に導出する
+  // （独立レビュー指摘: 固定値のハードコードは図の増減で「図の総数以上」の意味から
+  // 乖離する）。HTMLコメントとscriptブロックは除外する: フォールバック用スクリプトの
+  // JSコメントと HTML内の説明コメントに同じ文字列が書かれており、素朴なカウントだと
+  // 過剰計上する。除去順序が重要: コメント→scriptの順で除去する。逆順だと、コメント
+  // 本文中の "<script>" という文字列にscript除去regexが食いつき、コメントの閉じ
+  // (-->)ごと後続の実</script>まで誤って消費し、コメント前半が残骸として残る
+  // （実測で発生）。
+  const strippedBuilt = builtHtml
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<script[\s\S]*?<\/script>/g, "");
+  const expected = (strippedBuilt.match(/<pre class="mermaid/g) || []).length;
+
+  // 空描画検知（独立レビューが実証した盲点）: MermaidのID衝突
+  // （deterministicIds無効時、Date.now()由来のidが同一ミリ秒で衝突し、
+  // data-processed="true"かつ<svg>は存在するのに中身が空になる）では、
+  // svg数・processed数のカウントだけでは全条件を素通りする。
+  // 各mermaid svgセグメントに実描画要素（path/text/rect等）が含まれるかまで検査する。
+  const mermaidSvgSegments =
+    strippedDom.match(/<svg[^>]*id="mermaid-[\s\S]*?<\/svg>/g) || [];
+  const emptySvgs = mermaidSvgSegments.filter(
+    (seg) => !/<(path|text|rect|polygon|circle|line|tspan)[\s>]/.test(seg),
+  );
+
+  const problems = [];
+  if (svgCount < expected)
+    problems.push(`Mermaid <svg> 数が不足: ${svgCount}（期待 >= ${expected}）`);
+  if (processedCount < expected)
+    problems.push(
+      `data-processed="true" 数が不足: ${processedCount}（期待 >= ${expected}）`,
+    );
+  if (unprocessed.length > 0)
+    problems.push(
+      `未処理の <pre class="mermaid"> が残留: ${unprocessed.length}件`,
+    );
+  if (emptySvgs.length > 0)
+    problems.push(
+      `中身が空のMermaid svg: ${emptySvgs.length}件（processed=trueでも実描画要素なし＝ID衝突等の空描画）`,
+    );
+
+  return {
+    label,
+    ok: problems.length === 0,
+    summary: `svg=${svgCount} data-processed=${processedCount}/${expected}`,
+    problems,
+  };
+}
+
 async function checkRenderSmokeHttp(chromiumBin) {
-  const NAME = "3a. 実描画スモーク（http・astro preview経由。正式閲覧相当）";
-  if (!existsSync(HTML_PATH)) {
+  const NAME =
+    "3a. 実描画スモーク（http・astro preview経由・全生成ページ対象）";
+  const htmlFiles = existsSync(DASHBOARD_DIR)
+    ? findAllHtmlFiles(DASHBOARD_DIR)
+    : [];
+  if (htmlFiles.length === 0) {
     record(
       NAME,
       "fail",
-      `${HTML_PATH} が存在しません（ビルドが先に失敗している可能性）`,
+      `${DASHBOARD_DIR} に *.html がありません（ビルドが先に失敗している可能性）`,
     );
     return;
   }
@@ -278,86 +361,65 @@ async function checkRenderSmokeHttp(chromiumBin) {
       stdio: ["ignore", "pipe", "pipe"],
     });
     const baseUrl = await waitForPreviewReady(proc, 15000);
-    const targetUrl = new URL("status-dashboard.html", baseUrl).toString();
 
-    const run = spawnSync(
-      chromiumBin,
-      [
-        "--headless",
-        "--disable-gpu",
-        "--no-sandbox",
-        "--virtual-time-budget=8000",
-        "--dump-dom",
-        targetUrl,
-      ],
-      { encoding: "utf8", timeout: 30000 },
-    );
-
-    if (run.error || run.status !== 0) {
-      record(
-        NAME,
-        "fail",
-        `chromium の実行が失敗しました（exit ${run.status}）\n${run.stderr || run.error?.message || ""}`,
+    const perPage = [];
+    for (const htmlFile of htmlFiles) {
+      const rel = relative(DASHBOARD_DIR, htmlFile).split(sep).join("/");
+      const targetUrl = new URL(rel, baseUrl).toString();
+      const run = spawnSync(
+        chromiumBin,
+        [
+          "--headless",
+          "--disable-gpu",
+          "--no-sandbox",
+          "--virtual-time-budget=8000",
+          "--dump-dom",
+          targetUrl,
+        ],
+        { encoding: "utf8", timeout: 30000 },
       );
-      return;
+      if (run.error || run.status !== 0) {
+        perPage.push({
+          label: rel,
+          ok: false,
+          summary: "",
+          problems: [
+            `chromium の実行が失敗しました（exit ${run.status}）\n${run.stderr || run.error?.message || ""}`,
+          ],
+        });
+        continue;
+      }
+      const builtHtml = readFileSync(htmlFile, "utf8");
+      perPage.push(
+        evaluateRenderSmokeDom(
+          run.stdout || "",
+          builtHtml,
+          `${rel} (${targetUrl})`,
+        ),
+      );
     }
 
-    const dom = stripComments(run.stdout || "");
-    const svgCount = (dom.match(/<svg[\s>]/g) || []).length;
-    const processedCount = (dom.match(/data-processed="true"/g) || []).length;
-    const unprocessed =
-      dom.match(/<pre class="mermaid[^"]*"(?![^>]*data-processed)[^>]*>/g) ||
-      [];
-
-    // 期待図数はビルド済みHTML内の <pre class="mermaid"> 実数から動的に導出する
-    // （独立レビュー指摘: 8のハードコードは図の増減で「図の総数以上」の意味から乖離する）。
-    // HTMLコメントとscriptブロックは除外する: フォールバック用スクリプトのJSコメントと
-    // HTML内の説明コメントに同じ文字列が書かれており、素朴なカウントだと過剰計上する。
-    // 除去順序が重要: コメント→scriptの順で除去する。逆順だと、コメント本文中の
-    // "<script>" という文字列にscript除去regexが食いつき、コメントの閉じ(-->)ごと
-    // 後続の実</script>まで誤って消費し、コメント前半が残骸として残る（実測で発生）。
-    const builtHtml = readFileSync(HTML_PATH, "utf8")
-      .replace(/<!--[\s\S]*?-->/g, "")
-      .replace(/<script[\s\S]*?<\/script>/g, "");
-    const expected = (builtHtml.match(/<pre class="mermaid/g) || []).length;
-
-    // 空描画検知（独立レビューが実証した盲点）: MermaidのID衝突
-    // （deterministicIds無効時、Date.now()由来のidが同一ミリ秒で衝突し、
-    // data-processed="true"かつ<svg>は存在するのに中身が空になる）では、
-    // svg数・processed数のカウントだけでは全条件を素通りする。
-    // 各mermaid svgセグメントに実描画要素（path/text/rect等）が含まれるかまで検査する。
-    const mermaidSvgSegments =
-      dom.match(/<svg[^>]*id="mermaid-[\s\S]*?<\/svg>/g) || [];
-    const emptySvgs = mermaidSvgSegments.filter(
-      (seg) => !/<(path|text|rect|polygon|circle|line|tspan)[\s>]/.test(seg),
+    const failed = perPage.filter((p) => !p.ok);
+    const summaryLines = perPage.map(
+      (p) =>
+        `  ${p.ok ? "OK" : "NG"} ${p.label}${p.summary ? ` ${p.summary}` : ""}`,
     );
-
-    const problems = [];
-    if (svgCount < expected)
-      problems.push(
-        `Mermaid <svg> 数が不足: ${svgCount}（期待 >= ${expected}）`,
-      );
-    if (processedCount < expected)
-      problems.push(
-        `data-processed="true" 数が不足: ${processedCount}（期待 >= ${expected}）`,
-      );
-    if (unprocessed.length > 0)
-      problems.push(
-        `未処理の <pre class="mermaid"> が残留: ${unprocessed.length}件`,
-      );
-    if (emptySvgs.length > 0)
-      problems.push(
-        `中身が空のMermaid svg: ${emptySvgs.length}件（processed=trueでも実描画要素なし＝ID衝突等の空描画）`,
-      );
-
-    if (problems.length === 0) {
+    if (failed.length === 0) {
       record(
         NAME,
         "pass",
-        `URL=${targetUrl} svg=${svgCount} data-processed=${processedCount}/${expected} 未処理残留=0 空svg=0`,
+        `${perPage.length} ページ全て合格\n${summaryLines.join("\n")}`,
       );
     } else {
-      record(NAME, "fail", `URL=${targetUrl}\n${problems.join("\n")}`);
+      const problemLines = failed.flatMap((p) => [
+        `  [${p.label}]`,
+        ...p.problems.map((m) => `    ${m}`),
+      ]);
+      record(
+        NAME,
+        "fail",
+        `${summaryLines.join("\n")}\n不合格詳細:\n${problemLines.join("\n")}`,
+      );
     }
   } catch (e) {
     record(NAME, "fail", `検証中に例外: ${e.message}`);
@@ -369,29 +431,11 @@ async function checkRenderSmokeHttp(chromiumBin) {
   }
 }
 
-function checkRenderSmokeFileFallback(chromiumBin) {
-  const NAME =
-    "3b. file://フォールバック（CSS適用＋Mermaidプレースホルダー表示）";
-  if (!existsSync(HTML_PATH)) {
-    record(NAME, "fail", `${HTML_PATH} が存在しません`);
-    return;
-  }
-
-  // snap版chromium等はホーム外のパス（/tmp直下等）を読めない場合があるため、
-  // $HOME配下の一時ディレクトリへコピーしてから file:// で開く
-  // （.claude/rules/dashboard-verification.md の運用メモに準拠）。
-  let tmpDir;
-  try {
-    tmpDir = mkdtempSync(join(homedir(), ".verify-dashboard-file-fallback-"));
-    cpSync(DASHBOARD_DIR, join(tmpDir, "dashboard"), { recursive: true });
-    const targetHtml = join(tmpDir, "dashboard", "status-dashboard.html");
-
-    // CSSが実際に適用されているかは --dump-dom（生マークアップ）だけでは分からない
-    // ため、検証用コピーにだけ計測スクリプトを注入し、getComputedStyle の結果を
-    // data属性へ書き出させる（本番HTMLは書き換えない。依存パッケージなしの方針を
-    // 保つため画像のピクセル比較ではなくDOM計測で代替する）。
-    let html = readFileSync(targetHtml, "utf8");
-    const probe = `
+// file:// でCSSが適用されているかは --dump-dom（生マークアップ）だけでは分からない
+// ため、検証用コピーにだけ計測スクリプトを注入し、getComputedStyle の結果を
+// data属性へ書き出させる（本番HTMLは書き換えない。依存パッケージなしの方針を
+// 保つため画像のピクセル比較ではなくDOM計測で代替する）。
+const CSS_PROBE_SCRIPT = `
 <script>
   window.addEventListener("load", function () {
     setTimeout(function () {
@@ -406,75 +450,132 @@ function checkRenderSmokeFileFallback(chromiumBin) {
     }, 500);
   });
 </script>`;
-    html = html.replace("</body>", `${probe}\n</body>`);
-    writeFileSync(targetHtml, html);
 
-    const run = spawnSync(
-      chromiumBin,
-      [
-        "--headless",
-        "--disable-gpu",
-        "--no-sandbox",
-        "--virtual-time-budget=3000",
-        "--dump-dom",
-        `file://${targetHtml}`,
-      ],
-      { encoding: "utf8", timeout: 30000 },
+// 1ページ分の file:// フォールバック判定（dom文字列から結果を返す）。
+// ポータル化（Wave3 #3）で複数ページに対象が広がったため
+// checkRenderSmokeHttp と同様に判定ロジックを切り出した。
+function evaluateFileFallbackDom(dom, label) {
+  const problems = [];
+
+  const cssMatch = dom.match(/data-css-check="([^"]*)"/);
+  if (!cssMatch || !cssMatch[1].split("|")[0]) {
+    problems.push(
+      "--c-accent トークンが解決できません（file://でCSSが適用されていない可能性）",
     );
+  }
 
-    if (run.error || run.status !== 0) {
-      record(
-        NAME,
-        "fail",
-        `chromium の実行が失敗しました（exit ${run.status}）\n${run.stderr || run.error?.message || ""}`,
-      );
-      return;
-    }
+  const stripped = stripComments(dom);
+  const mermaidTags =
+    stripped.match(
+      /<pre class="[^"]*\bmermaid\b[^"]*"[^>]*>[\s\S]*?<\/pre>/g,
+    ) || [];
+  const fallbackTags = mermaidTags.filter((tag) =>
+    /mermaid-fallback/.test(tag),
+  );
+  const rawExposed = mermaidTags.filter(
+    (tag) => !/mermaid-fallback/.test(tag) && /flowchart/.test(tag),
+  );
 
-    const dom = run.stdout || "";
-    const problems = [];
-
-    const cssMatch = dom.match(/data-css-check="([^"]*)"/);
-    if (!cssMatch || !cssMatch[1].split("|")[0]) {
-      problems.push(
-        "--c-accent トークンが解決できません（file://でCSSが適用されていない可能性）",
-      );
-    }
-
-    const stripped = stripComments(dom);
-    const mermaidTags =
-      stripped.match(
-        /<pre class="[^"]*\bmermaid\b[^"]*"[^>]*>[\s\S]*?<\/pre>/g,
-      ) || [];
-    const fallbackTags = mermaidTags.filter((tag) =>
-      /mermaid-fallback/.test(tag),
+  // mermaid図を持たないページ（reports/**等）では mermaidTags.length === 0 が
+  // 正常系なので、そのページに図が無いこと自体はエラーにしない
+  // （expected と同様、そのページの built html 側にコードフェンスが無いのが前提）。
+  if (mermaidTags.length > 0 && fallbackTags.length === 0) {
+    problems.push(
+      "mermaid-fallback プレースホルダーが1件も適用されていません" +
+        "（file://でMermaidモジュールが実行された、または検知ロジックが機能していない可能性）",
     );
-    const rawExposed = mermaidTags.filter(
-      (tag) => !/mermaid-fallback/.test(tag) && /flowchart/.test(tag),
+  }
+  if (rawExposed.length > 0) {
+    problems.push(
+      `生のMermaidコードがプレースホルダーに置き換わらず露出しています: ${rawExposed.length}件`,
     );
+  }
 
-    if (mermaidTags.length === 0) {
-      problems.push('<pre class="mermaid"> が見つかりません');
-    } else if (fallbackTags.length === 0) {
-      problems.push(
-        "mermaid-fallback プレースホルダーが1件も適用されていません" +
-          "（file://でMermaidモジュールが実行された、または検知ロジックが機能していない可能性）",
+  return {
+    label,
+    ok: problems.length === 0,
+    summary: `css=${cssMatch ? cssMatch[1].split("|")[0] : "?"} fallback=${fallbackTags.length}/${mermaidTags.length}`,
+    problems,
+  };
+}
+
+function checkRenderSmokeFileFallback(chromiumBin) {
+  const NAME =
+    "3b. file://フォールバック（CSS適用＋Mermaidプレースホルダー表示・全生成ページ対象）";
+  const htmlFiles = existsSync(DASHBOARD_DIR)
+    ? findAllHtmlFiles(DASHBOARD_DIR)
+    : [];
+  if (htmlFiles.length === 0) {
+    record(NAME, "fail", `${DASHBOARD_DIR} に *.html がありません`);
+    return;
+  }
+
+  // snap版chromium等はホーム外のパス（/tmp直下等）を読めない場合があるため、
+  // $HOME配下の一時ディレクトリへコピーしてから file:// で開く
+  // （.claude/rules/dashboard-verification.md の運用メモに準拠）。
+  let tmpDir;
+  try {
+    tmpDir = mkdtempSync(join(homedir(), ".verify-dashboard-file-fallback-"));
+    const copiedDashboard = join(tmpDir, "dashboard");
+    cpSync(DASHBOARD_DIR, copiedDashboard, { recursive: true });
+
+    const perPage = [];
+    for (const originalHtml of htmlFiles) {
+      const rel = relative(DASHBOARD_DIR, originalHtml);
+      const targetHtml = join(copiedDashboard, rel);
+
+      let html = readFileSync(targetHtml, "utf8");
+      html = html.replace("</body>", `${CSS_PROBE_SCRIPT}\n</body>`);
+      writeFileSync(targetHtml, html);
+
+      const run = spawnSync(
+        chromiumBin,
+        [
+          "--headless",
+          "--disable-gpu",
+          "--no-sandbox",
+          "--virtual-time-budget=3000",
+          "--dump-dom",
+          `file://${targetHtml}`,
+        ],
+        { encoding: "utf8", timeout: 30000 },
       );
-    }
-    if (rawExposed.length > 0) {
-      problems.push(
-        `生のMermaidコードがプレースホルダーに置き換わらず露出しています: ${rawExposed.length}件`,
-      );
+
+      if (run.error || run.status !== 0) {
+        perPage.push({
+          label: rel,
+          ok: false,
+          summary: "",
+          problems: [
+            `chromium の実行が失敗しました（exit ${run.status}）\n${run.stderr || run.error?.message || ""}`,
+          ],
+        });
+        continue;
+      }
+      perPage.push(evaluateFileFallbackDom(run.stdout || "", rel));
     }
 
-    if (problems.length === 0) {
+    const failed = perPage.filter((p) => !p.ok);
+    const summaryLines = perPage.map(
+      (p) =>
+        `  ${p.ok ? "OK" : "NG"} ${p.label}${p.summary ? ` ${p.summary}` : ""}`,
+    );
+    if (failed.length === 0) {
       record(
         NAME,
         "pass",
-        `CSS適用確認（--c-accent=${cssMatch[1].split("|")[0]}）／プレースホルダー適用=${fallbackTags.length}件／生露出=0`,
+        `${perPage.length} ページ全て合格\n${summaryLines.join("\n")}`,
       );
     } else {
-      record(NAME, "fail", problems.join("\n"));
+      const problemLines = failed.flatMap((p) => [
+        `  [${p.label}]`,
+        ...p.problems.map((m) => `    ${m}`),
+      ]);
+      record(
+        NAME,
+        "fail",
+        `${summaryLines.join("\n")}\n不合格詳細:\n${problemLines.join("\n")}`,
+      );
     }
   } catch (e) {
     record(NAME, "fail", `検証中に例外: ${e.message}`);
@@ -490,12 +591,12 @@ async function checkRenderSmoke() {
       "chromium/chromium-browser/google-chrome のいずれも見つかりません。" +
       "この環境ではスキップします（既存のprettierベストエフォート方針と同じfail-soft）。";
     record(
-      "3a. 実描画スモーク（http・astro preview経由。正式閲覧相当）",
+      "3a. 実描画スモーク（http・astro preview経由・全生成ページ対象）",
       "skip",
       detail,
     );
     record(
-      "3b. file://フォールバック（CSS適用＋Mermaidプレースホルダー表示）",
+      "3b. file://フォールバック（CSS適用＋Mermaidプレースホルダー表示・全生成ページ対象）",
       "skip",
       detail,
     );
@@ -509,45 +610,58 @@ async function checkRenderSmoke() {
 // (dashboard-verification.md: 「『情報量を減らさない』は機械カウントで証明する」。
 //  差分自体はエラーにしない＝意図的な変更もあるため。情報が減る方向の差だけ⚠で警告する)
 function checkElementCountReport() {
-  const NAME = "4. 要素数レポート（HEAD比較・減少方向のみ⚠）";
-  if (!existsSync(HTML_PATH)) {
-    record(NAME, "fail", `${HTML_PATH} が存在しません`);
+  const NAME = "4. 要素数レポート（HEAD比較・全生成ページ対象・減少方向のみ⚠）";
+  const htmlFiles = existsSync(DASHBOARD_DIR)
+    ? findAllHtmlFiles(DASHBOARD_DIR)
+    : [];
+  if (htmlFiles.length === 0) {
+    record(NAME, "fail", `${DASHBOARD_DIR} に *.html がありません`);
     return;
   }
-  const current = countElements(readFileSync(HTML_PATH, "utf8"));
 
-  let headHtml;
-  try {
-    headHtml = execSync("git show HEAD:dashboard/status-dashboard.html", {
-      cwd: ROOT,
-      encoding: "utf8",
-    });
-  } catch {
-    record(
-      NAME,
-      "skip",
-      "HEAD に dashboard/status-dashboard.html が存在しません（初回コミット前など）",
-    );
-    return;
-  }
-  const head = countElements(headHtml);
+  let decreasedAny = false;
+  const blocks = [];
+  for (const htmlFile of htmlFiles) {
+    const rel = relative(DASHBOARD_DIR, htmlFile).split(sep).join("/");
+    const current = countElements(readFileSync(htmlFile, "utf8"));
 
-  const rows = Object.keys(current);
-  const lines = [
-    "  要素      HEAD    現在    差分",
-    "  --------  ------  ------  ----",
-  ];
-  let decreased = false;
-  for (const key of rows) {
-    const diff = current[key] - head[key];
-    if (diff < 0) decreased = true;
-    const sign = diff > 0 ? `+${diff}` : `${diff}`;
-    lines.push(
-      `  ${key.padEnd(8)}  ${String(head[key]).padStart(6)}  ${String(current[key]).padStart(6)}  ${sign}`,
-    );
+    let headHtml;
+    try {
+      headHtml = execSync(`git show HEAD:dashboard/${rel}`, {
+        cwd: ROOT,
+        encoding: "utf8",
+        stdio: ["pipe", "pipe", "pipe"],
+      });
+    } catch {
+      // ポータル化（Wave3 #3）で新規追加されたページは HEAD に存在しないため
+      // 比較のしようがない。情報量が「減った」わけではないので fail/warn には
+      // しない。今回の現在値だけを参考情報として記録する（次回コミット以降は
+      // HEAD 比較が効くようになる）。
+      const rows = Object.keys(current)
+        .map((k) => `${k}=${current[k]}`)
+        .join(" ");
+      blocks.push(`  [${rel}] (HEAD未存在・新規ページ) ${rows}`);
+      continue;
+    }
+    const head = countElements(headHtml);
+
+    const rows = Object.keys(current);
+    const lines = [`  [${rel}]`, "    要素      HEAD    現在    差分"];
+    let fileDecreased = false;
+    for (const key of rows) {
+      const diff = current[key] - head[key];
+      if (diff < 0) fileDecreased = true;
+      const sign = diff > 0 ? `+${diff}` : `${diff}`;
+      lines.push(
+        `    ${key.padEnd(8)}  ${String(head[key]).padStart(6)}  ${String(current[key]).padStart(6)}  ${sign}`,
+      );
+    }
+    if (fileDecreased) decreasedAny = true;
+    blocks.push(lines.join("\n"));
   }
-  const detail = lines.join("\n");
-  if (decreased) {
+
+  const detail = blocks.join("\n");
+  if (decreasedAny) {
     record(
       NAME,
       "warn",
@@ -640,21 +754,32 @@ function checkFailedBuildResidue() {
 //  検証を通過した正常データ経路でも算出ロジックの誤りでNaN/undefinedが漏れうるため、
 //  生成物側でも独立に確認する)
 function checkNoNaNOrUndefined() {
-  const NAME = "6. NaN/undefined漏れ（生成HTMLへの静かな漏出防止）";
-  if (!existsSync(HTML_PATH)) {
-    record(NAME, "fail", `${HTML_PATH} が存在しません`);
+  const NAME = "6. NaN/undefined漏れ（生成HTML全ページへの静かな漏出防止）";
+  const htmlFiles = existsSync(DASHBOARD_DIR)
+    ? findAllHtmlFiles(DASHBOARD_DIR)
+    : [];
+  if (htmlFiles.length === 0) {
+    record(NAME, "fail", `${DASHBOARD_DIR} に *.html がありません`);
     return;
   }
-  const html = readFileSync(HTML_PATH, "utf8");
-  const matches = html.match(/\bNaN\b|\bundefined\b/g) || [];
-  if (matches.length === 0) {
-    record(NAME, "pass", "NaN/undefined の出現なし");
-  } else {
+  const offenders = [];
+  for (const htmlFile of htmlFiles) {
+    const html = readFileSync(htmlFile, "utf8");
+    const matches = html.match(/\bNaN\b|\bundefined\b/g) || [];
+    if (matches.length > 0) {
+      offenders.push(
+        `  ${relative(DASHBOARD_DIR, htmlFile)}: ${matches.length}件（${matches.slice(0, 5).join(", ")}${matches.length > 5 ? " ..." : ""}）`,
+      );
+    }
+  }
+  if (offenders.length === 0) {
     record(
       NAME,
-      "fail",
-      `${matches.length}件出現: ${matches.slice(0, 10).join(", ")}${matches.length > 10 ? " ..." : ""}`,
+      "pass",
+      `${htmlFiles.length} ページで NaN/undefined の出現なし`,
     );
+  } else {
+    record(NAME, "fail", offenders.join("\n"));
   }
 }
 

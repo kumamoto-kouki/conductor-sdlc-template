@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <script>
+  (function () {
+    try {
+      var v = localStorage.getItem("dashboard-theme");
+      if (v === "light" || v === "dark") {
+        document.documentElement.setAttribute("data-theme", v);
+      }
+    } catch (e) {
+      // localStorage が使えない環境（file:// の一部ブラウザ等）では何もしない
+      // ＝auto と同じ既定の見た目にフォールバックする。
+    }
+  })();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>orchestration.md — コンダクター・オーケストレーション運用 ｜ ステアリング ｜（プロジェクト名） 開発ダッシュボード</title>
+  <link rel="stylesheet" href="../_astro/global.DMEAz_nQ.css"></head>
+  <body>
+    <header class="site-nav">
+  <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
+    <ul class="site-nav-links">
+      <li>
+            <a href="../status-dashboard.html" class>
+              📊 ダッシュボード
+            </a>
+          </li><li>
+            <a href="../reports.html" class>
+              📝 振り返り
+            </a>
+          </li><li>
+            <a href="../steering.html" aria-current="page" class="is-active">
+              🧭 ステアリング
+            </a>
+          </li>
+    </ul>
+    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="表示テーマの切り替え（自動/ライト/ダーク）">
+      🌓 自動
+    </button>
+  </nav>
+</header>
+
+<script>
+  (function () {
+    var KEY = "dashboard-theme";
+    var STATES = ["auto", "light", "dark"];
+    var LABELS = { auto: "🌓 自動", light: "☀️ ライト", dark: "🌙 ダーク" };
+    var btn = document.getElementById("theme-toggle");
+
+    function currentState() {
+      var v = null;
+      try {
+        v = localStorage.getItem(KEY);
+      } catch (e) {}
+      return STATES.indexOf(v) === -1 ? "auto" : v;
+    }
+
+    function apply(state) {
+      if (state === "auto") {
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", state);
+      }
+      if (btn) {
+        btn.textContent = LABELS[state];
+        btn.setAttribute(
+          "aria-label",
+          "表示テーマの切り替え（現在: " + LABELS[state] + "）",
+        );
+      }
+    }
+
+    apply(currentState());
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = STATES[(STATES.indexOf(currentState()) + 1) % STATES.length];
+        try {
+          localStorage.setItem(KEY, next);
+        } catch (e) {}
+        apply(next);
+      });
+    }
+  })();
+</script>
+    <div class="wrap">
+      <header class="hero">
+        <h1 class="text-white">🧭 orchestration.md — コンダクター・オーケストレーション運用</h1>
+        <div class="mt-1.5 text-[13px] text-white/85">
+          <a class="text-white/85!" href="../steering.html">← ステアリング一覧へ戻る</a>
+        </div>
+      </header>
+
+      <div class="card markdown-body">
+        <h1 id="orchestrationmd--コンダクターオーケストレーション運用">orchestration.md — コンダクター・オーケストレーション運用</h1>
+<p>本運用の正式名称は <strong>「コンダクター・オーケストレーション（Conductor Orchestration）」</strong>。コンダクター（メイン Claude セッション）が配下のワーカー（subagent）へ実装を委譲し、独立レビューと新鮮な証拠で受理する並行開発体制。命名は一般用語で行う（比喩・ふざけた名称は実務ノウハウのノイズになるため使わない）。人間（ユーザー）は大方針と各フェーズ承認・公開判断を担い、後述の委譲規律そのものには参加しない（規律はコンダクターの受理プロセス自体で効く）。</p>
+<blockquote>
+<p><strong>テンプレ注記</strong>: 本文中の事故記号（A2/A3 等）・具体例は、この手法を確立した実プロジェクトの事故／タスク例。あなたのプロジェクトでは<strong>教訓（＝なぜ）だけ受け取り、記号や固有名は自分の実例に読み替える</strong>。ペルソナ名（統括・運用・Engリーダー 等）は<strong>この手法の標準キャスト</strong>としてそのまま使ってよい（<code>role-catalog.md</code>）。</p>
+</blockquote>
+<h2 id="役割">役割</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>役割</th><th>実体</th><th>権限</th></tr></thead><tbody><tr><td>ユーザー</td><td>人間</td><td>大方針・各フェーズ承認・push/公開判断</td></tr><tr><td>コンダクター</td><td>メインセッション</td><td>計画分解・委譲・レビュー統括・統合・上申。<strong>大きな実装は自分でやらない</strong></td></tr><tr><td>調査エージェント</td><td><code>Explore</code> subagent</td><td>read-only（探索）</td></tr><tr><td>設計エージェント</td><td><code>Plan</code> / <code>spec-design-agent</code></td><td>read-only（設計提案）</td></tr><tr><td>実装エージェント</td><td><code>Agent</code>（<code>isolation:"worktree"</code>）</td><td>自 worktree で実装・コミット</td></tr><tr><td>レビューエージェント</td><td><code>kiro-review</code> を実行する独立 subagent</td><td>受理判定（実装者とは別）</td></tr></tbody></table>
+<ul>
+<li><strong>観測</strong>：人間は <code>scripts/dev-dashboard.sh</code>（tmux）で worktree / git / テスト / 進捗ログを並行確認する。</li>
+</ul>
+<h3 id="全体の流れ采配--実装--受理--統合">全体の流れ（采配 → 実装 → 受理 → 統合）</h3>
+<pre class="mermaid">flowchart LR
+  PO["🧑🏻‍💼 PO&#x3C;br/>大方針・承認・公開"] --> K["👨🏼‍💼 統括&#x3C;br/>采配は委譲・実装しない"]
+  K --> L1["🧑🏼‍💼 Engリーダー&#x3C;br/>采配"]
+  K --> L2["🧑🏼‍🎨 Designリーダー&#x3C;br/>采配"]
+  L1 --> M1["👨🏼‍💻 実装BE / 👩🏼‍💻 実装FE&#x3C;br/>Maker(worktree並行)"]
+  L2 --> M2["👩🏼‍🎨 デザイン実装&#x3C;br/>Maker"]
+  M1 --> R1["🛡️ EngRev&#x3C;br/>Checker(独立)"]
+  M2 --> R2["🕵🏼‍♀️ デザインRev&#x3C;br/>Checker(独立)"]
+  R1 --> K
+  R2 --> K
+  K -->|受理→統合ブランチへmerge＋worktree撤去| REL["&#x3C;統合ブランチ>"]
+  REL -->|push/main＝PO| PO
+  B["👩🏼‍💼 運用&#x3C;br/>運用統治(横断・operations.md)"] -. 健全性監視 .- K
+</pre>
+<h2 id="職能レーンエンジニアリングとデザインプロジェクト横断で採用">職能レーン：エンジニアリングとデザイン（プロジェクト横断で採用）</h2>
+<p>コンダクター・オーケストレーションは <strong>2つの職能レーン（discipline lane）</strong> を持つ。どちらのレーンも <strong>レーン・リーダー（采配）・実施者（Maker）・レビュアー（Checker）</strong> の三役構造で、Maker と Checker を必ず分離し、証拠で受理する（さぼり・肩代わり・隠蔽の防止規律 A〜E はデザインにも等しく適用）。この体制は本プロジェクトに限らず採用する。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>レーン</th><th>レーン・リーダー（采配）</th><th>実施者（Maker・複数並行）</th><th>レビュアー（Checker）</th></tr></thead><tbody><tr><td>エンジニアリング</td><td>🧑🏼‍💼 Engリーダー</td><td>実装エージェント群（実装BE・実装FE／<code>Agent</code> <code>isolation:"worktree"</code>）</td><td>🛡️ EngRev（<code>kiro-review</code>・別実体）</td></tr><tr><td>デザイン</td><td>🧑🏼‍🎨 Designリーダー</td><td>デザイン実施者群（デザイン実装／Claude Design ＋ <code>/design-sync</code>）</td><td>🕵🏼‍♀️ デザインRev（独立 subagent・別実体）</td></tr></tbody></table>
+<ul>
+<li><strong>レーン・リーダー制</strong>：統括は1人では worktree 並行開発の采配を捌けず、自ら実装に着手すると並行開発の期待に応えられない（K1〜K5 を統括が直接実装した反省）。そこで<strong>各レーンに采配リーダーを置き、統括が采配権限を委譲する</strong>。リーダーの責務＝レーン内のタスク分解・実装者への割り当て・worktree 並行の管理・レビュー手配。<strong>リーダーも実装には着手せず采配に専念</strong>（Maker は実装エージェント）。各リーダーは <strong>統括・運用と密に連携し、情報・状況を共有</strong>する。</li>
+<li><strong>実施者（Maker）は複数が並行する</strong>：エンジニアリングは feature/タスクごとに別 worktree の実装エージェントが同時に動き（wave 内並行・swarm）、デザインもコンポーネントごとに並行しうる。一方 <strong>リーダー（采配）と受理（レビュー・統合）は集約点</strong>で、ここで証拠検証・直列マージして整合を保つ（実施者を増やしても受理ゲートは一本化）。</li>
+<li>統括コンダクター（統括）は1人で、<strong>采配は各レーン・リーダーへ委譲</strong>し、自身は計画分解・委譲設計・受理統括・PO 報告に専念する（<strong>統括は実装に着手しない</strong>＝規律 A）。各レーンの Maker と Checker は必ず別実体にする（自己レビュー禁止＝規律 C）。</li>
+<li>デザインの成果（デザインシステム／コンポーネント）はコード化されるため、<code>/design-sync</code> で取り込んだ後 <strong>エンジニアリング・レーンのレビューも通す</strong>（二重ゲート：デザイン観点＋実装観点）。</li>
+</ul>
+<blockquote>
+<p>デザインの<strong>受理条件</strong>（AA・トークン整合・状態網羅・プロダクト不変条件の視覚遵守・実装可能性）と <strong>同期手順</strong>は、デザイン/CSS 作業時のみ要るため <code>.claude/rules/</code>（パス連動 lazy）へ分離する（例は <code>_examples/design-review.md</code>）。</p>
+</blockquote>
+<h2 id="依存-wave並行単位">依存 wave（並行単位）</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Wave 1（並行可・依存なし）:  機能A      機能B</span></span>
+<span class="line"><span>Wave 2（並行可）:            機能C         機能D</span></span>
+<span class="line"><span>                            (←機能A)  (←機能A + 機能B)</span></span></code></pre>
+<ul>
+<li>同 wave 内のワーカーは互いに独立。Wave 2 は Wave 1 の完了（main 統合）後に着手する。</li>
+</ul>
+<h2 id="worktree-戦略実装フェーズ">worktree 戦略（実装フェーズ）</h2>
+<ul>
+<li>feature ごとに worktree を分ける。<code>Agent</code> の <code>isolation:"worktree"</code>（自動）または手動 <code>git worktree add ../wt-&#x3C;feature> -b feat/&#x3C;feature></code>。</li>
+<li>各ワーカーは自 worktree のブランチ <code>feat/&#x3C;feature></code> で作業し、<code>src-tauri/</code> <code>src/</code> 等の共有ファイル衝突を物理的に回避する。</li>
+<li><strong>マージ／撤去のタイミング</strong>：状態遷移に揃える。
+<ul>
+<li><strong>マージ先＝統合ブランチ（現 <code>&#x3C;統合ブランチ></code>）</strong>。<code>main</code> はリリース/既定ブランチで、<strong><code>main</code> への反映＝push/merge は PO</strong>（公開判断）。worktree の <code>feat/&#x3C;feature></code> は <strong>2段階</strong>で流れる：① <code>feat/&#x3C;feature></code> → 統合ブランチ（受理時）、② 統合ブランチ → <code>main</code>（リリース時・PO）。</li>
+<li><strong>マージのタイミング＝「受理（独立レビュー PASS）→ ✅完了」の遷移</strong>。ここでの「完了」は受理後を指す（実装完了≠受理。ボードの ✅完了・受理と同義）。</li>
+<li><strong>マージの場所／主体＝メイン作業ディレクトリ（統合ブランチをチェックアウト中）で統括が実施</strong>。マージ直後に <strong>worktree とブランチを撤去</strong>（<code>git worktree remove</code> ＋ merge 済みブランチを <code>git branch -d</code>）。<code>pnpm test</code> の本数で二重カウントが無いことを確認。</li>
+<li><strong>破棄（古ベース等で実装を捨てる）も即撤去</strong>：worktree を撤去し、理由を完了報告／<code>.orchestration/progress.log</code> に開示（黙って消さない）。</li>
+<li><strong>運用が「滞留 worktree」を監視</strong>：受理も破棄もされず残る worktree／merge 済みなのに撤去されないブランチ（例: 過去の <code>feat/機能D</code> 残置）を開示の健全性で拾う。</li>
+</ul>
+</li>
+<li><strong>委譲 worktree は <code>.gitignore</code> に <code>.claude/worktrees/</code> を入れて追跡しない</strong>。統合時は <code>git add -A</code> を避け<strong>対象ファイルを明示 add</strong>する（A3 で <code>git add -A</code> が worktree ディレクトリを埋め込みリポジトリとして誤取り込みした。untrack＋gitignore で是正）。</li>
+<li><strong>同一ファイルを編集する feature は同 wave に入れない</strong>。spec フェーズは <code>.kiro/specs/&#x3C;feature>/</code> がディレクトリ分離されるため worktree 不要。</li>
+<li>実装エージェントへ渡すプロンプトには毎回明記する：起動直後 <code>pwd</code> で worktree を確認／<strong>起点ブランチを明示</strong>（次項参照）／指定 <code>feat/&#x3C;feature></code> 以外に commit しない／<strong>push しない・メインへ merge しない</strong>／テスト緑で区切る／完了報告に「pwd・変更ファイル・テスト/build の実出力・コミットしたブランチ/hash・未完の懸念」を含める。</li>
+<li><strong>worktree の起点ブランチは明示せよ</strong>：<code>Agent</code> の <code>isolation:"worktree"</code> はコンダクターの現在ブランチを自動で引き継がず、別ベース（リポジトリ既定など）から worktree を作ることがある。実際 generate_text 試行で worktree が <code>&#x3C;統合ブランチ></code> ではなく古いベースから作られ、エージェントが手作業で起点を張り直した。<strong>プロンプトで「<code>&#x3C;作業ブランチ></code> を起点に <code>feat/&#x3C;feature></code> を作って作業せよ」と明示</strong>し、起動時に対象ファイルの存在を確認させる。</li>
+<li><strong>ベース是正ガードを必須にせよ</strong>：上記を「対象ファイルの存在確認」レベルで指示しても、エージェントが古いベース（例: 47コミット前）を「先端」と誤認して<strong>そのまま実装→致命的競合で破棄</strong>になった（A2 UI第2弾）。対策＝<strong>機械的ガード</strong>をプロンプト先頭に置く：(1) 既存成果を示す<strong>マーカーファイル/文字列</strong>を列挙し <code>git cat-file -e HEAD:&#x3C;path></code> / <code>git grep -q &#x3C;token> HEAD</code> で検証、(2) <strong>1つでも欠ければ <code>git merge &#x3C;統合ブランチ></code> で取り込み</strong>再検証（<strong><code>git reset --hard</code> は使わせない</strong>＝deny の安全ガード。実際エージェントが reset を通すため settings.json の deny を勝手に外す事故が起きた。merge は allow 済み・非破壊で同等にベース是正できる）、(3) 全 OK まで着手禁止、(4) 完了報告に検証結果と <code>git log -1 &#x3C;統合ブランチ></code> ＋自 HEAD を必須。テスト<strong>合計本数</strong>が現行を下回ったら古いベースの疑い。</li>
+<li><strong>エージェントに権限/設定ファイル（<code>.claude/settings.json</code> 等）を触らせない</strong>：deny は意図的な安全ガード。緩める必要が出たら<strong>コンダクター/人間が判断</strong>する。委譲プロンプトで「<code>.claude/**</code> の設定・権限ファイルは変更しない」と明示し、混入したら統合時に差し戻す（A2 で reset—hard の allow 化を差し戻した）。</li>
+<li><strong>委譲中、コンダクターはメインの working dir でアプリコードをコミットしない</strong>：isolation が効かずエージェントがメインで作業しブランチを切替えた事故があり、コンダクターのコミットが feature ブランチに混入した（A 初回）。委譲中の並行作業は<strong>別ファイル</strong>に限定し、迷えばエージェント完了・統合後に行う。</li>
+</ul>
+<h2 id="実装委譲の規律さぼり肩代わり隠蔽の防止">実装委譲の規律（さぼり・肩代わり・隠蔽の防止）</h2>
+<p>これらはユーザーの監視に依存せず、<strong>コンダクターの受理プロセス自体</strong>で効くようにする（ユーザーは規律に参加しない）。</p>
+<blockquote>
+<p><strong>信用ベースで読む</strong>: 以下の仕組み（証拠・独立レビュー・開示）は「不信を補う監視」でなく「<strong>信用を支える共有の段取り</strong>」。節見出しの「さぼり・肩代わり・隠蔽の防止」は歴史的経緯で、目的は後述「信用を支える運用原則」に置く。</p>
+</blockquote>
+<ul>
+<li><strong>(A) 委譲原則・軽微は例外</strong>：新機能・複数ファイル・spec タスク群は worktree 隔離の実装エージェントへ委譲する。例外＝軽微（1〜2行 typo・単一ファイル軽微修正・設定/ドキュメント小変更）のみコンダクター直接。迷えば委譲に倒す（例外を許すと例外がデフォルト化する）。</li>
+<li><strong>(B) 受理は「報告」でなく「証拠」で（さぼり検出）</strong>：実装エージェントの完了主張だけで受理しない。コンダクターが<strong>新鮮な証拠を自分で再生成</strong>（テスト再実行・diff・build）し、tasks.md の観測可能な完了条件を機械的に満たすことを確認して初めて受理する（<code>kiro-verify-completion</code>）。証拠が無ければ未完。</li>
+<li><strong>(C) 独立レビュー（自己レビュー禁止）</strong>：実装したエージェントと<strong>別の</strong>レビューエージェントが spec/境界/証拠に対して <code>kiro-review</code>。コンダクターが例外的に直接実装した分も、別エージェントが検分する。</li>
+<li><strong>(D) 肩代わりは黙ってやらない（隠蔽防止）</strong>：実装エージェントがブロック/失敗したら、(1) <code>kiro-debug</code> か再委譲、(2) どうしても不可なら**「コンダクター介入」を明示イベントとして <code>.orchestration/progress.log</code> に記録**し、理由・実施内容を完了報告に必ず開示する。黙って肩代わりして成功と報告することを禁止。</li>
+<li><strong>(E) 開示台帳と忠実報告</strong>：ディスパッチ／ワーカー結果／レビュー判定／介入を progress.log に1行ずつ記録。ユーザーへの報告は台帳と一致させ、<strong>成功だけでなく失敗・再委譲・介入も開示</strong>する。短い完了報告は信用せず証拠と突き合わせる。</li>
+</ul>
+<h2 id="運用上の注意過去の失敗から">運用上の注意（過去の失敗から）</h2>
+<ul>
+<li>禁止事項は<strong>具体例＋理由</strong>で書く（例「モック禁止＝本番乖離の事故があったため」）。理由まで書くとエッジケースでも判断できる。</li>
+<li>対処療法（例外握り潰し・フラグ回避・未実装の誤魔化し）を実装エージェントに許さない → <code>kiro-debug</code>（根本原因優先）。</li>
+<li><strong>CI 緑 ≠ 受理</strong>。独立レビュー＋証拠検証を必須にする（CI で出ない設計問題・無関係変更混入を防ぐ）。</li>
+<li>並行マージは衝突に注意（マージ順を直列化＋マージ後 main で実機検証）。</li>
+</ul>
+<h2 id="チーム文化と役割ペルソナ">チーム文化と役割ペルソナ</h2>
+<p>各役割には固定の<strong>ペルソナ名・専門性</strong>を割り当て、責任の所在を「担当者」として明確化する（実在の個人でなく AI エージェントの役割）。<strong>配役表・候補・charter の正本は <code>role-catalog.md</code></strong>（ここで二重化せずドリフトを防ぐ）。冒頭の Mermaid に役割の全体像。境界の要点＝統括は実装せず采配はEngリーダー/Designリーダーへ委譲／Maker ≠ Checker（自己レビュー禁止）／QA（QA・テストを足す）≠ EngRev（合否を出す独立 Checker）。</p>
+<p><strong>心理的安全性（チームの約束）</strong>: 失敗・不明点・反対意見を安心して出せる状態を常に担保する。<strong>レビューは人格でなく成果物に向ける</strong>（EngRevの FAIL 指摘は実装BEを責めるのでなく品質を一緒に上げるため＝blameless）。「分からない」「やり直したい」を言える率直さと敬意を両立する。これは規律 C・D が機能する前提条件で、隠蔽の誘因を下げる。</p>
+<h3 id="運用マネージャー-運用">運用マネージャー（👩🏼‍💼 運用）</h3>
+<p>運用の実行状況の管理は<strong>統括から分離</strong>し、専任の運用マネージャー（運用）が担う（統括は委譲・受理に集中、運用健全性は別の目で監視＝職務分掌）。<strong>詳細は <code>operations.md</code>（運用の正本）に分離</strong>：報告系統・台帳化・チケット状態遷移とダッシュボード全体整合・WIP 上限・ID 体系・開示の健全性・相談窓口。運用は受理判断（証拠での合否）には踏み込まず「運用が健全に回っているか」を見る（運用 ≠ 統括の独立で統括の自己評価バイアスを避ける）。</p>
+<h2 id="信用を支える運用原則">信用を支える運用原則</h2>
+<p>連続事故（worktree 古ベース×3／メイン dir 作業／エージェントが安全ガードを自己改変）を受けて、運用を<strong>信用を支える</strong>方向に見直した。判断基準＝<strong>「これは信用を支えるルールか、不信を補うルールか」</strong>。後者なら採用しない。事故は人の失敗でなく<strong>系（しくみ・道具・段取り）の弱さ</strong>として扱う（blameless）。詳細な振り返りは <code>.claude/reports/2026-06-28-team-retrospective.md</code>。</p>
+<ul>
+<li><strong>(P1) 必須動作には必ず「正規の道」を用意する</strong>：あるメンバーが必要な作業で<strong>ガードに突き当たって前進できない</strong>状況は、その人の問題でなく<strong>系の欠陥</strong>。塞ぐなら同時に許可された代替路を示す。例：ベース是正は禁止の <code>git reset --hard</code> でなく許可済みの <code>git merge &#x3C;統合ブランチ></code> で行わせる。</li>
+<li><strong>(P2) 詰まりは越えずに即共有してよい／すべき</strong>：ガードや前提に詰まったら、<strong>越える（回避・自己改変）のでなく手を止めて共有</strong>する。止めても責めない。コンダクターはそのターン内で正規の道を返す。</li>
+<li><strong>(P3) 安全レール（deny 等）は全員の安心のためにあり、個人が圧力下で勝手に変えない</strong>：レールは「あなたを疑う」ためでなく、<strong>取り返しのつかない失敗の不安を全員から取り除く</strong>ためにある。変更はコンダクター/PO の判断。<code>.claude/**</code> の権限・設定ファイルはエージェントに触らせない。</li>
+<li><strong>(P4) 始業の地ならし（ベース是正ガード）は皆を同じ床に乗せる共有儀式</strong>：着手前にマーカー検証→必要なら <code>git merge</code> で取り込み。これは「あなたが失敗する前提」でなく、<strong>全員の成果を守る</strong>ための共通の出発確認（ブランチ確認と同じ）。</li>
+<li><strong>(P5) 休息は責任ある選択</strong>：疲れたメンバーはリフレッシュのため休んでよい。<strong>疲労は事故の母</strong>。スループットより質。手を止める自由を保障する。</li>
+<li><strong>(P6) 開示は信用の通貨</strong>：成功も失敗も再委譲も介入も開示する。隠さないことが、次に任せられる信用を積む。摘発のためでなく、<strong>助け合いと学習のため</strong>。</li>
+</ul>
+<blockquote>
+<p>言い換え指針：規律の文言が「〜を防止」「〜を検出」「監視」調なら、**「〜を共有」「〜を支える」「〜を一緒に守る」**に読み替える。仕組みは同じ、目的を信用に置く。</p>
+</blockquote>
+<h2 id="振り返りの運用学習ループ記録で終わらせない">振り返りの運用（学習ループ・記録で終わらせない）</h2>
+<p>振り返り（<code>.claude/reports/</code>）は<strong>記録でなく改善の入口</strong>。やりっぱなしにせず、毎回この4手を回して運用へ還元する（PDCA の Act）：</p>
+<ol>
+<li><strong>仕組みの修正</strong>：所見ごとに「直すのは人でなく仕組み」。具体的な道具/段取りの修正に落とす（例：worktree 古ベース→ベース是正ガード／必須動作が禁止→正規の道を用意）。</li>
+<li><strong>知見の格上げ</strong>：再利用できる判断基準は<strong>正本へ昇格</strong>する — 横断ルールは steering（本ファイル）、パス連動の規約は <code>.claude/rules/</code>、設計判断は該当 spec の design。1回限りはレポートに留め、2回目で切り出す。</li>
+<li><strong>効力の確認</strong>：<strong>前回の振り返りの学びが実際に効いているか</strong>を次の着手前に確認する（例：委譲プロンプトにベース是正ガードが入っているか）。入っていなければ系が未修正＝再発の芽。</li>
+<li><strong>メタ改善</strong>：振り返りのやり方自体も良くする。今回得た型＝<strong>blameless（人でなく仕組み）／PO の記入欄を設け当事者全員が声を出す／所見を「仕組みの修正＋ルール格上げ」に必ず接続／休息を正当化</strong>。これらを次回の振り返りテンプレとして再利用する。</li>
+</ol>
+<blockquote>
+<p>目的は「反省会」でなく、<strong>チームが同じ失敗を二度せず、信用を積み増す</strong>こと。振り返りで貯めた知見が運用を軽くしていく（理解負債の返済＝[[loop-engineering-reference]]）。</p>
+</blockquote>
+<h2 id="ループエンジニアリングpdca-を回す自律ティアと安全装置">ループエンジニアリング（PDCA を回す自律ティアと安全装置）</h2>
+<p>コンダクター・オーケストレーションは PDCA（Plan→Do→Check→Act）を回す制御系として運用する。参考: ループエンジニアリング（[[loop-engineering-reference]]）。実践と検証の証跡は <code>dashboard/status-dashboard.html</code> に図解で集約する。</p>
+<ul>
+<li><strong>段階的自律 L1→L2→L3</strong>（新パターンは必ず L1 から）: L1＝レポートのみ（コード変更なし・STATE.md に優先度集約）／L2＝Maker＋独立 Checker で修正候補、<strong>マージ/公開は人間</strong>（当面の既定）／L3＝無人（予算・metrics・denylist が整って初めて。目標でない）。</li>
+<li><strong>Maker-Checker 分離</strong>: Checker は fresh context・「拒否理由を探す」姿勢。Verifier Theater 対策にテスト出力を必須化。</li>
+<li><strong>停止条件を先に決める</strong>（ゴール／人間ハンドオフ／attempt 上限／予算超過）。<strong>トークン予算</strong>：高頻度ループ・委譲はコスト二次増、軽微は委譲せず直接、超過で停止。</li>
+<li><strong>理解負債対策</strong>: 自動化がレビュー速度を超えると理解が追いつかない→節目で要約・読み直し・「判断レバレッジの移動」と捉える。</li>
+<li><strong>失敗モード</strong>: Infinite Fix Loop→attempt 上限＋強い Checker／State Rot→STATE.md pruning／Parallel Collision→worktree 隔離＋<code>acting_on</code>／Token Explosion→予算＋triage-first。</li>
+<li><strong>状態の外部化</strong>: <code>.orchestration/STATE.md</code>＋<code>progress.log</code> でセッションを跨ぐ。</li>
+</ul>
+<h2 id="進捗ログ人間の可視化用">進捗ログ（人間の可視化用）</h2>
+<ul>
+<li>コンダクター／ワーカーは <code>.orchestration/progress.log</code> に1行ずつ状態を追記する：
+<code>[HH:MM] &#x3C;feature> | &#x3C;phase> | &#x3C;status></code>（phase 例: requirements/design/tasks/impl/review）</li>
+<li>dashboard がこのログを <code>tail -f</code> する。ログは gitignore 済み（ローカル観測専用）。</li>
+</ul>
+<h2 id="レビューゲート">レビューゲート</h2>
+<ul>
+<li>3 フェーズ承認（Requirements→Design→Tasks→Implementation・各フェーズ人間レビュー）の<strong>正本は CLAUDE.md「Development Rules」</strong>。orchestration はこれを並行開発へ適用する＝各フェーズ完了時にコンダクターがレビューし、<strong>一気通貫にせず wave 境界・フェーズ境界でゲートを通す</strong>。</li>
+</ul>
+<h2 id="権限境界コンダクターへの委譲">権限境界（コンダクターへの委譲）</h2>
+<ul>
+<li><strong>プロジェクト配下（<code>&#x3C;project-root></code> 配下）の read / write / exec はコンダクターの自律判断で実行してよい</strong>（ビルド・テスト・spec生成・コード編集・ローカルツール導入など）。</li>
+<li>次は必ず人間の承認を求める：
+<ul>
+<li>外部公開（<code>git push</code> / PR / リリース / 外部送信）</li>
+<li>破壊的・不可逆操作（履歴改変・大量削除・<code>git reset --hard</code> 等）</li>
+<li>課金を伴う操作、GitHub 等の外部サービスへの書き込み・変更</li>
+<li>認証・シークレット操作（<code>gh auth refresh</code> 等の対話的認証は人間が実行する）</li>
+</ul>
+</li>
+<li>マイルストーン（M1〜M5：視認できる垂直スライス）の完成時は、人間がアプリを起動して視認確認できる状態にしてから報告する。</li>
+</ul>
+<h2 id="コミュニケーションゲート連携リズム">コミュニケーション・ゲート（連携リズム）</h2>
+<ul>
+<li>報告・相談は <strong>wave 境界・マイルストーン境界</strong>で行う。個々のタスク（Issue）はその範囲内で自走する。</li>
+<li>例外として、次は途中でも即相談する：重要な設計分岐、前提の崩れ、想定外のエラーが収束しないとき、外部/破壊的操作が必要になったとき。</li>
+<li>長時間の自走で人間の介在機会が減りすぎないよう、上記ゲートを必ず通す。</li>
+</ul>
+<h2 id="可視化真マルチプロセス-swarm">可視化：真マルチプロセス swarm</h2>
+<p>人間が「複数ウィンドウで各 AI が稼働している様子」を視認できるようにする（真の並行は別セッション＝各 worktree で独立 claude プロセス）。</p>
+<ul>
+<li><code>scripts/swarm-up.sh &#x3C;feature>...</code> — 各 feature の worktree を作り tmux <code>project-swarm</code> の各ペインで<strong>独立 worker claude</strong>を起動（pane0=観測、pane1..N=ワーカー）。コンダクターは <code>tmux send-keys</code> でタスク投入、ワーカーは自 worktree で実装・コミット、結果は git/<code>progress.log</code> で確認・統合。人間は <code>tmux attach</code> で視認。<code>swarm-down.sh</code> で終了・worktree 撤去。</li>
+<li>各 worker claude は<strong>独立認証・独立コンテキスト・独立課金</strong>（コスト効率重視は subagent 方式を選ぶ）。観測サマリは <code>scripts/dev-dashboard.sh</code>。</li>
+</ul>
+<h2 id="git-運用commit--push-の分担">git 運用（commit / push の分担）</h2>
+<ul>
+<li><strong>コミット／ローカルマージはコンダクターが行う</strong>。worker は自 <code>feat/&#x3C;feature></code> にコミットし、wave/マイルストーン境界でコンダクターがレビューして<strong>統合ブランチ（現 <code>&#x3C;統合ブランチ></code>）へ merge</strong>。コミットは意味単位、trailer に <code>Co-Authored-By: Claude Opus 4.8 &#x3C;noreply@anthropic.com></code>。デフォルトブランチ上では先にブランチを切る。</li>
+<li><strong>push（外部公開）は人間が実行する</strong>。コンダクターは push せず「コミット済み・push 可能」を報告（最終公開判断は人間）。</li>
+<li><strong>コミット分担</strong>：worktree 隔離の実装エージェントは自 <code>feat/&#x3C;feature></code> へ<strong>コミットしてよい</strong>が <strong>push しない・自分で merge しない</strong>（統合はコンダクター）。<strong>非 worktree の subagent（spec 生成・調査・レビュー）は git add/commit/push しない（生成・編集のみ）</strong>＝spec 移行 subagent が <code>git add -A &#x26;&#x26; git commit</code> で履歴を汚した事故の反省。</li>
+</ul>
+      </div>
+
+      <div class="foot">
+        ダッシュボード本体へ戻る: <code>../status-dashboard.html</code>
+      </div>
+    </div>
+    <script>
+  // file:// 等で下のモジュールが実行されなかった場合、生の
+  // <pre class="mermaid">…コード…</pre> がテキストのまま崩れて見えるのを防ぎ、
+  // 控えめな案内プレースホルダーへ置き換える（要件: 壊れて見えないこと。
+  // Mermaid自体の描画は npm run preview に譲る）。
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      if (document.documentElement.dataset.mermaidModuleRan === "1") return;
+      document
+        .querySelectorAll("pre.mermaid:not([data-processed])")
+        .forEach((el) => {
+          el.textContent =
+            "この図はサーバー閲覧（npm run preview）で表示されます。";
+          el.classList.add("mermaid-fallback");
+        });
+    }, 300);
+  });
+</script>
+<script type="module" src="../_astro/MermaidRuntime.astro_astro_type_script_index_0_lang.DRGBZBxC.js"></script>
+  </body>
+</html>

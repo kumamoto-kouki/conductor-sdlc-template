@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <script>
+  (function () {
+    try {
+      var v = localStorage.getItem("dashboard-theme");
+      if (v === "light" || v === "dark") {
+        document.documentElement.setAttribute("data-theme", v);
+      }
+    } catch (e) {
+      // localStorage が使えない環境（file:// の一部ブラウザ等）では何もしない
+      // ＝auto と同じ既定の見た目にフォールバックする。
+    }
+  })();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>振り返り一覧 ｜（プロジェクト名） 開発ダッシュボード</title>
+  <link rel="stylesheet" href="_astro/global.DMEAz_nQ.css"></head>
+  <body>
+    <header class="site-nav">
+  <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
+    <ul class="site-nav-links">
+      <li>
+            <a href="status-dashboard.html" class>
+              📊 ダッシュボード
+            </a>
+          </li><li>
+            <a href="reports.html" aria-current="page" class="is-active">
+              📝 振り返り
+            </a>
+          </li><li>
+            <a href="steering.html" class>
+              🧭 ステアリング
+            </a>
+          </li>
+    </ul>
+    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="表示テーマの切り替え（自動/ライト/ダーク）">
+      🌓 自動
+    </button>
+  </nav>
+</header>
+
+<script>
+  (function () {
+    var KEY = "dashboard-theme";
+    var STATES = ["auto", "light", "dark"];
+    var LABELS = { auto: "🌓 自動", light: "☀️ ライト", dark: "🌙 ダーク" };
+    var btn = document.getElementById("theme-toggle");
+
+    function currentState() {
+      var v = null;
+      try {
+        v = localStorage.getItem(KEY);
+      } catch (e) {}
+      return STATES.indexOf(v) === -1 ? "auto" : v;
+    }
+
+    function apply(state) {
+      if (state === "auto") {
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", state);
+      }
+      if (btn) {
+        btn.textContent = LABELS[state];
+        btn.setAttribute(
+          "aria-label",
+          "表示テーマの切り替え（現在: " + LABELS[state] + "）",
+        );
+      }
+    }
+
+    apply(currentState());
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = STATES[(STATES.indexOf(currentState()) + 1) % STATES.length];
+        try {
+          localStorage.setItem(KEY, next);
+        } catch (e) {}
+        apply(next);
+      });
+    }
+  })();
+</script>
+    <div class="wrap">
+      <header class="hero">
+        <h1 class="text-white">📝 振り返り（.claude/reports/）</h1>
+        <div class="mt-1.5 text-[13px] text-white/85">
+          実装後の軽量な振り返り記録。<code class="bg-white/15! text-white!">.claude/reports/*.md</code> を日付ファイル名の降順で一覧表示します。
+        </div>
+      </header>
+
+      <h2>一覧<span class="note">7 件</span></h2>
+      <div class="card">
+        <ul class="report-list">
+          <li>
+                <a href="reports/readme.html">reports/ — 実装後の振り返り</a>
+              </li><li>
+                <a href="reports/2026-07-04-ssg-comparison.html">2026-07-04 SSG比較検証：Astro 7 vs 軽量代替4種＋旧実装</a>
+              </li><li>
+                <a href="reports/2026-07-04-astro7-maximize-session.html">2026-07-04 振り返り：Astro 7移行・SSG比較・Astro最大化 Wave 1/2</a>
+              </li><li>
+                <a href="reports/2026-07-03-astro-design-ontology-session.html">2026-07-03 振り返り：Astro移行・デザインリファイン・オントロジー整理</a>
+              </li><li>
+                <a href="reports/2026-07-02-dashboard-generator-and-unauthorized-push.html">2026-07-02 ダッシュボード生成基盤の導入と、委譲エージェントの無断コミット/push事故</a>
+              </li><li>
+                <a href="reports/2026-06-29-origin-and-decisions.html">2026-06-29 このテンプレートの経緯・決定・継続手順</a>
+              </li><li>
+                <a href="reports/_example-team-retrospective.html">チーム振り返り — 連続した事故をうけて（2026-06-28）</a>
+              </li>
+        </ul>
+      </div>
+
+      <div class="foot">
+        ダッシュボード本体へ戻る: <code>status-dashboard.html</code>
+      </div>
+    </div>
+  </body>
+</html>

@@ -70,6 +70,66 @@
   }
 }
 
+/* ダークモードトグル（Wave3 #4）: <html data-theme="dark|light"> による明示的な
+   上書き（ThemeInitInline.astro・SiteHeader.astro 参照）。`:root[data-theme=...]`
+   は `:root` 単体（@media 内含む）より詳細度が高い（属性セレクタ1つ分）ため、
+   OS/ブラウザの prefers-color-scheme に関わらず必ず勝つ（どちらの方向の上書きも
+   成立する）。上書きが無い＝auto 状態ではこれらのブロックは一切マッチせず、
+   既存の @media (prefers-color-scheme: dark) だけが効く＝現行描画とピクセル同一
+   を維持する。 */
+:root[data-theme="light"] {
+  --c-bg: #f5f7fb;
+  --c-card: #ffffff;
+  --c-surface: #eef1f7;
+  --c-fg: #1c2333;
+  --c-muted: #5b667d;
+  --c-line: #e2e7f0;
+  --c-accent: #4655c4;
+  --c-accent-hover: #3a48b0;
+  --c-accent-fg: #ffffff;
+  --c-accent-soft: #e9ecfb;
+  --c-ok: #146a48;
+  --c-ok-soft: #e2f4ea;
+  --c-warn: #8f6508;
+  --c-warn-soft: #f9f0d8;
+  --c-bad: #c11b30;
+  --c-bad-soft: #fbe8ea;
+  --c-info: #2563c9;
+  --c-info-soft: #e7effb;
+  --c-lane-design: #7452c9;
+  --c-lane-eng: #0c7f92;
+  --sh-card:
+    0 1px 2px rgba(16, 24, 40, 0.05), 0 4px 14px rgba(16, 24, 40, 0.06);
+  --sh-card-hover:
+    0 2px 4px rgba(16, 24, 40, 0.06), 0 10px 24px rgba(16, 24, 40, 0.1);
+}
+
+:root[data-theme="dark"] {
+  --c-bg: #0e1220;
+  --c-card: #171d2f;
+  --c-surface: #1e2539;
+  --c-fg: #e7eaf4;
+  --c-muted: #9aa4bc;
+  --c-line: #2b3450;
+  --c-accent: #97a3f6;
+  --c-accent-hover: #aeb8f8;
+  --c-accent-fg: #10142a;
+  --c-accent-soft: #252e57;
+  --c-ok: #53cd92;
+  --c-ok-soft: #15382a;
+  --c-warn: #e3b34f;
+  --c-warn-soft: #3a2f14;
+  --c-bad: #f4808d;
+  --c-bad-soft: #431c23;
+  --c-info: #74abf8;
+  --c-info-soft: #172c4e;
+  --c-lane-design: #b09af2;
+  --c-lane-eng: #53c6da;
+  --sh-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 18px rgba(0, 0, 0, 0.3);
+  --sh-card-hover:
+    0 2px 4px rgba(0, 0, 0, 0.4), 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
 /* dashboard/dashboard-template.html の <style type="text/tailwindcss"> から移植。
    Tailwind v4 CDN の @theme（CSS変数）は v3 の tailwind.config.mjs の
    theme.extend.colors へ移し、CSS変数参照（var(--color-*)）は固定値に置換した。
@@ -318,5 +378,133 @@
     background: var(--c-surface);
     color: var(--c-muted);
     font-family: inherit;
+  }
+
+  /* ===== ポータル化（Wave3 #3・#4）: 全ページ共通ヘッダーナビ ===== */
+  .site-nav {
+    @apply sticky top-0 z-10;
+    background: var(--c-card);
+    border-bottom: 1px solid var(--c-line);
+  }
+  .site-nav-inner {
+    @apply mx-auto flex max-w-[1080px] flex-wrap items-center justify-between gap-3 px-5 py-2.5;
+  }
+  .site-nav-links {
+    @apply m-0 flex list-none flex-wrap gap-4 p-0 text-[13px] font-semibold;
+  }
+  .site-nav-links a {
+    @apply no-underline;
+    color: var(--c-muted);
+  }
+  .site-nav-links a:hover {
+    color: var(--c-accent);
+  }
+  .site-nav-links a[aria-current="page"] {
+    color: var(--c-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  /* 新規UIの配色はWCAG AA（本文4.5:1・UI3:1）確認済み（.claude/rules/
+     dashboard-verification.md）: --c-surface と --c-bg のフィル差だけでは
+     UI境界のコントラストが不足する（実測 1.05〜1.23:1）ため、境界線は
+     --c-muted（カード/背景に対し 5.7:1 以上）で明示する。 */
+  .theme-toggle {
+    @apply cursor-pointer rounded-full px-3 py-1 text-[12px] font-semibold;
+    background: var(--c-surface);
+    color: var(--c-fg);
+    border: 1px solid var(--c-muted);
+  }
+  .theme-toggle:hover {
+    background: var(--c-accent-soft);
+  }
+  .theme-toggle:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--c-accent-soft);
+  }
+
+  /* ===== ボードフィルタ（Wave3 #4） ===== */
+  .board-filter {
+    @apply mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg p-2.5 text-[12px];
+    background: var(--c-surface);
+  }
+  .board-filter-label {
+    @apply font-bold;
+    color: var(--c-muted);
+  }
+  .board-filter-select {
+    @apply rounded-md px-2 py-1 text-[12px];
+    background: var(--c-card);
+    color: var(--c-fg);
+    border: 1px solid var(--c-muted);
+  }
+  .board-filter-select:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--c-accent-soft);
+  }
+
+  /* ===== 用語集検索（Wave3 #4） ===== */
+  .glossary-search-wrap {
+    @apply mb-3 flex flex-wrap items-center gap-2;
+  }
+  .glossary-search-label {
+    @apply text-[12px] font-bold;
+    color: var(--c-muted);
+  }
+  .glossary-search-input {
+    @apply min-w-[220px] flex-1 rounded-md px-2.5 py-1.5 text-[13px];
+    background: var(--c-card);
+    color: var(--c-fg);
+    border: 1px solid var(--c-muted);
+  }
+  .glossary-search-input:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--c-accent-soft);
+  }
+
+  /* ===== 振り返り/ステアリング一覧（Wave3 #3） ===== */
+  .report-list {
+    @apply m-0 list-none space-y-1.5 p-0 text-[13px];
+  }
+  .report-list a {
+    color: var(--c-accent);
+  }
+  .report-list a:hover {
+    color: var(--c-accent-hover);
+  }
+
+  /* ===== 振り返り/ステアリング詳細（Markdown本文の読みやすさ） ===== */
+  .markdown-body :is(h1, h2, h3, h4) {
+    color: var(--c-fg);
+  }
+  .markdown-body h1 {
+    @apply mt-0 mb-3 text-xl;
+  }
+  .markdown-body :is(h1, h2, h3, h4)::before {
+    content: none;
+  }
+  .markdown-body p {
+    @apply my-2.5 text-[13.5px] leading-relaxed;
+  }
+  .markdown-body ul,
+  .markdown-body ol {
+    @apply my-2.5 space-y-1 pl-5 text-[13.5px];
+  }
+  .markdown-body ul {
+    @apply list-disc;
+  }
+  .markdown-body ol {
+    @apply list-decimal;
+  }
+  .markdown-body pre:not(.mermaid) {
+    @apply my-3 overflow-x-auto rounded-lg p-3 text-xs;
+    background: var(--c-surface);
+  }
+  .markdown-body pre.mermaid {
+    @apply my-4 flex justify-center;
+  }
+  .markdown-body blockquote {
+    @apply my-3 border-l-4 pl-3 text-[13px];
+    border-color: var(--c-line);
+    color: var(--c-muted);
   }
 }

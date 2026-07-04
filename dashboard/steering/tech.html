@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <script>
+  (function () {
+    try {
+      var v = localStorage.getItem("dashboard-theme");
+      if (v === "light" || v === "dark") {
+        document.documentElement.setAttribute("data-theme", v);
+      }
+    } catch (e) {
+      // localStorage が使えない環境（file:// の一部ブラウザ等）では何もしない
+      // ＝auto と同じ既定の見た目にフォールバックする。
+    }
+  })();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tech.md — 技術スタック・制約（記入テンプレ） ｜ ステアリング ｜（プロジェクト名） 開発ダッシュボード</title>
+  <link rel="stylesheet" href="../_astro/global.DMEAz_nQ.css"></head>
+  <body>
+    <header class="site-nav">
+  <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
+    <ul class="site-nav-links">
+      <li>
+            <a href="../status-dashboard.html" class>
+              📊 ダッシュボード
+            </a>
+          </li><li>
+            <a href="../reports.html" class>
+              📝 振り返り
+            </a>
+          </li><li>
+            <a href="../steering.html" aria-current="page" class="is-active">
+              🧭 ステアリング
+            </a>
+          </li>
+    </ul>
+    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="表示テーマの切り替え（自動/ライト/ダーク）">
+      🌓 自動
+    </button>
+  </nav>
+</header>
+
+<script>
+  (function () {
+    var KEY = "dashboard-theme";
+    var STATES = ["auto", "light", "dark"];
+    var LABELS = { auto: "🌓 自動", light: "☀️ ライト", dark: "🌙 ダーク" };
+    var btn = document.getElementById("theme-toggle");
+
+    function currentState() {
+      var v = null;
+      try {
+        v = localStorage.getItem(KEY);
+      } catch (e) {}
+      return STATES.indexOf(v) === -1 ? "auto" : v;
+    }
+
+    function apply(state) {
+      if (state === "auto") {
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", state);
+      }
+      if (btn) {
+        btn.textContent = LABELS[state];
+        btn.setAttribute(
+          "aria-label",
+          "表示テーマの切り替え（現在: " + LABELS[state] + "）",
+        );
+      }
+    }
+
+    apply(currentState());
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = STATES[(STATES.indexOf(currentState()) + 1) % STATES.length];
+        try {
+          localStorage.setItem(KEY, next);
+        } catch (e) {}
+        apply(next);
+      });
+    }
+  })();
+</script>
+    <div class="wrap">
+      <header class="hero">
+        <h1 class="text-white">🧭 tech.md — 技術スタック・制約（記入テンプレ）</h1>
+        <div class="mt-1.5 text-[13px] text-white/85">
+          <a class="text-white/85!" href="../steering.html">← ステアリング一覧へ戻る</a>
+        </div>
+      </header>
+
+      <div class="card markdown-body">
+        <h1 id="techmd--技術スタック制約記入テンプレ">tech.md — 技術スタック・制約（記入テンプレ）</h1>
+<blockquote>
+<p><code>/kiro-steering</code> で埋めるか、手で記入する。採用技術と、それに伴う制約・規約を書く。</p>
+</blockquote>
+<h2 id="スタック">スタック</h2>
+<ul>
+<li>言語／ランタイム: （例）</li>
+<li>フレームワーク／主要ライブラリ: （例）</li>
+<li>テスト: （例 ユニット／DOM／E2E／スナップショット）</li>
+<li>ビルド／型チェック: （例）</li>
+</ul>
+<h2 id="コマンド検証の要">コマンド（検証の要）</h2>
+<ul>
+<li>テスト: <code>（例 pnpm test / cargo test）</code></li>
+<li>型チェック: <code>（例 pnpm check）</code></li>
+<li>ビルド: <code>（例 pnpm build）</code></li>
+<li>E2E: <code>（例 pnpm e2e）</code></li>
+</ul>
+<blockquote>
+<p>受理は**このコマンドの実出力（新鮮な証拠）**で行う（<code>kiro-verify-completion</code>）。</p>
+</blockquote>
+<h2 id="制約方針">制約・方針</h2>
+<ul>
+<li>セキュリティ: （例 シークレットは keyring／照会は有無のみ／通信先を絞る）</li>
+<li>パフォーマンス: （例 バンドル・起動）</li>
+<li>依存を増やさない方針: （例）</li>
+</ul>
+<h2 id="スタック依存の判断基準rules-へ">スタック依存の判断基準（rules へ）</h2>
+<ul>
+<li>実装後、2 回目に同じ判断をしたら <code>.claude/rules/&#x3C;name>.md</code>（path-glob lazy）に切り出す。参考例は <code>.claude/rules/_examples/</code>。</li>
+</ul>
+      </div>
+
+      <div class="foot">
+        ダッシュボード本体へ戻る: <code>../status-dashboard.html</code>
+      </div>
+    </div>
+    <script>
+  // file:// 等で下のモジュールが実行されなかった場合、生の
+  // <pre class="mermaid">…コード…</pre> がテキストのまま崩れて見えるのを防ぎ、
+  // 控えめな案内プレースホルダーへ置き換える（要件: 壊れて見えないこと。
+  // Mermaid自体の描画は npm run preview に譲る）。
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      if (document.documentElement.dataset.mermaidModuleRan === "1") return;
+      document
+        .querySelectorAll("pre.mermaid:not([data-processed])")
+        .forEach((el) => {
+          el.textContent =
+            "この図はサーバー閲覧（npm run preview）で表示されます。";
+          el.classList.add("mermaid-fallback");
+        });
+    }, 300);
+  });
+</script>
+<script type="module" src="../_astro/MermaidRuntime.astro_astro_type_script_index_0_lang.DRGBZBxC.js"></script>
+  </body>
+</html>

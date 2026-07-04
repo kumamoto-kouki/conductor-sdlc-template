@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <script>
+  (function () {
+    try {
+      var v = localStorage.getItem("dashboard-theme");
+      if (v === "light" || v === "dark") {
+        document.documentElement.setAttribute("data-theme", v);
+      }
+    } catch (e) {
+      // localStorage が使えない環境（file:// の一部ブラウザ等）では何もしない
+      // ＝auto と同じ既定の見た目にフォールバックする。
+    }
+  })();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026-07-03 振り返り：Astro移行・デザインリファイン・オントロジー整理 ｜ 振り返り ｜（プロジェクト名） 開発ダッシュボード</title>
+  <link rel="stylesheet" href="../_astro/global.DMEAz_nQ.css"></head>
+  <body>
+    <header class="site-nav">
+  <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
+    <ul class="site-nav-links">
+      <li>
+            <a href="../status-dashboard.html" class>
+              📊 ダッシュボード
+            </a>
+          </li><li>
+            <a href="../reports.html" aria-current="page" class="is-active">
+              📝 振り返り
+            </a>
+          </li><li>
+            <a href="../steering.html" class>
+              🧭 ステアリング
+            </a>
+          </li>
+    </ul>
+    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="表示テーマの切り替え（自動/ライト/ダーク）">
+      🌓 自動
+    </button>
+  </nav>
+</header>
+
+<script>
+  (function () {
+    var KEY = "dashboard-theme";
+    var STATES = ["auto", "light", "dark"];
+    var LABELS = { auto: "🌓 自動", light: "☀️ ライト", dark: "🌙 ダーク" };
+    var btn = document.getElementById("theme-toggle");
+
+    function currentState() {
+      var v = null;
+      try {
+        v = localStorage.getItem(KEY);
+      } catch (e) {}
+      return STATES.indexOf(v) === -1 ? "auto" : v;
+    }
+
+    function apply(state) {
+      if (state === "auto") {
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", state);
+      }
+      if (btn) {
+        btn.textContent = LABELS[state];
+        btn.setAttribute(
+          "aria-label",
+          "表示テーマの切り替え（現在: " + LABELS[state] + "）",
+        );
+      }
+    }
+
+    apply(currentState());
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = STATES[(STATES.indexOf(currentState()) + 1) % STATES.length];
+        try {
+          localStorage.setItem(KEY, next);
+        } catch (e) {}
+        apply(next);
+      });
+    }
+  })();
+</script>
+    <div class="wrap">
+      <header class="hero">
+        <h1 class="text-white">📝 2026-07-03 振り返り：Astro移行・デザインリファイン・オントロジー整理</h1>
+        <div class="mt-1.5 text-[13px] text-white/85">
+          <a class="text-white/85!" href="../reports.html">← 振り返り一覧へ戻る</a>
+        </div>
+      </header>
+
+      <div class="card markdown-body">
+        <h1 id="2026-07-03-振り返りastro移行デザインリファインオントロジー整理">2026-07-03 振り返り：Astro移行・デザインリファイン・オントロジー整理</h1>
+<p>前レポート（<code>2026-07-02-dashboard-generator-and-unauthorized-push.md</code>）以降のまとまり。3つのタスク群を「委譲→独立レビュー→是正→受理」のループで完遂した。</p>
+<h2 id="何を実装したか">何を実装したか</h2>
+<ol>
+<li><strong>ダッシュボードの Astro 全面移行</strong>：ゼロ依存の手書き生成スクリプトから Astro（<code>.astro</code> コンポーネント＋ <code>.mdx</code> ナラティブ＋Mermaid＋zod検証＋Tailwindビルド時コンパイル）へ。体制図の1798行の座標べた書きSVGをMermaid flowchart構文に圧縮。</li>
+<li><strong>デザインリファイン案A適用</strong>：<code>docs/design-brief.md</code> → claude.ai/design で2案生成 → PO選定 → トークン適用（CSS変数・ライト/ダーク <code>prefers-color-scheme</code> 自動切替）。情報量は要素数の機械カウントで不変を担保。</li>
+<li><strong>ナレッジグラフ導入プレイブック</strong>：オントロジー関連7ソースを統合し <code>.claude/playbooks/knowledge-graph.md</code> を新設（テンプレの標準装備・このリポジトリ自体には適用しない判断込み）。</li>
+</ol>
+<h2 id="詰まった点繰り返した判断">詰まった点・繰り返した判断</h2>
+<ul>
+<li><strong>「file:// で直接開ける」は暗黙の不変条件だった</strong>。Astro移行で <code>type="module"</code>（ESM）がfile://のCORS制約でブロックされ、Mermaid図8個が全滅する回帰が発生。皮肉なことに、そもそもビルド時生成へ移行した動機（file://でのJS実行制限）と同種の問題が別経路で再発した。<strong>不変条件は暗黙のままだと移行のたびに壊れる</strong>——明文化されていれば委譲プロンプトの受理条件に最初から入っていた。</li>
+<li><strong>静的検証は実描画の代わりにならない（2回実証）</strong>。①<code>jsdom</code>＋<code>mermaid.parse()</code>の構文チェックは通るのにブラウザでは全図未描画、②CSSが絶対パスで読めず無装飾になっていたのはスクリーンショットを撮って初めて発覚。<strong>「実ブラウザで開いてスクリーンショット」まで下ろさないと合格にできない</strong>——独立レビュアーがこれで2回、致命的問題を受理前に捕捉した。</li>
+<li><strong>「情報量を減らさない」は目視でなく機械カウントで検証する</strong>。デザイン適用時、h2/h3/tr/li/バッジ/カード数の前後比較＋タグ剥がしテキストのdiffで「見た目だけの変更」を客観的に証明できた。実装者の自己申告カウントには誤りがあったが、新旧同一手法での比較だったため結論は正しかった——<strong>再現可能なカウント手順を報告に含めるべき</strong>という指摘もレビューから出た。</li>
+<li><strong>外部デザイン提案の値は無検証で受け入れない</strong>。案Aのトークンをそのまま適用したら <code>badge-ok</code> が4.095:1でWCAG AA本文基準（4.5:1）に未達。「提案どおり」と「受理基準を満たす」は別——受理基準（design-review規約）が機能した。</li>
+<li><strong>Mermaid <code>classDef</code> は <code>var()</code> 非対応</strong>。CSS変数をテーマ全体（<code>themeVariables</code>＋<code>getComputedStyle</code>）とノード個別色（hex直書き固定）の2層に分けざるを得ない。ダークモード完全追随はノード個別色では不可という制約が残存。</li>
+<li><strong>Astroの <code>emptyOutDir:false</code> 運用は内部アーティファクトが漏れる</strong>。<code>status.json</code> を outDir に同居させる設計の副作用で、SSRバンドルの残留が通常ビルド・失敗ビルドで各1回ずつ（別ファイル群で）発覚。pre/post クリーンスクリプトで是正したが、<strong>「失敗ビルド後の状態」も検証対象</strong>という学びを得た（レビュアーがzodエラー再現の副産物で発見）。</li>
+</ul>
+<h2 id="プロセス面の学び">プロセス面の学び</h2>
+<ul>
+<li><strong>無断commit/push事故（前レポート）の対策が効いた</strong>：以降の実装委譲はすべてworktree隔離＋禁止事項の逐語明記に切り替え、再発ゼロ。ベース是正ガードも2回のworktree委譲で両方とも「古いベースを検知→merge→着手」と機能した。</li>
+<li><strong>報告のUX</strong>：「長文報告がチャットで流れる」というPOフィードバックを受け、<code>.orchestration/progress.log</code>（1行イベントストリーム）＋実スクリーンショット提示の運用に切り替えた。orchestration.md に元々あった仕組みを使っていなかっただけ——<strong>正本にある道具はまず使う</strong>。</li>
+<li><strong>細かい受理判断はPOから統括へ委任</strong>された（権限境界の範囲内で自律、push・事故・方針転換は引き続きPO）。</li>
+</ul>
+<h2 id="clauderules-化の候補"><code>.claude/rules/</code> 化の候補</h2>
+<ul>
+<li><strong>ダッシュボード検証の判断基準</strong>（<code>dashboard/**</code>・<code>src/**</code> 連動）：①file://直開きは不変条件（配布形態がローカル直開きのため。ESM/CDN/絶対パスは壊す）②見た目の変更は実ブラウザ描画＋スクリーンショットで受理（構文チェックは2回すり抜けた実績）③「情報量不変」は要素数の機械カウントで証明。→ <strong>2回以上効いた判断のため、今回このレポートと同時に <code>.claude/rules/dashboard-verification.md</code> として正式化する</strong>。</li>
+</ul>
+<h2 id="スキル化の候補">スキル化の候補</h2>
+<ul>
+<li><strong>スクリーンショット検証手順</strong>（$HOME配下へコピー→headless chromium→PILで切り出し→Read表示）は今セッションで5回以上繰り返した。次も頻発するようなら <code>scripts/screenshot-dashboard.sh</code> 化を検討（現時点ではメモリの session-habits に手順記録済みで足りる）。</li>
+</ul>
+<h2 id="残存事項ブロッカーではない">残存事項（ブロッカーではない）</h2>
+<ul>
+<li>Mermaidノード個別色はダークモードで固定hex（<code>classDef</code> の <code>var()</code> 非対応による技術的制約）</li>
+<li><code>mermaid.min.js</code> 3.5MBのバンドル軽量化余地</li>
+<li>ローカル main は origin 比で大幅先行（push は PO 判断待ち）</li>
+</ul>
+      </div>
+
+      <div class="foot">
+        ダッシュボード本体へ戻る: <code>../status-dashboard.html</code>
+      </div>
+    </div>
+  </body>
+</html>

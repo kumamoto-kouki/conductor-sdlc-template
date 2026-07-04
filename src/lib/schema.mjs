@@ -36,6 +36,11 @@ const milestoneSchema = z.object({
 });
 
 const specSchema = z.object({
+  // ボード→spec リンク（Wave3 #3）: board カードから同一ページ内の spec 表の
+  // 該当行アンカー（#spec-<id>）へリンクするための安定 id。既存データとの
+  // 後方互換のため optional（無ければ該当specへはリンクされないだけで表自体の
+  // 表示は変わらない）。
+  id: z.string().optional(),
   name: z.string(),
   stage: z.string(),
   impl: z.string(),
@@ -68,6 +73,11 @@ const boardCardSchema = z.object({
   actorsTip: z.string().optional(),
   tip: z.string(),
   footnote: z.string().optional(),
+  // ボード→spec リンク（Wave3 #3）: specs[].id と一致する値を指定すると、
+  // このカードから spec 表の該当行アンカーへリンクする。任意項目
+  // （すべてのカードが spec に対応するわけではない：例 V1 は実機目視タスクで
+  // 単一 spec に紐づかない）。
+  specRef: z.string().optional(),
 });
 
 const boardLanesSchema = z.object({

@@ -9,14 +9,20 @@
 # scripts/verify-dashboard.mjs の「2. コミット整合」チェックと同じ問題意識の、
 # コミット前での機械化）。
 #
+# ポータル化（Wave3 #3）で .claude/reports/*.md・.kiro/steering/*.md が
+# content collections 経由のビルド入力になった（src/content.config.mjs 参照）ため、
+# これらの変更もトリガー対象に追加した。追加しないと、振り返り/ステアリングの
+# 文書を更新してもポータルページ（dashboard/reports/**.html・
+# dashboard/steering/**.html）が再ビルドされず古い内容のまま残る事故になる。
+#
 # 有効化: `git config core.hooksPath .githooks` が必要（scripts/init-project.sh の
 # 初期化処理で自動設定される。既存リポジトリでは README.md の起動チェックリスト
 # 参照）。
 #
 # 挙動:
-#   - ステージに dashboard/status.json・src/・astro.config.mjs・tailwind.config.mjs の
-#     いずれかが含まれる場合のみ npm run build を実行し、変化した dashboard/ 配下を
-#     自動で git add してから同じコミットに含める。
+#   - ステージに dashboard/status.json・src/・astro.config.mjs・tailwind.config.mjs・
+#     .claude/reports/・.kiro/steering/ のいずれかが含まれる場合のみ npm run build を
+#     実行し、変化した dashboard/ 配下を自動で git add してから同じコミットに含める。
 #   - それ以外のコミットでは何もしない（高速。無関係なコミットでビルドを待たせない）。
 #   - node_modules が無い場合は npm install を促してブロックする
 #     （--no-verify での迂回方法も案内する）。
@@ -25,7 +31,7 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
-TRIGGER_PATTERN='^(dashboard/status\.json|src/|astro\.config\.mjs|tailwind\.config\.mjs)'
+TRIGGER_PATTERN='^(dashboard/status\.json|src/|astro\.config\.mjs|tailwind\.config\.mjs|\.claude/reports/|\.kiro/steering/)'
 
 # D(削除)も含める: src/ のテンプレ・コンテンツ削除も生成物に影響するため
 # （独立レビュー指摘: ACMRのみだと削除コミットで古い生成物が同梱される抜け穴）。

@@ -1,0 +1,52 @@
+---
+// ポータル化（Wave3 #3）: .kiro/steering/*.md の一覧ページ。
+import { getCollection } from "astro:content";
+import "../styles/global.css";
+import SiteHeader from "../components/SiteHeader.astro";
+import ThemeInitInline from "../components/ThemeInitInline.astro";
+import { titleFromEntry, sortEntriesDesc } from "../lib/content.mjs";
+
+const entriesRaw = await getCollection("steering");
+const entries = sortEntriesDesc(entriesRaw).map((e) => ({
+  slug: e.id.replace(/\.md$/, ""),
+  title: titleFromEntry(e),
+}));
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <ThemeInitInline />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ステアリング一覧 ｜（プロジェクト名） 開発ダッシュボード</title>
+  </head>
+  <body>
+    <SiteHeader depth={0} active="steering" />
+    <div class="wrap">
+      <header class="hero">
+        <h1 class="text-white">🧭 ステアリング（.kiro/steering/）</h1>
+        <div class="mt-1.5 text-[13px] text-white/85">
+          プロジェクト全体のルール・体制・運用の正本。<code class="bg-white/15! text-white!">.kiro/steering/*.md</code> を一覧表示します。
+        </div>
+      </header>
+
+      <h2>一覧<span class="note">{entries.length} 件</span></h2>
+      <div class="card">
+        <ul class="report-list">
+          {
+            entries.map((e) => (
+              <li>
+                <a href={`steering/${e.slug}.html`}>{e.title}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="foot">
+        ダッシュボード本体へ戻る: <code>status-dashboard.html</code>
+      </div>
+    </div>
+  </body>
+</html>
