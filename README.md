@@ -27,6 +27,7 @@
    - [ ] **運用パラメータを確定**：レビュー中の WIP 上限（既定 3）／整合の実施＝統括・担当＝運用／ID 体系（M＝節目専用・K＝繰越・D＝デザイン・V＝目視、節目 ID とタスク ID を衝突させない）
    - [ ] `npm install` を実行した（初回のみ。Astro ＋ Mermaid ＋ Tailwind 等の依存を取得。**Node.js 22.12 以上が必要**＝Astro 7 の要件）
    - [ ] `dashboard/status.json` を初期化した（ダッシュボードをデータ駆動で運用する場合。`dashboard/status-dashboard.html` は Astro のビルド生成物なので**手編集しない**）
+   - [ ] `git config core.hooksPath .githooks` を実行した（`scripts/init-project.sh` 経由の複製では自動設定済み。既存リポジトリへ後から導入した場合のみ手動実行が必要。dashboard/ のビルド入力変更時に生成物の再ビルド漏れをpre-commitで防ぐ）
 4. **Discovery→仕様**: `/kiro-discovery "アイデア"` → `/kiro-spec-quick <feature>`（または個別スキル）で `.kiro/specs/<feature>/` を作る。各フェーズは人間承認。
 5. **実装**: `/kiro-impl <feature>`。**規律A＝統括は実装せず、レーンリーダーの采配でワーカーが worktree 並行実装 → 独立レビューで受理**。
 6. **可視化**: `dashboard/status.json` を更新し `npm run build` で `dashboard/status-dashboard.html` を再生成して進行を映す。**状態遷移トリガー**（着手→進行中→レビュー中→完了）で実施=統括が同一コミットで json 更新＋ビルド、担当=運用が「json＝実態」を監視。

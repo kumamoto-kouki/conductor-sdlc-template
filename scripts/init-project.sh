@@ -69,6 +69,9 @@ fi
 (
   cd "$TARGET"
   git init -q
+  # dashboard/ の生成物とビルド入力の整合を機械化するpre-commitフックを有効化する
+  # （.githooks/pre-commit 本体はテンプレに同梱。詳細は同ファイルのコメント参照）。
+  git config core.hooksPath .githooks
   git add -A
   base_version="$(cat "$TARGET/TEMPLATE_VERSION" 2>/dev/null || echo unknown)"
   git -c user.name="$(git config user.name 2>/dev/null || echo project-init)" \

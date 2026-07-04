@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# dashboard/ の生成物とビルド入力（status.json / src/ / astro.config.mjs /
+# tailwind.config.mjs）の整合を機械化するpre-commitフック。
+#
+# なぜ必要か: dashboard/status-dashboard.html はビルド生成物であり、入力
+# （status.json やテンプレ）を変更したのに再ビルドを忘れてコミットすると、
+# file:// で開いたときに古い内容が表示され続ける事故になる（整合規約は
+# .claude/rules/dashboard-verification.md・.kiro/steering/operations.md 参照。
+# scripts/verify-dashboard.mjs の「2. コミット整合」チェックと同じ問題意識の、
+# コミット前での機械化）。
+#
+# 有効化: `git config core.hooksPath .githooks` が必要（scripts/init-project.sh の
+# 初期化処理で自動設定される。既存リポジトリでは README.md の起動チェックリスト
+# 参照）。
+#
+# 挙動:
+#   - ステージに dashboard/status.json・src/・astro.config.mjs・tailwind.config.mjs の
+#     いずれかが含まれる場合のみ npm run build を実行し、変化した dashboard/ 配下を
+#     自動で git add してから同じコミットに含める。
+#   - それ以外のコミットでは何もしない（高速。無関係なコミットでビルドを待たせない）。
+#   - node_modules が無い場合は npm install を促してブロックする
+#     （--no-verify での迂回方法も案内する）。
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+TRIGGER_PATTERN='^(dashboard/status\.json|src/|astro\.config\.mjs|tailwind\.config\.mjs)'
+
+staged_files="$(git diff --cached --name-only --diff-filter=ACMR)"
+
+if ! printf '%s\n' "$staged_files" | grep -Eq "$TRIGGER_PATTERN"; then
+  # 対象外の変更のみのコミット。何もしない。
+  exit 0
+fi
+
+echo "pre-commit: dashboard のビルド入力に変更を検知。npm run build を実行します..."
+
+if [ ! -d "$ROOT/node_modules" ]; then
+  echo "" >&2
+  echo "pre-commit: node_modules が見つかりません。npm install を実行してから" >&2
+  echo "再度コミットしてください。" >&2
+  echo "  npm install" >&2
+  echo "" >&2
+  echo "どうしてもこのフックを迂回してコミットする場合（緊急時のみ・非推奨）:" >&2
+  echo "  git commit --no-verify" >&2
+  exit 1
+fi
+
+if ! npm run build; then
+  echo "" >&2
+  echo "pre-commit: npm run build が失敗しました。上記のエラーを解消してから" >&2
+  echo "再度コミットしてください（例: dashboard/status.json の必須フィールド欠落等）。" >&2
+  echo "" >&2
+  echo "どうしてもこのフックを迂回してコミットする場合（緊急時のみ・非推奨）:" >&2
+  echo "  git commit --no-verify" >&2
+  exit 1
+fi
+
+# ビルドで変化した dashboard/ 配下を同じコミットへ自動で含める
+git add dashboard/
+
+echo "pre-commit: dashboard/ の再ビルド結果をコミットに含めました。"
+exit 0
