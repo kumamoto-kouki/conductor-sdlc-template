@@ -74,9 +74,13 @@ fi
   git config core.hooksPath .githooks
   git add -A
   base_version="$(cat "$TARGET/TEMPLATE_VERSION" 2>/dev/null || echo unknown)"
+  # 初回コミットは --no-verify で行う: この時点では npm install 前で node_modules が
+  # 無く、pre-commit フック（ビルド実行）は必ず失敗する。テンプレ一式の複製コミットに
+  # ビルド整合チェックは不要（生成物はテンプレ側でビルド済みのものをそのまま複製している）
+  # ——独立レビュー指摘（初回コミットが100%ブロックされる回帰）の是正。
   git -c user.name="$(git config user.name 2>/dev/null || echo project-init)" \
     -c user.email="$(git config user.email 2>/dev/null || echo project-init@local)" \
-    commit -q -m "chore: initialize project from conductor-sdlc-template (base VERSION ${base_version})"
+    commit -q --no-verify -m "chore: initialize project from conductor-sdlc-template (base VERSION ${base_version})"
 )
 
 echo ""

@@ -27,7 +27,13 @@ cd "$ROOT"
 
 TRIGGER_PATTERN='^(dashboard/status\.json|src/|astro\.config\.mjs|tailwind\.config\.mjs)'
 
-staged_files="$(git diff --cached --name-only --diff-filter=ACMR)"
+# D(削除)も含める: src/ のテンプレ・コンテンツ削除も生成物に影響するため
+# （独立レビュー指摘: ACMRのみだと削除コミットで古い生成物が同梱される抜け穴）。
+# 既知のトレードオフ: このフックはステージ内容でなく作業ツリーをビルドするため、
+# 部分ステージ時はコミット内容と生成物が一致しない可能性がある。また
+# `git add dashboard/` は dashboard/ 配下の無関係な作業ツリー変更も巻き込む。
+# 厳密な整合が必要な場面では全変更をステージしてからコミットすること。
+staged_files="$(git diff --cached --name-only --diff-filter=ACMRD)"
 
 if ! printf '%s\n' "$staged_files" | grep -Eq "$TRIGGER_PATTERN"; then
   # 対象外の変更のみのコミット。何もしない。
