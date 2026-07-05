@@ -26,7 +26,7 @@
    - [ ] **規模プリセット（S/M/L）を選んでから配役を確定**：`role-catalog.md` の「規模別プリセット」で S（小規模・実験）／M（標準）／L（大規模）のどれかを選び、標準キャスト（統括=統括／Engリーダー・Designリーダー=レーンリーダー／運用=運用／実装BE・実装FE・デザイン実装=Maker／EngRev・デザインRev=Checker／QA=QA）から今回動かす役を選ぶ。候補ロスターは必要フェーズで投入。Maker≠Checker（規律C）はプリセットに関わらず不変
    - [ ] **運用パラメータを確定**：レビュー中の WIP 上限（既定 3）／整合の実施＝統括・担当＝運用／ID 体系（M＝節目専用・K＝繰越・D＝デザイン・V＝目視、節目 ID とタスク ID を衝突させない）
    - [ ] `npm install` を実行した（初回のみ。Astro ＋ Mermaid ＋ Tailwind 等の依存を取得。**Node.js 22.12 以上が必要**＝Astro 7 の要件）
-   - [ ] `dashboard/status.json` を初期化した（ダッシュボードをデータ駆動で運用する場合。`dashboard/status-dashboard.html` は Astro のビルド生成物なので**手編集しない**）
+   - [ ] `dashboard/status.json` を確認して `npm run build` を実行した（`scripts/init-project.sh` 経由の複製では節目M0・specs空の初期状態が自動で入っている。実プロジェクトの実際の進捗に合わせて記入し直し、更新するたびに `npm run build` で `dashboard/status-dashboard.html` を再生成する。`status-dashboard.html` は Astro のビルド生成物なので**手編集しない**）
    - [ ] `git config core.hooksPath .githooks` を実行した（`scripts/init-project.sh` 経由の複製では自動設定済み。既存リポジトリへ後から導入した場合のみ手動実行が必要。dashboard/ のビルド入力変更時に生成物の再ビルド漏れをpre-commitで防ぐ）
 4. **Discovery→仕様**: `/kiro-discovery "アイデア"` → `/kiro-spec-quick <feature>`（または個別スキル）で `.kiro/specs/<feature>/` を作る。各フェーズは人間承認。
 5. **実装**: `/kiro-impl <feature>`。**規律A＝統括は実装せず、レーンリーダーの采配でワーカーが worktree 並行実装 → 独立レビューで受理**。

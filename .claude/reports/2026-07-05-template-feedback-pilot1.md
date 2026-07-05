@@ -40,3 +40,7 @@ progress-digest での `/kiro-spec-init` 実行時、テンプレが参照する
 v0.2.0 の更新を progress-digest へ取り込み（テンプレ更新取り込み運用の初実走）、1周目と同じ操作の再実行で4件すべての閉塞を確認した：G1＝kiro-spec-init がテンプレート読込を通過しダミー spec を完走生成、G2＝スキルの参照から full-sdlc.md の該当節へ実際に到達、G3＝中間状態の規定が1周目の実運用（一括生成→統括の事後承認）をカバー、G4＝派生プロジェクトの main 化に加え孫派生でも main。回帰はテスト14本全緑・verify 全✅。
 
 再検証中に新規の欠陥1件（孫派生時に `TEMPLATE_VERSION` へ親自身の semver が書かれ、テンプレ由来バージョンの追跡が途切れる）を発見し、派生側の振り返りへ `TEMPLATE-FEEDBACK:` マーカーで記録した。次回の還流収集で反映可否を判断する。
+
+## 追記（同日・初期状態ダッシュボードの同梱、PO直接指示による反映）
+
+progress-digest・ticket-ledger の2派生で、テンプレの例データ入り `dashboard/status.json` を統括が毎回手書きで初期状態へ差し替える手間が2回実発生した。この手間は `TEMPLATE-FEEDBACK:` マーカー経由の収集を待たず、PO の直接指示で反映した（playbook手順4「反映したら VERSION を上げ、何を・なぜ反映したかを記録する」に準拠。手順2の取捨判断は PO の直接指示がその場を代替する）。`dashboard/status.init.json`（節目M0のみ・specs空の汎用初期状態、zod スキーマ検証済み）を新設し、`scripts/init-project.sh` が複製・プレースホルダ置換の直後にこれを `dashboard/status.json` として配置する（`.init` ファイルは複製先に残らない）よう改修した。テンプレ本体の `dashboard/status.json` は見本用サンプルデータのまま変更していない。VERSION は 0.2.0→0.3.0（機能追加のためMINOR）。

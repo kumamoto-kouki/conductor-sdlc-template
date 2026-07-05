@@ -14,6 +14,8 @@
 # scripts/init-project.sh 自身はこのプレースホルダ表記をコードとして持つため置換対象から外す。
 # 複製先には VERSION の内容を TEMPLATE_VERSION として記録する（派生元バージョンの追跡。
 # 詳細は .claude/playbooks/template-feedback.md を参照）。
+# 複製先の dashboard/status.json は dashboard/status.init.json（汎用の初期状態）へ入れ替える。
+# テンプレ本体側の status.json は見本用サンプルデータのまま変更しない。
 set -euo pipefail
 
 usage() {
@@ -70,6 +72,18 @@ if [ -n "$PROJECT_NAME" ]; then
   done < <(grep -rlZI "（プロジェクト名）" "$TARGET" --exclude-dir=.git)
 fi
 
+# 初期状態の status.json へ入れ替える（PO指示: 派生プロジェクトはテンプレの例データ入り
+# status.json をそのまま受け取らず、初期状態から始める）。テンプレ本体の dashboard/status.json
+# はテンプレの見本用サンプルデータのまま残し、複製先には dashboard/status.init.json（節目
+# M0のみ・specs空の汎用初期状態）を status.json として配置する。mv で置換するため .init は
+# 複製先に残らない。status.init.json 内の「（プロジェクト名）」も置換対象になるよう、
+# プレースホルダ置換の後・git初期化の前でこの入れ替えを行う。
+if [ -f "$TARGET/dashboard/status.init.json" ]; then
+  mv -f "$TARGET/dashboard/status.init.json" "$TARGET/dashboard/status.json"
+else
+  echo "warn: $TARGET/dashboard/status.init.json が見つかりません。status.json は複製元のサンプルのまま残ります" >&2
+fi
+
 # git 初期化 + 初回コミット（user.name/email 未設定の環境でも失敗しないようフォールバックを渡す）
 (
   cd "$TARGET"
@@ -94,5 +108,6 @@ echo ""
 echo "次にやること:"
 echo "  1. cd \"$TARGET\""
 echo "  2. npm install    # 初回のみ（Astro + Mermaid + Tailwind 等の依存取得）"
+echo "     npm run build   # dashboard/status.json（初期状態）から初期状態のダッシュボードを生成"
 echo "  3. README.md の「始め方」起動チェックリストに従い、product.md / tech.md / structure.md を記入"
 echo "  4. .kiro/steering/role-catalog.md の「規模別プリセット（S/M/L）」から今回の規模を選び、配役を確定"
