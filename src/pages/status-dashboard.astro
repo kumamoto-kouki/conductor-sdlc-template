@@ -2,6 +2,11 @@
 // dashboard/status.json を唯一の真実として読み込み → zod 検証 → derive.mjs で計算 →
 // コンポーネントへ渡す。旧 scripts/generate-dashboard.mjs + dashboard-template.html の
 // 置き換え（.kiro/steering/operations.md 参照）。
+//
+// レイアウト見直し v2（PO指示）: 「📁 プロジェクト概要」パートは overview.astro へ
+// 移動済み（削除ではなく移動＝情報量不変。完了報告に機械カウントの証拠を記載）。
+// 進捗報告は対象読者別の3層（対会社向け／部内向け／チーム内）に再編し、
+// レフトナビ（SectionNav）で各層・各セクションへ飛べるようにした。
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -18,15 +23,8 @@ import OperationsPanel from "../components/OperationsPanel.astro";
 import NextActionsPanel from "../components/NextActionsPanel.astro";
 import ChangelogSection from "../components/ChangelogSection.astro";
 import SiteHeader from "../components/SiteHeader.astro";
-import ThemeInitInline from "../components/ThemeInitInline.astro";
-import MermaidRuntime from "../components/MermaidRuntime.astro";
-import GlossarySearchScript from "../components/GlossarySearchScript.astro";
-
-import TeamStructure from "../content/team-structure.mdx";
-import ExternalServices from "../content/external-services.mdx";
-import PdcaPractice from "../content/pdca-practice.mdx";
-import AutonomyTiers from "../content/autonomy-tiers.mdx";
-import Glossary from "../content/glossary.mdx";
+import BaseHead from "../components/BaseHead.astro";
+import SectionNav from "../components/SectionNav.astro";
 
 // __dirname 起点の相対パス（"../.."）は Astro のビルド内部で生成される SSR チャンクの
 // 配置階層に依存してしまい壊れやすい（Astro 7 で dashboard/.prerender/chunks/ という
@@ -60,346 +58,258 @@ const actorFilterOptions = [...new Map(
     .filter((c) => c.actors)
     .map((c) => [c.actors, c.actorsTip || c.actors]),
 ).entries()].map(([value, label]) => ({ value, label }));
+
+// レフトナビ（PO指示 v2 #6）: 3層見出し＋配下セクションへのアンカー。
+const sectionNavItems = [
+  { href: "#layer-company", label: "🏢 対会社向け" },
+  { href: "#milestones", label: "節目（M1→M5）", indent: true },
+  { href: "#layer-dept", label: "🏬 部内向け" },
+  { href: "#specs", label: "機能ごとの状態", indent: true },
+  { href: "#kpi", label: "今の健全性", indent: true },
+  { href: "#layer-team", label: "🧑‍🤝‍🧑 チーム内" },
+  { href: "#board", label: "作業ボード", indent: true },
+  { href: "#operations", label: "運用の実行状況", indent: true },
+  { href: "#next-actions", label: "次にやること", indent: true },
+  { href: "#changelog", label: "🔵 この版の更新" },
+];
 ---
 
 <!doctype html>
 <html lang="ja">
   <head>
-    <ThemeInitInline />
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>（プロジェクト名） 開発ダッシュボード</title>
+    <BaseHead title="（プロジェクト名） 開発ダッシュボード" />
   </head>
   <body>
     <SiteHeader depth={0} active="dashboard" />
-    <div class="wrap">
-      <header class="hero">
-        <h1 class="text-white">（プロジェクト名） 開発ダッシュボード</h1>
-        <div class="mt-1.5 text-[13px] text-white/85">
-          スナップショット:
-          <b class="font-bold text-white">{data.changelog[0].date}</b> ／ ブランチ
-          <code class="bg-white/15! text-white!">{data.branch}</code> ／
-          進め方: 計画→実行→確認→改善のくり返し（PDCA）で、AI が下書き・人が承認
-        </div>
-      </header>
-
-      <div
-        style="margin: 12px 0; padding: 10px 14px; border: 1px dashed var(--c-accent); border-radius: 10px; background: var(--c-accent-soft); font-size: 13px; color: var(--c-accent);"
-      >
-        <b>📋 これはテンプレートのダッシュボードです。</b>
-        構造（見積もり・作業ボード＝カンバン・節目・機能ごとの状態・KPI・運用パネル・体制図＝Mermaid＋フェーズ別ツリー・PDCA・用語集・変更履歴）を再利用してください。<b>中の数値・タスク・節目・更新履歴は、この手法を確立した実プロジェクトの「例」</b>です。あなたのプロジェクトの内容に差し替えてください。<b>体制図のペルソナ（統括・運用・Engリーダー ほか）はこの手法の標準キャスト</b>なのでそのまま使えます（<code>.kiro/steering/role-catalog.md</code>）。
-      </div>
-
-      <!-- ===== ▼ 進捗報告 ===== -->
-      <h2 class="part">
-        📊 進捗報告 <span class="note">— いまの状況・残り・直近の変化</span>
-      </h2>
-
-      <!-- ===== 見積もり時間サマリー ===== -->
-      <div class="card card-updated">
-        <div class="mb-3 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <h3 class="text-base!">⏱ 見積もり時間（参考値）</h3>
-          <span class="note">タスク数 × 難易度 × ボリュームから算出した概算。実時間ではなく目安です。</span>
-        </div>
-        <EstimateSummary data={data} />
-      </div>
-
-      <!-- ===== 作業ボード（いま誰が何を） ===== -->
-      <h2>
-        作業ボード（いま誰が何を持っているか）
-        <span class="badge badge-upd">{data.board.updatedLabel}</span>
-        <span class="note">進行に応じて更新</span>
-      </h2>
-      <div class="card card-updated">
-        <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-          <span class="inline-flex items-center gap-1.5 text-[13px] font-bold">
-            <span class="h-2.5 w-2.5 rounded-full bg-info"></span>
-            <span set:html={data.board.headline} />
-          </span>
-          <span class="text-xs text-muted">凡例:</span>
-          <span class="inline-flex items-center gap-1 text-xs text-muted"
-            ><span class="h-3 w-3 rounded" style="background: var(--c-lane-design)"></span> デザイン</span
-          >
-          <span class="inline-flex items-center gap-1 text-xs text-muted"
-            ><span class="h-3 w-3 rounded" style="background: var(--c-lane-eng)"></span> エンジニア</span
-          >
-          <span class="text-xs text-muted">🔒 人手待ち</span>
-          <span class="text-xs text-muted">~Xh＝見積もり時間（参考値）</span>
-        </div>
-        <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-          <span class="text-[11px] font-bold text-muted">ID 体系:</span>
-          <span class="text-[11px] text-muted"
-            ><b>M</b>＝節目（マイルストーン）／<b>K</b>＝繰越バグ修正／<b>D</b>＝デザイン／<b>V</b>＝目視。<b
-              >M 番号は節目専用</b
-            >でタスクには使わない（重複を避ける）。</span
-          >
-          <span class="text-[11px] text-muted"
-            >整合の同期: 実施＝👨🏼‍💼 統括（チケット移動時に全体を整合）／担当＝👩🏼‍💼 運用（整合を監視・起案）</span
-          >
-        </div>
-
-        <!-- ===== ボードフィルタ（Wave3 #4・vanilla JS） =====
-             既定は全件表示（情報量不変の原則）。JS が動かない環境でも
-             select 自体は表示されるだけで全カードは見えたまま（非表示は
-             JSでの絞り込み操作後のみ発生する）。 -->
-        <div class="board-filter" role="group" aria-label="作業ボードの絞り込み">
-          <label class="board-filter-label" for="board-filter-lane">レーンで絞り込み</label>
-          <select id="board-filter-lane" class="board-filter-select">
-            <option value="all">すべて</option>
-            <option value="design">デザイン</option>
-            <option value="eng">エンジニア</option>
-          </select>
-          <label class="board-filter-label" for="board-filter-actor">担当で絞り込み</label>
-          <select id="board-filter-actor" class="board-filter-select">
-            <option value="all">すべて</option>
-            {actorFilterOptions.map((o) => <option value={o.value}>{o.label}</option>)}
-          </select>
-          <span class="board-filter-count text-[11px] text-muted" id="board-filter-count" aria-live="polite"></span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-          <BoardColumn
-            title="⏳ 待ち"
-            style="background: var(--c-surface); color: var(--c-muted)"
-            items={data.board.lanes.waiting}
-            size="sm"
-          />
-          <BoardColumn
-            title="🔨 進行中"
-            style="background: var(--c-warn-soft); color: var(--c-warn)"
-            items={data.board.lanes.inProgress}
-            size="sm"
-            footnote={inProgressFootnote}
-          />
-          <BoardColumn
-            title="🔍 レビュー中"
-            style="background: var(--c-info-soft); color: var(--c-info)"
-            items={data.board.lanes.review}
-            size="sm"
-          />
-          <BoardColumn
-            title="✅ 完了・受理"
-            style="background: var(--c-ok-soft); color: var(--c-ok)"
-            items={data.board.lanes.done}
-            size="md"
-          />
-        </div>
-        <div class="mt-3 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
-          <div class="rounded-lg bg-surface px-3 py-2">
-            <b>次の候補</b>：{data.board.nextCandidates}
+    <div class="page-with-nav">
+      <SectionNav items={sectionNavItems} />
+      <div class="wrap">
+        <header class="hero">
+          <h1 class="text-white">（プロジェクト名） 開発ダッシュボード</h1>
+          <div class="mt-1.5 text-sm text-white/85">
+            スナップショット:
+            <b class="font-bold text-white">{data.changelog[0].date}</b> ／ ブランチ
+            <code class="bg-white/15! text-white!">{data.branch}</code> ／
+            進め方: 計画→実行→確認→改善のくり返し（PDCA）で、AI が下書き・人が承認
           </div>
-          <div class="rounded-lg bg-surface px-3 py-2 text-muted">
-            <b>繰越</b>：{data.board.carryover}
-          </div>
-        </div>
-      </div>
+        </header>
 
-      <script is:inline>
-        // ボードフィルタ（Wave3 #4）: レーン・担当の両方を満たすカードだけを表示する
-        // （AND条件）。DOMからの削除ではなく hidden 属性の切り替えに留める
-        // （「情報量を減らさない」＝機械カウント対象の要素そのものは残す。
-        // .claude/rules/dashboard-verification.md 参照）。既定値は両方 "all"＝
-        // 全件表示（情報量不変の原則）。
-        (function () {
-          var laneSel = document.getElementById("board-filter-lane");
-          var actorSel = document.getElementById("board-filter-actor");
-          var countEl = document.getElementById("board-filter-count");
-          function apply() {
-            var lane = laneSel ? laneSel.value : "all";
-            var actor = actorSel ? actorSel.value : "all";
-            var cards = document.querySelectorAll(".board-card");
-            var shown = 0;
-            cards.forEach(function (card) {
-              var laneMatch = lane === "all" || card.dataset.lane === lane;
-              var actorMatch = actor === "all" || card.dataset.actors === actor;
-              var visible = laneMatch && actorMatch;
-              card.hidden = !visible;
-              if (visible) shown++;
-            });
-            if (countEl) {
-              countEl.textContent =
-                lane === "all" && actor === "all"
-                  ? ""
-                  : shown + " / " + cards.length + " 件を表示中";
-            }
+        <div
+          style="margin: 12px 0; padding: 10px 14px; border: 1px dashed var(--c-accent); border-radius: 10px; background: var(--c-accent-soft); font-size: 16px; color: var(--c-accent);"
+        >
+          <b>📋 これはテンプレートのダッシュボードです。</b>
+          構造（見積もり・作業ボード＝カンバン・節目・機能ごとの状態・KPI・運用パネル・体制図＝Mermaid＋フェーズ別ツリー・PDCA・用語集・変更履歴）を再利用してください。<b>中の数値・タスク・節目・更新履歴は、この手法を確立した実プロジェクトの「例」</b>です。あなたのプロジェクトの内容に差し替えてください。<b>体制図のペルソナ（統括・運用・Engリーダー ほか）はこの手法の標準キャスト</b>なのでそのまま使えます（<code>.kiro/steering/role-catalog.md</code>）。体制図・用語集などは<a href="overview.html">概要ページ</a>に移動しました。
+        </div>
+
+        <!-- ===== ▼ 層1: 対会社向け（経営・ステークホルダー向けサマリー） ===== -->
+        <h2 class="part" id="layer-company">
+          🏢 対会社向け <span class="note">— 経営・ステークホルダー向けサマリー（全体進捗・見積もり・節目）</span>
+        </h2>
+
+        <!-- ===== 見積もり時間サマリー ===== -->
+        <div class="card">
+          <div class="mb-3 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+            <h3 class="text-base!">⏱ 見積もり時間（参考値）</h3>
+            <span class="note">タスク数 × 難易度 × ボリュームから算出した概算。実時間ではなく目安です。</span>
+          </div>
+          <EstimateSummary data={data} />
+        </div>
+
+        <!-- ===== マイルストーン ===== -->
+        <h2 id="milestones">節目（M1→M5）<span class="note">作りたいものへの到達段階</span></h2>
+        <!-- ワイド画面（2xl=1536px超・2560px検証対象）ではカードが間延びしないよう
+             列を3列へ増やす（PO指示: 空白が間延びせずグリッドが幅を活用すること）。
+             1440px（現行想定）は2xl未満のためmd:grid-cols-2のまま変化なし。 -->
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
+          {milestones.map((m) => <MilestoneCard milestone={m} />)}
+        </div>
+
+        <!-- ===== ▼ 層2: 部内向け（部門・関係者向け） ===== -->
+        <h2 class="part" id="layer-dept">
+          🏬 部内向け <span class="note">— 部門・関係者向け（機能ごとの状態・今の健全性）</span>
+        </h2>
+
+        <!-- ===== spec 状態 ===== -->
+        <h2 id="specs">
+          機能ごとの状態
+          <span class="note">spec＝機能の仕様書。4機能を段階管理</span>
+        </h2>
+        <div class="card">
+          <SpecsTable specs={data.specs} />
+        </div>
+
+        <!-- ===== 健全性 KPI ===== -->
+        <h2 id="kpi">
+          今の健全性
+          <span class="note">（数値は本日コマンドを実行し直して確認）</span>
+        </h2>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {
+            kpiCards.map((k) => (
+              <div class="card">
+                <KpiStat value={k.value} label={k.label} note={k.note} tone={k.tone} variant="card" updatedAt={k.updatedAt} />
+              </div>
+            ))
           }
-          if (laneSel) laneSel.addEventListener("change", apply);
-          if (actorSel) actorSel.addEventListener("change", apply);
-        })();
-      </script>
+        </div>
 
-      <!-- ===== マイルストーン ===== -->
-      <h2>節目（M1→M5）<span class="note">作りたいものへの到達段階</span></h2>
-      <!-- ワイド画面（2xl=1536px超・2560px検証対象）ではカードが間延びしないよう
-           列を3列へ増やす（PO指示: 空白が間延びせずグリッドが幅を活用すること）。
-           1440px（現行想定）は2xl未満のためmd:grid-cols-2のまま変化なし。 -->
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
-        {milestones.map((m) => <MilestoneCard milestone={m} />)}
-      </div>
+        <!-- ===== ▼ 層3: チーム内（日々の運営） ===== -->
+        <h2 class="part" id="layer-team">
+          🧑‍🤝‍🧑 チーム内 <span class="note">— 日々の運営（作業ボード・運用の実行状況・次のアクション）</span>
+        </h2>
 
-      <!-- ===== spec 状態 ===== -->
-      <h2>
-        機能ごとの状態
-        <span class="note">spec＝機能の仕様書。4機能を段階管理</span>
-      </h2>
-      <div class="card">
-        <SpecsTable specs={data.specs} />
-      </div>
+        <!-- ===== 作業ボード（いま誰が何を） ===== -->
+        <h2 id="board">
+          作業ボード（いま誰が何を持っているか）
+          <span class="note">進行に応じて更新（最終更新: {data.board.updatedLabel}）</span>
+        </h2>
+        <div class="card">
+          <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <span class="inline-flex items-center gap-1.5 text-sm font-bold">
+              <span class="h-2.5 w-2.5 rounded-full bg-info"></span>
+              <span set:html={data.board.headline} />
+            </span>
+            <span class="text-xs text-muted">凡例:</span>
+            <span class="inline-flex items-center gap-1 text-xs text-muted"
+              ><span class="h-3 w-3 rounded" style="background: var(--c-lane-design)"></span> デザイン</span
+            >
+            <span class="inline-flex items-center gap-1 text-xs text-muted"
+              ><span class="h-3 w-3 rounded" style="background: var(--c-lane-eng)"></span> エンジニア</span
+            >
+            <span class="text-xs text-muted">🔒 人手待ち</span>
+            <span class="text-xs text-muted">~Xh＝見積もり時間（参考値）</span>
+            <span class="badge badge-upd">更新 = 青チップ</span>
+          </div>
+          <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span class="text-xs font-bold text-muted">ID 体系:</span>
+            <span class="text-xs text-muted"
+              ><b>M</b>＝節目（マイルストーン）／<b>K</b>＝繰越バグ修正／<b>D</b>＝デザイン／<b>V</b>＝目視。<b
+                >M 番号は節目専用</b
+              >でタスクには使わない（重複を避ける）。</span
+            >
+            <span class="text-xs text-muted"
+              >整合の同期: 実施＝👨🏼‍💼 統括（チケット移動時に全体を整合）／担当＝👩🏼‍💼 運用（整合を監視・起案）</span
+            >
+          </div>
 
-      <!-- ===== 健全性 KPI ===== -->
-      <h2>
-        今の健全性
-        <span class="note">（数値は本日コマンドを実行し直して確認）</span>
-      </h2>
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {
-          kpiCards.map((k) => (
-            <div class="card">
-              <KpiStat value={k.value} label={k.label} note={k.note} tone={k.tone} variant="card" />
+          <!-- ===== ボードフィルタ（Wave3 #4・vanilla JS） =====
+               既定は全件表示（情報量不変の原則）。JS が動かない環境でも
+               select 自体は表示されるだけで全カードは見えたまま（非表示は
+               JSでの絞り込み操作後のみ発生する）。 -->
+          <div class="board-filter" role="group" aria-label="作業ボードの絞り込み">
+            <label class="board-filter-label" for="board-filter-lane">レーンで絞り込み</label>
+            <select id="board-filter-lane" class="board-filter-select">
+              <option value="all">すべて</option>
+              <option value="design">デザイン</option>
+              <option value="eng">エンジニア</option>
+            </select>
+            <label class="board-filter-label" for="board-filter-actor">担当で絞り込み</label>
+            <select id="board-filter-actor" class="board-filter-select">
+              <option value="all">すべて</option>
+              {actorFilterOptions.map((o) => <option value={o.value}>{o.label}</option>)}
+            </select>
+            <span class="board-filter-count text-xs text-muted" id="board-filter-count" aria-live="polite"></span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+            <BoardColumn
+              title="⏳ 待ち"
+              style="background: var(--c-surface); color: var(--c-muted)"
+              items={data.board.lanes.waiting}
+              size="sm"
+            />
+            <BoardColumn
+              title="🔨 進行中"
+              style="background: var(--c-warn-soft); color: var(--c-warn)"
+              items={data.board.lanes.inProgress}
+              size="sm"
+              footnote={inProgressFootnote}
+            />
+            <BoardColumn
+              title="🔍 レビュー中"
+              style="background: var(--c-info-soft); color: var(--c-info)"
+              items={data.board.lanes.review}
+              size="sm"
+            />
+            <BoardColumn
+              title="✅ 完了・受理"
+              style="background: var(--c-ok-soft); color: var(--c-ok)"
+              items={data.board.lanes.done}
+              size="md"
+            />
+          </div>
+          <div class="mt-3 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
+            <div class="rounded-lg bg-surface px-3 py-2">
+              <b>次の候補</b>：{data.board.nextCandidates}
             </div>
-          ))
-        }
-      </div>
-
-      <!-- ===== 運用の実行状況（運用マネージャー 運用） ===== -->
-      <details class="fold" open>
-        <summary>
-          運用の実行状況（👩🏼‍💼 運用・運用マネージャー）
-          <span class="note">報告: 運用 → 👨🏼‍💼 統括 → あなた（PO 承認）</span>
-        </summary>
-        <div class="fold-body card card-updated">
-          <OperationsPanel operations={data.operations} />
-        </div>
-      </details>
-
-      <!-- ===== 次アクション ===== -->
-      <h2>次にやること</h2>
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <NextActionsPanel nextActions={data.nextActions} />
-      </div>
-
-      <!-- ===== この版の更新（変更点を毎回ここで明示） ===== -->
-      <section class="changelog">
-        <ChangelogSection data={data} />
-      </section>
-
-      <!-- ===== ▼ プロジェクト概要 ===== -->
-      <h2 class="part">
-        📁 プロジェクト概要
-        <span class="note">— チーム・体制・進め方・用語</span>
-      </h2>
-
-      <!-- ===== 凡例 ===== -->
-      <h2>色の意味（凡例）</h2>
-      <div class="card">
-        <div class="legend">
-          <span><span class="badge badge-ok">緑</span> 完了・問題なし</span>
-          <span><span class="badge badge-warn">黄</span> 途中・要注意</span>
-          <span><span class="badge badge-bad">赤</span> 未着手・最優先</span>
-          <span><span class="badge badge-mute">灰</span> これから</span>
-          <span><span class="badge badge-upd">青</span> この版で更新した箇所</span>
-        </div>
-      </div>
-
-      <!-- ===== 検証の自動化 ===== -->
-      <h2>
-        テストを自動で回す道具（3種そろいました）
-        <span class="note">手で確認していた作業を機械にやらせる</span>
-      </h2>
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div class="card">
-          <h3>画面部品テスト <span class="badge badge-ok">導入・確認済</span></h3>
-          <div class="tag">
-            道具: happy-dom。ブラウザを起動せず画面部品の組み立てだけを高速に検査。キャラ編集画面の描画を自動チェック。
+            <div class="rounded-lg bg-surface px-3 py-2 text-muted">
+              <b>繰越</b>：{data.board.carryover}
+            </div>
           </div>
         </div>
-        <div class="card">
-          <h3>出力の固定検査 <span class="badge badge-ok">導入・確認済</span></h3>
-          <div class="tag">
-            道具: insta。AI への指示文の組み立て結果を「お手本」と突き合わせ、意図しない変化を自動検出。
+
+        <script is:inline>
+          // ボードフィルタ（Wave3 #4）: レーン・担当の両方を満たすカードだけを表示する
+          // （AND条件）。DOMからの削除ではなく hidden 属性の切り替えに留める
+          // （「情報量を減らさない」＝機械カウント対象の要素そのものは残す。
+          // .claude/rules/dashboard-verification.md 参照）。既定値は両方 "all"＝
+          // 全件表示（情報量不変の原則）。
+          (function () {
+            var laneSel = document.getElementById("board-filter-lane");
+            var actorSel = document.getElementById("board-filter-actor");
+            var countEl = document.getElementById("board-filter-count");
+            function apply() {
+              var lane = laneSel ? laneSel.value : "all";
+              var actor = actorSel ? actorSel.value : "all";
+              var cards = document.querySelectorAll(".board-card");
+              var shown = 0;
+              cards.forEach(function (card) {
+                var laneMatch = lane === "all" || card.dataset.lane === lane;
+                var actorMatch = actor === "all" || card.dataset.actors === actor;
+                var visible = laneMatch && actorMatch;
+                card.hidden = !visible;
+                if (visible) shown++;
+              });
+              if (countEl) {
+                countEl.textContent =
+                  lane === "all" && actor === "all"
+                    ? ""
+                    : shown + " / " + cards.length + " 件を表示中";
+              }
+            }
+            if (laneSel) laneSel.addEventListener("change", apply);
+            if (actorSel) actorSel.addEventListener("change", apply);
+          })();
+        </script>
+
+        <!-- ===== 運用の実行状況（運用マネージャー 運用） ===== -->
+        <details class="fold" id="operations" open>
+          <summary>
+            運用の実行状況（👩🏼‍💼 運用・運用マネージャー）
+            <span class="note">報告: 運用 → 👨🏼‍💼 統括 → あなた（PO 承認）</span>
+          </summary>
+          <div class="fold-body card">
+            <OperationsPanel operations={data.operations} />
           </div>
-        </div>
-        <div class="card card-updated">
-          <h3>
-            実アプリ起動テスト
-            <span class="badge badge-ok">導入・確認済</span>
-            <span class="badge badge-upd">更新 6/28</span>
-          </h3>
-          <div class="tag">
-            道具: tauri-driver ＋ WebdriverIO。本物のアプリを起動し、画面に主要パーツが出るかを確認。<code
-              >pnpm e2e</code
-            > → <strong>1件 合格</strong>（手順は <code>docs/e2e-setup.md</code>）。
-          </div>
-        </div>
-      </div>
+        </details>
 
-      <!-- ===== 開発体制（体制図） ===== -->
-      <details class="fold">
-        <summary>
-          開発体制（だれが作り・だれが確認するか）
-          <span class="note">作る役とチェック役を必ず分ける</span>
-        </summary>
-        <div class="fold-body card card-updated">
-          <TeamStructure />
+        <!-- ===== 次アクション ===== -->
+        <h2 id="next-actions">次にやること</h2>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <NextActionsPanel nextActions={data.nextActions} />
         </div>
-      </details>
 
-      <!-- ===== 外部サービスとの関係 ===== -->
-      <details class="fold">
-        <summary>
-          外部サービスとの関係（GitHub / Claude Design）
-          <span class="note">どこで作り・どこへ出すか</span>
-        </summary>
-        <div class="fold-body card card-updated">
-          <ExternalServices />
+        <!-- ===== この版の更新（変更点を毎回ここで明示） ===== -->
+        <section class="changelog" id="changelog">
+          <ChangelogSection data={data} />
+        </section>
+
+        <div class="foot">
+          プロジェクト概要（体制・進め方・用語集など）: <a href="overview.html">overview.html</a> ／ 体制の正式版:
+          <code>.kiro/steering/orchestration.md</code> ／ 詳しい記録:
+          <code>.claude/reports/2026-06-27-product-state-and-handoff.md</code> ／ スタイルは Astro（ビルド時コンパイル）を利用。閲覧時のネット接続は不要です。
         </div>
-      </details>
-
-      <!-- ===== PDCA 実践 ===== -->
-      <details class="fold">
-        <summary>
-          進め方の実例（計画→実行→確認→改善）
-          <span class="note">＝PDCA。回した証拠を2件掲載</span>
-        </summary>
-        <div class="fold-body pdca">
-          <PdcaPractice />
-        </div>
-      </details>
-
-      <!-- ===== 自律ティア ===== -->
-      <details class="fold">
-        <summary>
-          AI にどこまで任せるか（3段階）<span class="note">段階を上げるほど自動、下げるほど人が関与</span>
-        </summary>
-        <div class="fold-body">
-          <AutonomyTiers />
-        </div>
-      </details>
-
-      <!-- ===== 用語集 ===== -->
-      <details class="fold">
-        <summary>
-          用語集（固有名詞のかんたん解説）<span class="note">③ふだんの言葉で言い換え</span>
-        </summary>
-        <div class="fold-body">
-          <Glossary />
-          <GlossarySearchScript />
-        </div>
-      </details>
-
-      <div class="foot">
-        体制の正式版: <code>.kiro/steering/orchestration.md</code> ／ 詳しい記録:
-        <code>.claude/reports/2026-06-27-product-state-and-handoff.md</code> ／ スタイルは Astro（ビルド時コンパイル）を利用。閲覧時のネット接続は不要です。
       </div>
     </div>
-
-    <!--
-      Mermaid の読み込み・初期化・実行は src/components/MermaidRuntime.astro に
-      抽出済み（ポータル化＝Wave3 #3 に伴い、ステアリング詳細ページ
-      src/pages/steering/[slug].astro でも同じ ESM パターンを再利用するため）。
-      スクリプトの中身自体は変更していない（詳しい設計意図は同コンポーネントの
-      コメント参照）。
-    -->
-    <MermaidRuntime />
   </body>
 </html>

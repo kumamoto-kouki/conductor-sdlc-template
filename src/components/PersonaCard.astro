@@ -32,11 +32,11 @@ const emojiClass =
 <div class={wrapperClass}>
   <span class={emojiClass} aria-hidden="true">{persona.emoji}</span>
   <div class="min-w-0">
-    <div class="flex items-center gap-1.5 text-[13px] font-bold">
+    <div class="flex items-center gap-1.5 text-sm font-bold">
       {persona.name}
       {persona.badge && <Badge badge={persona.badge} />}
     </div>
     <div class="text-xs text-muted">{persona.role}</div>
-    <div class="mt-0.5 text-[11px] text-muted">{persona.desc}</div>
+    <div class="mt-0.5 text-xs text-muted">{persona.desc}</div>
   </div>
 </div>

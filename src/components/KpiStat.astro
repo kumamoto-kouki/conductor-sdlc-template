@@ -2,6 +2,8 @@
 // KPI 数値表示（大きい数字＋ラベル＋補足）。見積もりサマリーや運用パネルの
 // 4枚組（!text-3xl・tag見出し）と、健全性 KPI カード（text-{tone}・<small>ラベル）の
 // 2パターンをどちらも表現できるようにする。
+import { updatedChipLabel } from "../lib/derive.mjs";
+
 interface Props {
   value: number | string;
   label: string;
@@ -10,16 +12,23 @@ interface Props {
   // "lg": 見積もり/運用パネルのような大きめ数字＋下にtagラベル
   // "card": 健全性KPIカードのような数字直後に<small>ラベル＋下にtagノート
   variant?: "lg" | "card";
+  // 更新箇所のピンポイント化（PO指示 v2 #7）: kpiExtra 由来の項目にだけ
+  // 更新チップを出す（KPIカード全体の面塗りは行わない）。
+  updatedAt?: string;
 }
 
-const { value, label, note = "", tone = "accent", variant = "lg" } = Astro.props;
+const { value, label, note = "", tone = "accent", variant = "lg", updatedAt } = Astro.props;
+const updatedLabel = updatedChipLabel(updatedAt);
 ---
 
 {
   variant === "lg" ? (
     <div>
       <div class={`kpi text-3xl! text-${tone}`}>{value}</div>
-      <div class="tag">{label}</div>
+      <div class="tag">
+        {label}
+        {updatedLabel && <span class="badge badge-upd ml-1">{updatedLabel}</span>}
+      </div>
     </div>
   ) : (
     <div>
@@ -29,6 +38,7 @@ const { value, label, note = "", tone = "accent", variant = "lg" } = Astro.props
           そのまま出力されて既存の見た目より間隔が広がってしまう。 */}
       <div class={`kpi text-${tone}`}>
         {value}<small>{label}</small>
+        {updatedLabel && <span class="badge badge-upd ml-1.5">{updatedLabel}</span>}
       </div>
       <div class="tag">{note}</div>
     </div>

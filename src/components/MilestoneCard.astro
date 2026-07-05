@@ -2,7 +2,7 @@
 // 節目(マイルストーン)カード。bar の幅・badge文言は milestone データから算出する
 // （derive.mjs に計算を集約。ここでは表示のみ）。
 import Badge from "./Badge.astro";
-import { pct } from "../lib/derive.mjs";
+import { pct, updatedChipLabel } from "../lib/derive.mjs";
 
 interface Props {
   milestone: {
@@ -12,17 +12,26 @@ interface Props {
     evidence: string[];
     note?: string;
     remainingNote?: string;
+    updatedAt?: string;
   };
 }
 
 const { milestone } = Astro.props;
 const notes = [milestone.note, milestone.remainingNote].filter(Boolean);
+const updatedLabel = updatedChipLabel(milestone.updatedAt);
 ---
 
 <div class="card">
   <h3>
     {milestone.title}
     <Badge badge={milestone.badge} evidence={milestone.evidence} />
+    {
+      updatedLabel && (
+        <span class="badge badge-upd" title={`この節目は ${milestone.updatedAt} に更新`}>
+          {updatedLabel}
+        </span>
+      )
+    }
   </h3>
   <div class="bar"><span style={`width: ${pct(milestone.progress)}%`}></span></div>
   {

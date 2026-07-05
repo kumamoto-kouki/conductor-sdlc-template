@@ -1,7 +1,7 @@
 ---
 // 機能ごとの状態(spec)テーブル。ヘッダーを含む完結したテーブルとして描画する。
 import Badge from "./Badge.astro";
-import { evidenceLabel, testsLabel } from "../lib/derive.mjs";
+import { evidenceLabel, testsLabel, updatedChipLabel } from "../lib/derive.mjs";
 
 interface Props {
   specs: Array<Record<string, any>>;
@@ -27,7 +27,16 @@ const { specs } = Astro.props;
         // ボード→spec リンク（Wave3 #3）の着地点。id が無い spec は従来どおり
         // アンカー無しで描画される（後方互換）。
         <tr id={s.id ? `spec-${s.id}` : undefined}>
-          <td>{s.name}</td>
+          <td>
+            {s.name}
+            {
+              updatedChipLabel(s.updatedAt) && (
+                <span class="badge badge-upd ml-1" title={`このspecは ${s.updatedAt} に更新`}>
+                  {updatedChipLabel(s.updatedAt)}
+                </span>
+              )
+            }
+          </td>
           <td>{s.stage}</td>
           <td>{s.impl}</td>
           <td>{testsLabel(s)}</td>

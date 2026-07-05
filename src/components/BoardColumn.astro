@@ -21,10 +21,10 @@ const { title, style, items, size, footnote } = Astro.props;
         {items.map((item) => (
           <BoardCard item={item} size={size} />
         ))}
-        {footnote && <div class="px-1 pt-0.5 text-[10px] text-muted">{footnote}</div>}
+        {footnote && <div class="px-1 pt-0.5 text-xs text-muted">{footnote}</div>}
       </div>
     ) : (
-      <div class="p-2 text-center text-[11px] text-muted">—</div>
+      <div class="p-2 text-center text-xs text-muted">—</div>
     )
   }
 </div>

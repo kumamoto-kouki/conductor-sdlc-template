@@ -1,6 +1,7 @@
 ---
 // 運用の実行状況パネル（👩🏼‍💼 運用・運用マネージャー）。
 import KpiStat from "./KpiStat.astro";
+import { updatedChipLabel } from "../lib/derive.mjs";
 
 interface Props {
   operations: Record<string, any>;
@@ -27,7 +28,16 @@ const { operations: op } = Astro.props;
     {
       op.incidents.map((i) => (
         <tr>
-          <td>{i.issue}</td>
+          <td>
+            {i.issue}
+            {
+              updatedChipLabel(i.updatedAt) && (
+                <span class="badge badge-upd ml-1" title={`この運用項目は ${i.updatedAt} に更新`}>
+                  {updatedChipLabel(i.updatedAt)}
+                </span>
+              )
+            }
+          </td>
           <td>{i.fix}</td>
           <td>{i.effect}</td>
         </tr>
@@ -42,7 +52,7 @@ const { operations: op } = Astro.props;
   開示の健全性（心理的安全性）
   <span class="note">— 感情でなく機構で観測（運用）</span>
 </div>
-<div class="mb-2 text-[11px] text-muted" set:html={op.disclosureIntro} />
+<div class="mb-2 text-xs text-muted" set:html={op.disclosureIntro} />
 <div class="table-scroll">
   <table class="mt-1">
     <tr>
@@ -59,6 +69,6 @@ const { operations: op } = Astro.props;
     }
   </table>
 </div>
-<div class="mt-1.5 text-[11px] text-muted" set:html={op.disciplineNote} />
+<div class="mt-1.5 text-xs text-muted" set:html={op.disciplineNote} />
 <div class="mt-3 rounded-lg bg-surface px-3 py-2 text-xs text-muted" set:html={op.consultNote} />
-<div class="mt-2 text-[11px] text-muted" set:html={op.registryNote} />
+<div class="mt-2 text-xs text-muted" set:html={op.registryNote} />

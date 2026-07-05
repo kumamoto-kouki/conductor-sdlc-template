@@ -11,7 +11,7 @@ const { current, historyItems } = splitChangelog(data);
 ---
 
 <h2>🔵 この版の更新（{current.date}）</h2>
-<ul class="list-disc pl-[18px] text-[13px] [&>li]:my-0.5">
+<ul class="list-disc pl-[18px] text-sm [&>li]:my-0.5">
   {current.items.map((item) => <li set:html={item} />)}
 </ul>
 {
@@ -20,7 +20,7 @@ const { current, historyItems } = splitChangelog(data);
       <summary class="cursor-pointer text-xs font-semibold text-muted">
         これまでの更新履歴（クリックで展開）
       </summary>
-      <ul class="mt-2 list-disc pl-[18px] text-[13px] [&>li]:my-0.5">
+      <ul class="mt-2 list-disc pl-[18px] text-sm [&>li]:my-0.5">
         {historyItems.map((item) => <li set:html={item} />)}
       </ul>
     </details>
