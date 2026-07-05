@@ -230,7 +230,10 @@ const actorFilterOptions = [...new Map(
 
       <!-- ===== マイルストーン ===== -->
       <h2>節目（M1→M5）<span class="note">作りたいものへの到達段階</span></h2>
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <!-- ワイド画面（2xl=1536px超・2560px検証対象）ではカードが間延びしないよう
+           列を3列へ増やす（PO指示: 空白が間延びせずグリッドが幅を活用すること）。
+           1440px（現行想定）は2xl未満のためmd:grid-cols-2のまま変化なし。 -->
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
         {milestones.map((m) => <MilestoneCard milestone={m} />)}
       </div>
 

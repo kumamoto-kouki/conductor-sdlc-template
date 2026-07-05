@@ -17,7 +17,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>steering 索引（このディレクトリの地図） ｜ ステアリング ｜（プロジェクト名） 開発ダッシュボード</title>
-  <link rel="stylesheet" href="../_astro/ThemeInitInline.Df8-u7Mb.css"></head>
+  <link rel="stylesheet" href="../_astro/ThemeInitInline.CnNbdx8Y.css"></head>
   <body>
     <header class="site-nav">
   <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
@@ -97,6 +97,7 @@
         <h1 id="steering-索引このディレクトリの地図">steering 索引（このディレクトリの地図）</h1>
 <p><code>.kiro/steering/</code> は <strong>毎セッション丸ごと読み込まれる</strong>プロジェクトメモリ（CLAUDE.md の方針）。索引を置いても読み込み量は減らない（全部ロードされる）ため、<strong>条件付き（特定パスに触れた時だけ要る）内容は eager な steering でなく lazy な <code>.claude/rules/</code> に置く</strong>のが軽量化のレバー。</p>
 <h2 id="steering常時ロード">steering（常時ロード）</h2>
+<div class="table-scroll">
 
 
 
@@ -141,9 +142,9 @@
 
 
 
-
-<table><thead><tr><th>ファイル</th><th>内容</th><th>所有</th></tr></thead><tbody><tr><td><code>product.md</code></td><td>プロダクトの目的・原則</td><td>PO／全員</td></tr><tr><td><code>tech.md</code></td><td>技術スタック・制約</td><td>全員</td></tr><tr><td><code>structure.md</code></td><td>ディレクトリ／コード構成</td><td>全員</td></tr><tr><td><code>orchestration.md</code></td><td><strong>中核モデル</strong>：役割・レーン＋リーダー・委譲規律 A〜E・worktree 戦略・信用原則・振り返り・git 運用</td><td>👨🏼‍💼 統括</td></tr><tr><td><code>operations.md</code></td><td><strong>運用統治</strong>：報告系統・状態遷移＋全体整合・WIP 上限・ID 体系・開示の健全性</td><td>👩🏼‍💼 運用</td></tr><tr><td><code>role-catalog.md</code></td><td>役割カタログ＋投入計画（配役・候補・charter）</td><td>👩🏼‍💼 運用</td></tr><tr><td><code>review-checklists.md</code></td><td>レビュー受理観点（セキュリティ／パフォ／a11y／原則／状態／プロセス）</td><td>🕵🏼‍♀️ デザインRev／🛡️ EngRev</td></tr></tbody></table>
+<table><thead><tr><th>ファイル</th><th>内容</th><th>所有</th></tr></thead><tbody><tr><td><code>product.md</code></td><td>プロダクトの目的・原則</td><td>PO／全員</td></tr><tr><td><code>tech.md</code></td><td>技術スタック・制約</td><td>全員</td></tr><tr><td><code>structure.md</code></td><td>ディレクトリ／コード構成</td><td>全員</td></tr><tr><td><code>orchestration.md</code></td><td><strong>中核モデル</strong>：役割・レーン＋リーダー・委譲規律 A〜E・worktree 戦略・信用原則・振り返り・git 運用</td><td>👨🏼‍💼 統括</td></tr><tr><td><code>operations.md</code></td><td><strong>運用統治</strong>：報告系統・状態遷移＋全体整合・WIP 上限・ID 体系・開示の健全性</td><td>👩🏼‍💼 運用</td></tr><tr><td><code>role-catalog.md</code></td><td>役割カタログ＋投入計画（配役・候補・charter）</td><td>👩🏼‍💼 運用</td></tr><tr><td><code>review-checklists.md</code></td><td>レビュー受理観点（セキュリティ／パフォ／a11y／原則／状態／プロセス）</td><td>🕵🏼‍♀️ デザインRev／🛡️ EngRev</td></tr></tbody></table></div>
 <h2 id="rulesパス連動-lazy-ロード該当ファイルに触れた時だけ">rules（パス連動 lazy ロード＝該当ファイルに触れた時だけ）</h2>
+<div class="table-scroll">
 
 
 
@@ -168,8 +169,7 @@
 
 
 
-
-<table><thead><tr><th>ファイル（例）</th><th>発火パス（例）</th><th>内容</th></tr></thead><tbody><tr><td><code>.claude/rules/&#x3C;フロント>.md</code></td><td><code>src/**</code></td><td>フロント状態・配線の判断基準（自スタックで作る）</td></tr><tr><td><code>.claude/rules/&#x3C;バックエンド>.md</code></td><td><code>src-tauri/**</code></td><td>バックエンドの判断基準（自スタックで作る）</td></tr><tr><td><code>.claude/rules/&#x3C;デザイン>.md</code></td><td>CSS／design 系</td><td>デザイン受理条件・同期手順（自スタックで作る）</td></tr></tbody></table>
+<table><thead><tr><th>ファイル（例）</th><th>発火パス（例）</th><th>内容</th></tr></thead><tbody><tr><td><code>.claude/rules/&#x3C;フロント>.md</code></td><td><code>src/**</code></td><td>フロント状態・配線の判断基準（自スタックで作る）</td></tr><tr><td><code>.claude/rules/&#x3C;バックエンド>.md</code></td><td><code>src-tauri/**</code></td><td>バックエンドの判断基準（自スタックで作る）</td></tr><tr><td><code>.claude/rules/&#x3C;デザイン>.md</code></td><td>CSS／design 系</td><td>デザイン受理条件・同期手順（自スタックで作る）</td></tr></tbody></table></div>
 <blockquote>
 <p>実スタック向け rules は<strong>実装が先・ルール化は後</strong>で作る。参考例は <code>.claude/rules/_examples/</code>（アンダースコア始まりは path-glob に自動マッチしない＝ロードされない）。</p>
 </blockquote>

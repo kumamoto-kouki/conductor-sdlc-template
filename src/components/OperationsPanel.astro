@@ -17,22 +17,24 @@ const { operations: op } = Astro.props;
   <KpiStat value={op.reviews} label="独立レビュー" tone="info" variant="lg" />
 </div>
 <div class="mt-4 text-sm font-bold">事故 → 是正（仕組みの修正）</div>
-<table class="mt-2">
-  <tr>
-    <th>事故（仕組みの弱さ）</th>
-    <th>是正</th>
-    <th>効力</th>
-  </tr>
-  {
-    op.incidents.map((i) => (
-      <tr>
-        <td>{i.issue}</td>
-        <td>{i.fix}</td>
-        <td>{i.effect}</td>
-      </tr>
-    ))
-  }
-</table>
+<div class="table-scroll">
+  <table class="mt-2">
+    <tr>
+      <th>事故（仕組みの弱さ）</th>
+      <th>是正</th>
+      <th>効力</th>
+    </tr>
+    {
+      op.incidents.map((i) => (
+        <tr>
+          <td>{i.issue}</td>
+          <td>{i.fix}</td>
+          <td>{i.effect}</td>
+        </tr>
+      ))
+    }
+  </table>
+</div>
 <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
   <span><b>レビュー判定</b>：{op.verdictsSummary}</span>
 </div>
@@ -41,20 +43,22 @@ const { operations: op } = Astro.props;
   <span class="note">— 感情でなく機構で観測（運用）</span>
 </div>
 <div class="mb-2 text-[11px] text-muted" set:html={op.disclosureIntro} />
-<table class="mt-1">
-  <tr>
-    <th>兆候（機構で測る）</th>
-    <th>現状</th>
-  </tr>
-  {
-    op.signals.map((s) => (
-      <tr>
-        <td>{s.signal}</td>
-        <td>{s.status}</td>
-      </tr>
-    ))
-  }
-</table>
+<div class="table-scroll">
+  <table class="mt-1">
+    <tr>
+      <th>兆候（機構で測る）</th>
+      <th>現状</th>
+    </tr>
+    {
+      op.signals.map((s) => (
+        <tr>
+          <td>{s.signal}</td>
+          <td>{s.status}</td>
+        </tr>
+      ))
+    }
+  </table>
+</div>
 <div class="mt-1.5 text-[11px] text-muted" set:html={op.disciplineNote} />
 <div class="mt-3 rounded-lg bg-surface px-3 py-2 text-xs text-muted" set:html={op.consultNote} />
 <div class="mt-2 text-[11px] text-muted" set:html={op.registryNote} />

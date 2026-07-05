@@ -50,6 +50,36 @@ function rehypeMermaidFence() {
   };
 }
 
+// 全幅化＋レスポンシブ対応（PO決定・2026-07-05）: Markdown（.claude/reports/*.md・
+// .kiro/steering/*.md）が生成する素の <table> は、Astroコンポーネント側の表
+// （SpecsTable・OperationsPanel等）と違い .table-scroll でラップされておらず、
+// 390px幅では列数によってページ全体の横スクロールを引き起こす実測不具合が
+// あった（例: steering/orchestration.md の3列表・レーン表）。rehypeMermaidFence
+// と同じ依存ゼロの再帰走査で <table> を <div class="table-scroll"><table>...
+// という構造へ包み、テーブル自身のコンテナ内だけで横スクロールさせる
+// （.claude/rules/dashboard-verification.md の390px不変条件）。
+function rehypeWrapTables() {
+  function transformChildren(node) {
+    if (!node || !Array.isArray(node.children)) return;
+    node.children = node.children.map((child) => {
+      if (child?.type === "element" && child.tagName === "table") {
+        transformChildren(child);
+        return {
+          type: "element",
+          tagName: "div",
+          properties: { className: ["table-scroll"] },
+          children: [child],
+        };
+      }
+      transformChildren(child);
+      return child;
+    });
+  }
+  return (tree) => {
+    transformChildren(tree);
+  };
+}
+
 // https://astro.build/config
 export default defineConfig({
   // 現状は完全静的出力（ゼロ依存のビルド時HTML生成を Astro に置き換えたもの）。
@@ -81,7 +111,7 @@ export default defineConfig({
       type: "shiki",
       excludeLangs: ["math", "mermaid"],
     },
-    rehypePlugins: [rehypeMermaidFence],
+    rehypePlugins: [rehypeMermaidFence, rehypeWrapTables],
   },
   // Astro 7 では @astrojs/tailwind（peer: astro ^3〜^5）が非対応になったため、
   // Tailwind v4 公式の Vite プラグイン方式へ移行（tailwind.config.mjs は

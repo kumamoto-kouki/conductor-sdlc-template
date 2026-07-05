@@ -17,7 +17,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>orchestration.md — コンダクター・オーケストレーション運用 ｜ ステアリング ｜（プロジェクト名） 開発ダッシュボード</title>
-  <link rel="stylesheet" href="../_astro/ThemeInitInline.Df8-u7Mb.css"></head>
+  <link rel="stylesheet" href="../_astro/ThemeInitInline.CnNbdx8Y.css"></head>
   <body>
     <header class="site-nav">
   <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
@@ -100,6 +100,7 @@
 <p><strong>テンプレ注記</strong>: 本文中の事故記号（A2/A3 等）・具体例は、この手法を確立した実プロジェクトの事故／タスク例。あなたのプロジェクトでは<strong>教訓（＝なぜ）だけ受け取り、記号や固有名は自分の実例に読み替える</strong>。ペルソナ名（統括・運用・Engリーダー 等）は<strong>この手法の標準キャスト</strong>としてそのまま使ってよい（<code>role-catalog.md</code>）。</p>
 </blockquote>
 <h2 id="役割">役割</h2>
+<div class="table-scroll">
 
 
 
@@ -139,8 +140,7 @@
 
 
 
-
-<table><thead><tr><th>役割</th><th>実体</th><th>権限</th></tr></thead><tbody><tr><td>ユーザー</td><td>人間</td><td>大方針・各フェーズ承認・push/公開判断</td></tr><tr><td>コンダクター</td><td>メインセッション</td><td>計画分解・委譲・レビュー統括・統合・上申。<strong>大きな実装は自分でやらない</strong></td></tr><tr><td>調査エージェント</td><td><code>Explore</code> subagent</td><td>read-only（探索）</td></tr><tr><td>設計エージェント</td><td><code>Plan</code> / <code>spec-design-agent</code></td><td>read-only（設計提案）</td></tr><tr><td>実装エージェント</td><td><code>Agent</code>（<code>isolation:"worktree"</code>）</td><td>自 worktree で実装・コミット</td></tr><tr><td>レビューエージェント</td><td><code>kiro-review</code> を実行する独立 subagent</td><td>受理判定（実装者とは別）</td></tr></tbody></table>
+<table><thead><tr><th>役割</th><th>実体</th><th>権限</th></tr></thead><tbody><tr><td>ユーザー</td><td>人間</td><td>大方針・各フェーズ承認・push/公開判断</td></tr><tr><td>コンダクター</td><td>メインセッション</td><td>計画分解・委譲・レビュー統括・統合・上申。<strong>大きな実装は自分でやらない</strong></td></tr><tr><td>調査エージェント</td><td><code>Explore</code> subagent</td><td>read-only（探索）</td></tr><tr><td>設計エージェント</td><td><code>Plan</code> / <code>spec-design-agent</code></td><td>read-only（設計提案）</td></tr><tr><td>実装エージェント</td><td><code>Agent</code>（<code>isolation:"worktree"</code>）</td><td>自 worktree で実装・コミット</td></tr><tr><td>レビューエージェント</td><td><code>kiro-review</code> を実行する独立 subagent</td><td>受理判定（実装者とは別）</td></tr></tbody></table></div>
 <ul>
 <li><strong>観測</strong>：人間は <code>scripts/dev-dashboard.sh</code>（tmux）で worktree / git / テスト / 進捗ログを並行確認する。</li>
 </ul>
@@ -161,6 +161,7 @@
 </pre>
 <h2 id="職能レーンエンジニアリングとデザインプロジェクト横断で採用">職能レーン：エンジニアリングとデザイン（プロジェクト横断で採用）</h2>
 <p>コンダクター・オーケストレーションは <strong>2つの職能レーン（discipline lane）</strong> を持つ。どちらのレーンも <strong>レーン・リーダー（采配）・実施者（Maker）・レビュアー（Checker）</strong> の三役構造で、Maker と Checker を必ず分離し、証拠で受理する（さぼり・肩代わり・隠蔽の防止規律 A〜E はデザインにも等しく適用）。この体制は本プロジェクトに限らず採用する。</p>
+<div class="table-scroll">
 
 
 
@@ -183,8 +184,7 @@
 
 
 
-
-<table><thead><tr><th>レーン</th><th>レーン・リーダー（采配）</th><th>実施者（Maker・複数並行）</th><th>レビュアー（Checker）</th></tr></thead><tbody><tr><td>エンジニアリング</td><td>🧑🏼‍💼 Engリーダー</td><td>実装エージェント群（実装BE・実装FE／<code>Agent</code> <code>isolation:"worktree"</code>）</td><td>🛡️ EngRev（<code>kiro-review</code>・別実体）</td></tr><tr><td>デザイン</td><td>🧑🏼‍🎨 Designリーダー</td><td>デザイン実施者群（デザイン実装／Claude Design ＋ <code>/design-sync</code>）</td><td>🕵🏼‍♀️ デザインRev（独立 subagent・別実体）</td></tr></tbody></table>
+<table><thead><tr><th>レーン</th><th>レーン・リーダー（采配）</th><th>実施者（Maker・複数並行）</th><th>レビュアー（Checker）</th></tr></thead><tbody><tr><td>エンジニアリング</td><td>🧑🏼‍💼 Engリーダー</td><td>実装エージェント群（実装BE・実装FE／<code>Agent</code> <code>isolation:"worktree"</code>）</td><td>🛡️ EngRev（<code>kiro-review</code>・別実体）</td></tr><tr><td>デザイン</td><td>🧑🏼‍🎨 Designリーダー</td><td>デザイン実施者群（デザイン実装／Claude Design ＋ <code>/design-sync</code>）</td><td>🕵🏼‍♀️ デザインRev（独立 subagent・別実体）</td></tr></tbody></table></div>
 <ul>
 <li><strong>レーン・リーダー制</strong>：統括は1人では worktree 並行開発の采配を捌けず、自ら実装に着手すると並行開発の期待に応えられない（K1〜K5 を統括が直接実装した反省）。そこで<strong>各レーンに采配リーダーを置き、統括が采配権限を委譲する</strong>。リーダーの責務＝レーン内のタスク分解・実装者への割り当て・worktree 並行の管理・レビュー手配。<strong>リーダーも実装には着手せず采配に専念</strong>（Maker は実装エージェント）。各リーダーは <strong>統括・運用と密に連携し、情報・状況を共有</strong>する。</li>
 <li><strong>実施者（Maker）は複数が並行する</strong>：エンジニアリングは feature/タスクごとに別 worktree の実装エージェントが同時に動き（wave 内並行・swarm）、デザインもコンポーネントごとに並行しうる。一方 <strong>リーダー（采配）と受理（レビュー・統合）は集約点</strong>で、ここで証拠検証・直列マージして整合を保つ（実施者を増やしても受理ゲートは一本化）。</li>

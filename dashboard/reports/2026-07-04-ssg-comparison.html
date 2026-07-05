@@ -17,7 +17,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026-07-04 SSG比較検証：Astro 7 vs 軽量代替4種＋旧実装 ｜ 振り返り ｜（プロジェクト名） 開発ダッシュボード</title>
-  <link rel="stylesheet" href="../_astro/ThemeInitInline.Df8-u7Mb.css"></head>
+  <link rel="stylesheet" href="../_astro/ThemeInitInline.CnNbdx8Y.css"></head>
   <body>
     <header class="site-nav">
   <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
@@ -103,6 +103,7 @@
 <li><strong>PoCの場所</strong>：ブランチ <code>feat/ssg-poc-npm</code>（11ty・Nunjucks）／<code>feat/ssg-poc-alt</code>（Hugo・Nue）。mainにはmergeしない（このレポートのみが成果物）。</li>
 </ul>
 <h2 id="測定結果主比較軸規模非依存の指標">測定結果（主比較軸＝規模非依存の指標）</h2>
+<div class="table-scroll">
 
 
 
@@ -188,8 +189,7 @@
 
 
 
-
-<table><thead><tr><th>指標</th><th>Astro 7</th><th>旧ゼロ依存</th><th>11ty</th><th>Nunjucks単体</th><th>Hugo</th><th>Nue</th></tr></thead><tbody><tr><td>file://直開き</td><td>○</td><td>△ CDN依存</td><td>○</td><td>○</td><td>○</td><td>△ 一部破損</td></tr><tr><td><strong>ネット遮断時</strong></td><td>○</td><td>✗ <strong>CSS全崩壊</strong></td><td>○</td><td>○</td><td>○</td><td>○（破損は同じ）</td></tr><tr><td>決定性（2回ビルドmd5）</td><td>○</td><td>○</td><td>○</td><td>○</td><td>○</td><td>✗ 時刻焼込で不一致</td></tr><tr><td>依存重量</td><td><strong>313MB</strong>・lock 7632行</td><td>0</td><td>22MB・1686行</td><td>2MB・61行</td><td>バイナリ62.7MB</td><td>360KB＋<strong>Bun 92.8MB</strong></td></tr><tr><td>クリーンinstall（温キャッシュ）</td><td>4.77s</td><td>0s</td><td>0.59s</td><td>0.17s</td><td>1.9s</td><td>0.17s</td></tr><tr><td>ビルド時間（3回中央値）</td><td>0.90s</td><td>0.66s</td><td>0.24s</td><td>0.04s</td><td>0.09s</td><td>0.04s</td></tr><tr><td>標準変更（M3進捗→KPI追従）</td><td>○ 1ファイル</td><td>同型</td><td>○ 1ファイル（再現検証済み）</td><td>申告1ファイル</td><td>申告1ファイル</td><td>申告1ファイル</td></tr><tr><td>リリース動向（実測）</td><td><strong>1年半で2メジャー</strong>（v6:2026-03, v7:2026-06）</td><td>—</td><td>v3が2024-10から安定</td><td><strong>2023-04以降リリースなし</strong></td><td>0.xのままminor月1・非推奨化あり</td><td>latest=<strong>beta</strong>・安定版は2年前</td></tr></tbody></table>
+<table><thead><tr><th>指標</th><th>Astro 7</th><th>旧ゼロ依存</th><th>11ty</th><th>Nunjucks単体</th><th>Hugo</th><th>Nue</th></tr></thead><tbody><tr><td>file://直開き</td><td>○</td><td>△ CDN依存</td><td>○</td><td>○</td><td>○</td><td>△ 一部破損</td></tr><tr><td><strong>ネット遮断時</strong></td><td>○</td><td>✗ <strong>CSS全崩壊</strong></td><td>○</td><td>○</td><td>○</td><td>○（破損は同じ）</td></tr><tr><td>決定性（2回ビルドmd5）</td><td>○</td><td>○</td><td>○</td><td>○</td><td>○</td><td>✗ 時刻焼込で不一致</td></tr><tr><td>依存重量</td><td><strong>313MB</strong>・lock 7632行</td><td>0</td><td>22MB・1686行</td><td>2MB・61行</td><td>バイナリ62.7MB</td><td>360KB＋<strong>Bun 92.8MB</strong></td></tr><tr><td>クリーンinstall（温キャッシュ）</td><td>4.77s</td><td>0s</td><td>0.59s</td><td>0.17s</td><td>1.9s</td><td>0.17s</td></tr><tr><td>ビルド時間（3回中央値）</td><td>0.90s</td><td>0.66s</td><td>0.24s</td><td>0.04s</td><td>0.09s</td><td>0.04s</td></tr><tr><td>標準変更（M3進捗→KPI追従）</td><td>○ 1ファイル</td><td>同型</td><td>○ 1ファイル（再現検証済み）</td><td>申告1ファイル</td><td>申告1ファイル</td><td>申告1ファイル</td></tr><tr><td>リリース動向（実測）</td><td><strong>1年半で2メジャー</strong>（v6:2026-03, v7:2026-06）</td><td>—</td><td>v3が2024-10から安定</td><td><strong>2023-04以降リリースなし</strong></td><td>0.xのままminor月1・非推奨化あり</td><td>latest=<strong>beta</strong>・安定版は2年前</td></tr></tbody></table></div>
 <p>参考（規模依存・直接比較不可）：LoC=Astro 2,011（フル）／旧 3,300（フル）／11ty 767・Nunjucks 765・Hugo 495・Nue 560（いずれもThin Slice）。</p>
 <h2 id="主要な発見">主要な発見</h2>
 <ol>
