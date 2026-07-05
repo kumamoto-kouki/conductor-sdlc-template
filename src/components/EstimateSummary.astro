@@ -24,31 +24,33 @@ const { rows, totalEstimate, totalDone, totalRemain, overallPct } =
   <summary class="cursor-pointer text-xs font-semibold text-muted">
     内訳（マイルストーン別の見積・進捗・残り）
   </summary>
-  <table class="mt-2">
-    <tr>
-      <th>区分</th><th>難易度</th><th>見積</th><th>進捗</th><th>これまで</th><th>残り</th>
-    </tr>
-    {
-      rows.map((r) => (
-        <tr>
-          <td>{r.label}</td>
-          <td>{r.difficulty}/5</td>
-          <td>{r.estimateH}h</td>
-          <td>{r.progressPct}%</td>
-          <td>{r.done.toFixed(1)}h</td>
-          <td>{r.remain.toFixed(1)}h</td>
-        </tr>
-      ))
-    }
-    <tr>
-      <td><b>合計</b></td>
-      <td>—</td>
-      <td><b>{totalEstimate}h</b></td>
-      <td><b>{overallPct}%</b></td>
-      <td><b>{totalDone.toFixed(1)}h</b></td>
-      <td><b>{totalRemain.toFixed(1)}h</b></td>
-    </tr>
-  </table>
+  <div class="table-scroll">
+    <table class="mt-2">
+      <tr>
+        <th>区分</th><th>難易度</th><th>見積</th><th>進捗</th><th>これまで</th><th>残り</th>
+      </tr>
+      {
+        rows.map((r) => (
+          <tr>
+            <td>{r.label}</td>
+            <td>{r.difficulty}/5</td>
+            <td>{r.estimateH}h</td>
+            <td>{r.progressPct}%</td>
+            <td>{r.done.toFixed(1)}h</td>
+            <td>{r.remain.toFixed(1)}h</td>
+          </tr>
+        ))
+      }
+      <tr>
+        <td><b>合計</b></td>
+        <td>—</td>
+        <td><b>{totalEstimate}h</b></td>
+        <td><b>{overallPct}%</b></td>
+        <td><b>{totalDone.toFixed(1)}h</b></td>
+        <td><b>{totalRemain.toFixed(1)}h</b></td>
+      </tr>
+    </table>
+  </div>
   <div class="mt-2 text-[11px] text-muted">
     計算式: 見積(h)=タスク数×難易度(1–5)×ボリューム係数 を丸めた概算。
     これまで=見積×進捗%、残り=見積×(1−進捗%)。

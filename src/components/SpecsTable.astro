@@ -10,29 +10,33 @@ interface Props {
 const { specs } = Astro.props;
 ---
 
-<table>
-  <tr>
-    <th>機能（spec）</th>
-    <th>仕様の段階</th>
-    <th>実装</th>
-    <th>テスト</th>
-    <th>裏付け</th>
-    <th>状態</th>
-  </tr>
-  {
-    specs.map((s) => (
-      // ボード→spec リンク（Wave3 #3）の着地点。id が無い spec は従来どおり
-      // アンカー無しで描画される（後方互換）。
-      <tr id={s.id ? `spec-${s.id}` : undefined}>
-        <td>{s.name}</td>
-        <td>{s.stage}</td>
-        <td>{s.impl}</td>
-        <td>{testsLabel(s)}</td>
-        <td>{evidenceLabel(s.evidence)}</td>
-        <td>
-          <Badge badge={s.badge} evidence={s.evidence} />
-        </td>
-      </tr>
-    ))
-  }
-</table>
+<!-- 390px幅では6列が収まらない場合があるため、テーブル自身のコンテナ内だけで
+     横スクロールさせる（ページ全体の横スクロールは禁止）。 -->
+<div class="table-scroll">
+  <table>
+    <tr>
+      <th>機能（spec）</th>
+      <th>仕様の段階</th>
+      <th>実装</th>
+      <th>テスト</th>
+      <th>裏付け</th>
+      <th>状態</th>
+    </tr>
+    {
+      specs.map((s) => (
+        // ボード→spec リンク（Wave3 #3）の着地点。id が無い spec は従来どおり
+        // アンカー無しで描画される（後方互換）。
+        <tr id={s.id ? `spec-${s.id}` : undefined}>
+          <td>{s.name}</td>
+          <td>{s.stage}</td>
+          <td>{s.impl}</td>
+          <td>{testsLabel(s)}</td>
+          <td>{evidenceLabel(s.evidence)}</td>
+          <td>
+            <Badge badge={s.badge} evidence={s.evidence} />
+          </td>
+        </tr>
+      ))
+    }
+  </table>
+</div>

@@ -173,6 +173,13 @@
     @apply w-full overflow-hidden text-[13px];
     border-collapse: collapse;
   }
+  /* 全幅化に伴うレスポンシブ対応: 390px幅ではテーブルの列数によってはカード内に
+     収まらない場合があるため、テーブル自身のコンテナ内だけで横スクロールさせる
+     （ページ全体の横スクロールは禁止・.claude/rules/dashboard-verification.md の
+     390px不変条件）。テーブルの列・行（構造）自体は変更しない。 */
+  .table-scroll {
+    @apply -mx-0.5 overflow-x-auto px-0.5;
+  }
   th {
     @apply text-left font-semibold text-muted;
     padding: 9px 10px;
@@ -189,8 +196,13 @@
 }
 
 @layer components {
+  /* 全幅化（PO決定・2026-07-05）: 旧 max-w-[1080px] を撤廃し画面幅いっぱいを使う。
+     横paddingは維持しつつ、大画面（xl/2xl）ではゆとりを増やす（左右の余白が
+     画面幅に対して相対的に狭くなり過ぎないようにする）。個々のグリッド
+     （ボード4カラム・カード群等）は自身の幅を使って広がる／列数が増える形で
+     追随する（構造は変更しない）。 */
   .wrap {
-    @apply mx-auto max-w-[1080px] px-5 pt-7 pb-20;
+    @apply mx-auto w-full px-5 pt-7 pb-20 sm:px-6 lg:px-10 2xl:px-16;
   }
   /* ヒーロー: アクセントのグラデーション帯 */
   .hero {
@@ -385,6 +397,14 @@
     color: var(--c-muted);
     font-family: inherit;
   }
+  /* 全幅化＋レスポンシブ対応: mermaid.run() が描画した svg は図の自然サイズで
+     出力されるため、狭い画面では pre.mermaid の幅を超えうる。ページ全体の
+     横スクロールを起こさないよう、図自身のコンテナ内だけで横スクロールさせる
+     （TeamStructure.mdx 等、.markdown-body の外で使われる場面も含め常に適用）。 */
+  pre.mermaid {
+    max-width: 100%;
+    overflow-x: auto;
+  }
 
   /* ===== ポータル化（Wave3 #3・#4）: 全ページ共通ヘッダーナビ ===== */
   .site-nav {
@@ -392,8 +412,10 @@
     background: var(--c-card);
     border-bottom: 1px solid var(--c-line);
   }
+  /* .wrap と同じ全幅化＋padding階段を揃える（ヘッダーとページ本体の左右端を
+     常に一致させ、幅が変わっても縦のラインがずれないようにする）。 */
   .site-nav-inner {
-    @apply mx-auto flex max-w-[1080px] flex-wrap items-center justify-between gap-3 px-5 py-2.5;
+    @apply mx-auto flex w-full flex-wrap items-center justify-between gap-3 px-5 py-2.5 sm:px-6 lg:px-10 2xl:px-16;
   }
   .site-nav-links {
     @apply m-0 flex list-none flex-wrap gap-4 p-0 text-[13px] font-semibold;
@@ -479,6 +501,27 @@
   }
 
   /* ===== 振り返り/ステアリング詳細（Markdown本文の読みやすさ） ===== */
+  /* 全幅化の例外（PO許容・2026-07-05）: カード自体は全幅に従うが、本文プローズ
+     （見出し・段落・リスト・引用・表・コードブロック）だけは「広め」の上限
+     （1080pxだった旧制約より大幅に広いが無限には伸ばさない）で中央寄せにする。
+     2560px幅で1行が~1850pxに達すると素の日本語プローズは目で追いにくくなる
+     実測（.card.markdown-body自体は変更しない）。Mermaid図（pre.mermaid）は
+     直系の子要素セレクタで除外し、カード全幅（構造図としての可読性を優先）を
+     保つ。理由と見た目の証拠は完了報告に記載。 */
+  .markdown-body > :not(pre.mermaid) {
+    max-width: 1400px;
+    margin-inline: auto;
+  }
+  /* 390px幅の実機検証で発見: 見出し・段落・リスト内の長い連続トークン
+     （区切りスペースの無いパス・識別子。例: scripts/dev-dashboard.sh や
+     worktree/git/テスト/進捗ログ の斜線区切り列）が、通常の折返し規則
+     （空白でのみ改行）ではコンテナ幅を超えてもそのまま伸び、.table-scroll
+     等の明示的スクロール要素を経由せずページ全体の横スクロールを引き起こす
+     実測不具合があった。オーバーフロー箇所では文字単位で折り返すことを許可し、
+     ページレベルの横スクロールを防ぐ（情報は一切削らない・折返し位置が増えるだけ）。 */
+  .markdown-body :is(h1, h2, h3, h4, p, li, blockquote) {
+    overflow-wrap: break-word;
+  }
   .markdown-body :is(h1, h2, h3, h4) {
     color: var(--c-fg);
   }

@@ -17,7 +17,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>（プロジェクト名） 開発ダッシュボード</title>
-  <link rel="stylesheet" href="_astro/ThemeInitInline.Df8-u7Mb.css"></head>
+  <link rel="stylesheet" href="_astro/ThemeInitInline.CnNbdx8Y.css"></head>
   <body>
     <header class="site-nav">
   <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
@@ -135,62 +135,64 @@
   <summary class="cursor-pointer text-xs font-semibold text-muted">
     内訳（マイルストーン別の見積・進捗・残り）
   </summary>
-  <table class="mt-2">
-    <tr>
-      <th>区分</th><th>難易度</th><th>見積</th><th>進捗</th><th>これまで</th><th>残り</th>
-    </tr>
-    <tr>
-          <td>M1 起動＋2窓</td>
-          <td>2/5</td>
-          <td>6h</td>
-          <td>100%</td>
-          <td>6.0h</td>
-          <td>0.0h</td>
-        </tr><tr>
-          <td>M2 キャラ選択がUI反映</td>
-          <td>3/5</td>
-          <td>10h</td>
-          <td>100%</td>
-          <td>10.0h</td>
-          <td>0.0h</td>
-        </tr><tr>
-          <td>M3 モデルと実対話</td>
-          <td>4/5</td>
-          <td>14h</td>
-          <td>100%</td>
-          <td>14.0h</td>
-          <td>0.0h</td>
-        </tr><tr>
-          <td>M4 観察日記</td>
-          <td>3/5</td>
-          <td>12h</td>
-          <td>95%</td>
-          <td>11.4h</td>
-          <td>0.6h</td>
-        </tr><tr>
-          <td>M5 クラウド同期</td>
-          <td>3/5</td>
-          <td>10h</td>
-          <td>15%</td>
-          <td>1.5h</td>
-          <td>8.5h</td>
-        </tr><tr>
-          <td>横断: デザイン/基盤</td>
-          <td>3/5</td>
-          <td>8h</td>
-          <td>98%</td>
-          <td>7.8h</td>
-          <td>0.2h</td>
-        </tr>
-    <tr>
-      <td><b>合計</b></td>
-      <td>—</td>
-      <td><b>60h</b></td>
-      <td><b>85%</b></td>
-      <td><b>50.7h</b></td>
-      <td><b>9.3h</b></td>
-    </tr>
-  </table>
+  <div class="table-scroll">
+    <table class="mt-2">
+      <tr>
+        <th>区分</th><th>難易度</th><th>見積</th><th>進捗</th><th>これまで</th><th>残り</th>
+      </tr>
+      <tr>
+            <td>M1 起動＋2窓</td>
+            <td>2/5</td>
+            <td>6h</td>
+            <td>100%</td>
+            <td>6.0h</td>
+            <td>0.0h</td>
+          </tr><tr>
+            <td>M2 キャラ選択がUI反映</td>
+            <td>3/5</td>
+            <td>10h</td>
+            <td>100%</td>
+            <td>10.0h</td>
+            <td>0.0h</td>
+          </tr><tr>
+            <td>M3 モデルと実対話</td>
+            <td>4/5</td>
+            <td>14h</td>
+            <td>100%</td>
+            <td>14.0h</td>
+            <td>0.0h</td>
+          </tr><tr>
+            <td>M4 観察日記</td>
+            <td>3/5</td>
+            <td>12h</td>
+            <td>95%</td>
+            <td>11.4h</td>
+            <td>0.6h</td>
+          </tr><tr>
+            <td>M5 クラウド同期</td>
+            <td>3/5</td>
+            <td>10h</td>
+            <td>15%</td>
+            <td>1.5h</td>
+            <td>8.5h</td>
+          </tr><tr>
+            <td>横断: デザイン/基盤</td>
+            <td>3/5</td>
+            <td>8h</td>
+            <td>98%</td>
+            <td>7.8h</td>
+            <td>0.2h</td>
+          </tr>
+      <tr>
+        <td><b>合計</b></td>
+        <td>—</td>
+        <td><b>60h</b></td>
+        <td><b>85%</b></td>
+        <td><b>50.7h</b></td>
+        <td><b>9.3h</b></td>
+      </tr>
+    </table>
+  </div>
   <div class="mt-2 text-[11px] text-muted">
     計算式: 見積(h)=タスク数×難易度(1–5)×ボリューム係数 を丸めた概算。
     これまで=見積×進捗%、残り=見積×(1−進捗%)。
@@ -398,7 +400,10 @@
         })();
       </script><!-- ===== マイルストーン ===== -->
       <h2>節目（M1→M5）<span class="note">作りたいものへの到達段階</span></h2>
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <!-- ワイド画面（2xl=1536px超・2560px検証対象）ではカードが間延びしないよう
+           列を3列へ増やす（PO指示: 空白が間延びせずグリッドが幅を活用すること）。
+           1440px（現行想定）は2xl未満のためmd:grid-cols-2のまま変化なし。 -->
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
         <div class="card">
   <h3>
     アプリが起動し2つの窓が出る
@@ -453,61 +458,65 @@
         <span class="note">spec＝機能の仕様書。4機能を段階管理</span>
       </h2>
       <div class="card">
-        <table>
-  <tr>
-    <th>機能（spec）</th>
-    <th>仕様の段階</th>
-    <th>実装</th>
-    <th>テスト</th>
-    <th>裏付け</th>
-    <th>状態</th>
-  </tr>
-  <tr id="spec-funcB">
-        <td>保存まわり（機能B）</td>
-        <td>仕様確定</td>
-        <td>全23項目</td>
-        <td>Rust 56</td>
-        <td>自動テスト</td>
-        <td>
-          <span class="badge badge-ok">
+        <!-- 390px幅では6列が収まらない場合があるため、テーブル自身のコンテナ内だけで
+     横スクロールさせる（ページ全体の横スクロールは禁止）。 -->
+<div class="table-scroll">
+  <table>
+    <tr>
+      <th>機能（spec）</th>
+      <th>仕様の段階</th>
+      <th>実装</th>
+      <th>テスト</th>
+      <th>裏付け</th>
+      <th>状態</th>
+    </tr>
+    <tr id="spec-funcB">
+          <td>保存まわり（機能B）</td>
+          <td>仕様確定</td>
+          <td>全23項目</td>
+          <td>Rust 56</td>
+          <td>自動テスト</td>
+          <td>
+            <span class="badge badge-ok">
       完了
     </span>
-        </td>
-      </tr><tr id="spec-funcA">
-        <td>キャラ表示（機能A）</td>
-        <td>仕様確定</td>
-        <td>全18項目＋繰越K1〜K5＋D2</td>
-        <td>画面側 77</td>
-        <td>自動テスト</td>
-        <td>
-          <span class="badge badge-ok">
+          </td>
+        </tr><tr id="spec-funcA">
+          <td>キャラ表示（機能A）</td>
+          <td>仕様確定</td>
+          <td>全18項目＋繰越K1〜K5＋D2</td>
+          <td>画面側 77</td>
+          <td>自動テスト</td>
+          <td>
+            <span class="badge badge-ok">
       完了
     </span>
-        </td>
-      </tr><tr id="spec-funcC">
-        <td>モデル切替・対話（機能C）</td>
-        <td>タスク化済</td>
-        <td>全18 ＋ 汎用生成コマンド</td>
-        <td>Rust 22 / 画面側 6</td>
-        <td>自動テスト</td>
-        <td>
-          <span class="badge badge-ok">
+          </td>
+        </tr><tr id="spec-funcC">
+          <td>モデル切替・対話（機能C）</td>
+          <td>タスク化済</td>
+          <td>全18 ＋ 汎用生成コマンド</td>
+          <td>Rust 22 / 画面側 6</td>
+          <td>自動テスト</td>
+          <td>
+            <span class="badge badge-ok">
       完了
     </span>
-        </td>
-      </tr><tr id="spec-funcD">
-        <td>観察日記（機能D）</td>
-        <td>タスク化済</td>
-        <td>全8タスク（generate_text 経由）</td>
-        <td>画面側 35（diary 9＋prompt 26）</td>
-        <td>自動テスト</td>
-        <td>
-          <span class="badge badge-ok">
+          </td>
+        </tr><tr id="spec-funcD">
+          <td>観察日記（機能D）</td>
+          <td>タスク化済</td>
+          <td>全8タスク（generate_text 経由）</td>
+          <td>画面側 35（diary 9＋prompt 26）</td>
+          <td>自動テスト</td>
+          <td>
+            <span class="badge badge-ok">
       完了
     </span>
-        </td>
-      </tr>
-</table>
+          </td>
+        </tr>
+  </table>
+</div>
       </div>
 
       <!-- ===== 健全性 KPI ===== -->
@@ -570,30 +579,32 @@
     </div>
 </div>
 <div class="mt-4 text-sm font-bold">事故 → 是正（仕組みの修正）</div>
-<table class="mt-2">
-  <tr>
-    <th>事故（仕組みの弱さ）</th>
-    <th>是正</th>
-    <th>効力</th>
-  </tr>
-  <tr>
-        <td>worktree が古いベース ×3</td>
-        <td>ベース是正ガード（git merge）</td>
-        <td>✅ 再発なし（A3/D1/A4/E2）</td>
-      </tr><tr>
-        <td>エージェントが安全ガード弱体化（A2）</td>
-        <td>差し戻し＋「.claude 不可侵」</td>
-        <td>✅ 以後 settings 不変</td>
-      </tr><tr>
-        <td>git add -A で worktree 誤取込（D1）</td>
-        <td>.gitignore＋統合は明示 add</td>
-        <td>✅ 再発なし</td>
-      </tr><tr>
-        <td>vitest が worktree を二重カウント ×2</td>
-        <td>vitest exclude</td>
-        <td>✅ 解消</td>
-      </tr>
-</table>
+<div class="table-scroll">
+  <table class="mt-2">
+    <tr>
+      <th>事故（仕組みの弱さ）</th>
+      <th>是正</th>
+      <th>効力</th>
+    </tr>
+    <tr>
+          <td>worktree が古いベース ×3</td>
+          <td>ベース是正ガード（git merge）</td>
+          <td>✅ 再発なし（A3/D1/A4/E2）</td>
+        </tr><tr>
+          <td>エージェントが安全ガード弱体化（A2）</td>
+          <td>差し戻し＋「.claude 不可侵」</td>
+          <td>✅ 以後 settings 不変</td>
+        </tr><tr>
+          <td>git add -A で worktree 誤取込（D1）</td>
+          <td>.gitignore＋統合は明示 add</td>
+          <td>✅ 再発なし</td>
+        </tr><tr>
+          <td>vitest が worktree を二重カウント ×2</td>
+          <td>vitest exclude</td>
+          <td>✅ 解消</td>
+        </tr>
+  </table>
+</div>
 <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
   <span><b>レビュー判定</b>：APPROVED 2（D1・K1〜K5）／PASS 1（A4）／条件付きPASS 5（A・A2・A3・C・E2）</span>
 </div>
@@ -602,34 +613,36 @@
   <span class="note">— 感情でなく機構で観測（運用）</span>
 </div>
 <div class="mb-2 text-[11px] text-muted">ペルソナは AI で内面の感情・疲労は実在しないため、「メンタルケア役」は置かず、<b>開示が健全に回っているか</b>を機構で観測します（崩れは事故＝ガード逸脱・指摘の握り潰しとして現れる）。</div>
-<table class="mt-1">
-  <tr>
-    <th>兆候（機構で測る）</th>
-    <th>現状</th>
-  </tr>
-  <tr>
-        <td>指摘 → 是正の追跡（握り潰しなし）</td>
-        <td>✅ デザインRev/EngRevの指摘は是正に到達</td>
-      </tr><tr>
-        <td>詰まり共有率（越えず共有 vs 勝手に突破）</td>
-        <td>✅ ベース不一致は共有→merge 是正</td>
-      </tr><tr>
-        <td>差し戻しの向き先（人格でなく成果物）</td>
-        <td>✅ blameless を維持</td>
-      </tr><tr>
-        <td>やり直し／リフレッシュが責められず行われたか</td>
-        <td>✅ 破棄2件も仕組みの弱さとして記録</td>
-      </tr><tr>
-        <td>振り返り実施 → ①系修正 ②ルール化の反映</td>
-        <td>✅ 効力確認まで実施</td>
-      </tr><tr>
-        <td>作業ボード＝実態の一致（状態遷移トリガーで更新）</td>
-        <td>✅ トリガー明文化・ドリフト是正済</td>
-      </tr><tr>
-        <td>レビュー滞留（WIP上限3・受理まで流れているか）</td>
-        <td>✅ 上限ルール追加・K1〜K5 を独立レビューで解消</td>
-      </tr>
-</table>
+<div class="table-scroll">
+  <table class="mt-1">
+    <tr>
+      <th>兆候（機構で測る）</th>
+      <th>現状</th>
+    </tr>
+    <tr>
+          <td>指摘 → 是正の追跡（握り潰しなし）</td>
+          <td>✅ デザインRev/EngRevの指摘は是正に到達</td>
+        </tr><tr>
+          <td>詰まり共有率（越えず共有 vs 勝手に突破）</td>
+          <td>✅ ベース不一致は共有→merge 是正</td>
+        </tr><tr>
+          <td>差し戻しの向き先（人格でなく成果物）</td>
+          <td>✅ blameless を維持</td>
+        </tr><tr>
+          <td>やり直し／リフレッシュが責められず行われたか</td>
+          <td>✅ 破棄2件も仕組みの弱さとして記録</td>
+        </tr><tr>
+          <td>振り返り実施 → ①系修正 ②ルール化の反映</td>
+          <td>✅ 効力確認まで実施</td>
+        </tr><tr>
+          <td>作業ボード＝実態の一致（状態遷移トリガーで更新）</td>
+          <td>✅ トリガー明文化・ドリフト是正済</td>
+        </tr><tr>
+          <td>レビュー滞留（WIP上限3・受理まで流れているか）</td>
+          <td>✅ 上限ルール追加・K1〜K5 を独立レビューで解消</td>
+        </tr>
+  </table>
+</div>
 <div class="mt-1.5 text-[11px] text-muted">紐づく規律: C（独立レビュー）・D（隠蔽しない）／原則 P5（休息）・P6（開示は信用の通貨）。</div>
 <div class="mt-3 rounded-lg bg-surface px-3 py-2 text-xs text-muted"><b>💬 運用相談の窓口</b>：進め方の迷い・ガードに当たった等は 👩🏼‍💼 運用へ。信用を支える運用原則（P1〜P6）に照らして整えます（判断を下すのでなく、正規の道を一緒に探す）。改善は運用が統括へ起案。</div>
 <div class="mt-2 text-[11px] text-muted">運用が管理する正本：<code>role-catalog.md</code>（役割カタログ＋投入計画＝役割を事前把握しカタログから計画投入）・<code>review-checklists.md</code>（セキュリティ/パフォ/a11y/原則のレビュー観点）。</div>
@@ -944,7 +957,7 @@
   class DESMAKE leafDesign
   class ENGREV rev
   class DESREV rev</pre>
-<table class="mt-3 text-[13px]"><tr><th>観点</th><th>内容</th></tr><tr><td><b>担当ペルソナ</b></td><td>統括・運用・Engリーダー・Designリーダー・デザイン実装・デザインRev・実装BE・実装FE・EngRev・QAは AI エージェントの役割ペルソナ（実在の個人ではありません）。各役を「担当者」として固定し、責任の所在を明確にしています。<b>統括は実装に着手せず采配に専念し、采配は各レーン・リーダー（Engリーダー・Designリーダー）へ委譲</b>します。</td></tr><tr><td><b>👩🏼‍💼 運用（運用マネージャー・横断支援）</b></td><td>図の破線は報告系統（運用→統括→PO）。運用の実行状況の管理と相談窓口を担い、受理判断には不介入（独立性で統括の自己評価バイアスを避ける）。</td></tr><tr><td><b>2つのレーン</b></td><td>エンジニアリング（実装）とデザイン。どちらも同じ三役（コンダクター・実施者・レビュアー）。</td></tr><tr><td><b>実施者（作る役）は複数が並行</b></td><td>機能やコンポーネントごとに別々の作業者が同時に動く（図のカードの重なり）。コンダクターと受理（レビュー）が集約点。</td></tr><tr><td><b>作る役とチェック役は必ず別</b></td><td>自分で作って自分で合格を出さない（甘い判定を防ぐ）。受理は「証拠」で行う。</td></tr><tr><td><b>デザインの証拠</b></td><td>見た目の好みでなく、コントラスト比（読みやすさ）・状態網羅・原則8（AI開示）の遵守・実装できるか、で判定。</td></tr><tr><td><b>デザインの作り方</b></td><td>claude.ai/design で生成（文面は <code>docs/design-brief.md</code>）→ レビュー → <code>/design-sync</code> で1部品ずつコードへ取り込み → 公開は人間。</td></tr></table>
+<div class="table-scroll"><table class="mt-3 text-[13px]"><tr><th>観点</th><th>内容</th></tr><tr><td><b>担当ペルソナ</b></td><td>統括・運用・Engリーダー・Designリーダー・デザイン実装・デザインRev・実装BE・実装FE・EngRev・QAは AI エージェントの役割ペルソナ（実在の個人ではありません）。各役を「担当者」として固定し、責任の所在を明確にしています。<b>統括は実装に着手せず采配に専念し、采配は各レーン・リーダー（Engリーダー・Designリーダー）へ委譲</b>します。</td></tr><tr><td><b>👩🏼‍💼 運用（運用マネージャー・横断支援）</b></td><td>図の破線は報告系統（運用→統括→PO）。運用の実行状況の管理と相談窓口を担い、受理判断には不介入（独立性で統括の自己評価バイアスを避ける）。</td></tr><tr><td><b>2つのレーン</b></td><td>エンジニアリング（実装）とデザイン。どちらも同じ三役（コンダクター・実施者・レビュアー）。</td></tr><tr><td><b>実施者（作る役）は複数が並行</b></td><td>機能やコンポーネントごとに別々の作業者が同時に動く（図のカードの重なり）。コンダクターと受理（レビュー）が集約点。</td></tr><tr><td><b>作る役とチェック役は必ず別</b></td><td>自分で作って自分で合格を出さない（甘い判定を防ぐ）。受理は「証拠」で行う。</td></tr><tr><td><b>デザインの証拠</b></td><td>見た目の好みでなく、コントラスト比（読みやすさ）・状態網羅・原則8（AI開示）の遵守・実装できるか、で判定。</td></tr><tr><td><b>デザインの作り方</b></td><td>claude.ai/design で生成（文面は <code>docs/design-brief.md</code>）→ レビュー → <code>/design-sync</code> で1部品ずつコードへ取り込み → 公開は人間。</td></tr></table></div>
 
 <div class="mt-6 mb-1 text-xs font-bold text-muted">フェーズ別 投入計画（ツリー体制図）</div>
 <div class="mb-2 rounded-lg bg-accent-soft px-3 py-2 text-[12px] ring-1 ring-accent"><p><b>▶ 現在のフェーズ：③ 実装</b>（④ レビュー／受理ゲートと往復中）。直近は M1（非アクティブ編集の一覧更新）を実装し、受理ゲート待ち。</p></div>
