@@ -28,7 +28,9 @@ Execute 4 spec phases sequentially. In automatic mode, execute all phases withou
 
 Before claiming quick generation is complete, run one lightweight sanity review over the generated requirements, design, and tasks. If the host supports fresh subagents, use one. Otherwise run the sanity review inline.
 
-**spec.json approval state in Automatic Mode**: running all 4 phases back-to-back without stopping is exactly the bulk/delegated generation case. Each phase you complete sets that phase's `approvals.<phase>.generated: true` in `spec.json`; `approved` only becomes `true` when `-y` explicitly auto-approves it (Phases 3-4 do this per their own `-y` flag) or when a human/orchestrator records approval afterward. Do not treat `generated: true, approved: false` as a failure — it is the expected intermediate state a reviewer inspects after automatic mode finishes.
+**spec.json approval state in Automatic Mode**: each phase you complete sets that phase's `approvals.<phase>.generated: true` in `spec.json`, with `approved: false` as a brief transitional state until that phase's approval is resolved — not a failure by itself. In Automatic Mode this resolution happens immediately as part of the `-y` chain: Phase 3 invokes `/kiro-spec-design {feature} -y`, which auto-approves `requirements`; Phase 4 invokes `/kiro-spec-tasks {feature} -y`, which auto-approves `requirements`, `design`, and `tasks` itself. So once automatic mode completes Phase 4, all three phases must show `approved: true` — that is the correct end state of a full run. If `approved: false` is still present on any phase after automatic mode finishes, do not treat it as expected; treat it as a signal that a phase did not actually run to completion (skipped, errored, or `-y` not honored) and investigate before proceeding.
+
+The transitional state persists longer only when a phase was run standalone without `-y` (e.g. an individually delegated bulk-generation run, as described in `kiro-spec-init`'s approval-state section) — there, `approved` correctly stays `false` until a human or the orchestrator records approval afterward.
 
 ## Execution Steps
 
