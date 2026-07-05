@@ -36,18 +36,10 @@ const trailingFontSize = size === "sm" ? "10px" : "11px";
 // レーン（デザイン系／エンジニアリング系）を左ボーダーで明確に色分け
 // （案A: 背景色の淡い差のみだった状態を強化）。
 const cardStyle = `border-left: 3px solid ${color}`;
-// もとは ring-line/60。Tailwind v3 は var() ベースの色トークン（<alpha-value> 未定義）に
-// 不透明度修飾子を付けるとユーティリティ自体を生成せず、preflight 既定の
-// --tw-ring-color: rgb(59 130 246 / .5)（青・半透明）で実描画されていた。
-// つまり受理済みの本番の見た目は「薄い青のリング」。Tailwind v4 は ring-line/60 を
-// color-mix で本当に生成するため灰色に変わってしまう。見た目の維持を最優先し、
-// 実際に描画されていた色を明示指定する（PersonaCard・BoardColumn・
-// team-structure.mdx も同様）。意図的に灰色へ直す場合は ring-line に変えること。
-const legacyRing = "ring-[rgb(59_130_246/0.5)]";
 ---
 
 <div
-  class={`board-card flex items-center ${gapClass} rounded-lg bg-card p-1.5 ring-1 ${legacyRing}`}
+  class={`board-card flex items-center ${gapClass} rounded-lg bg-card p-1.5 ring-1 ring-line`}
   style={cardStyle}
   title={item.tip}
   data-lane={item.lane}

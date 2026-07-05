@@ -16,13 +16,11 @@ interface Props {
 
 const { persona } = Astro.props;
 
-// active の枠はもとは ring-line/60（実描画は Tailwind v3 preflight 既定の薄い青
-// リング。経緯は BoardCard.astro のコメント参照）。見た目維持のため実色を明示。
 const wrapperClass =
   persona.status === "human"
     ? "flex gap-2.5 rounded-xl bg-accent-soft p-2.5 ring-2 ring-accent"
     : persona.status === "active"
-      ? "flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]"
+      ? "flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-line"
       : "flex gap-2.5 rounded-xl border border-dashed border-info bg-info-soft p-2.5";
 
 const emojiClass =

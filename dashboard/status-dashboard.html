@@ -17,7 +17,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>（プロジェクト名） 開発ダッシュボード</title>
-  <link rel="stylesheet" href="_astro/ThemeInitInline.CnNbdx8Y.css"></head>
+  <link rel="stylesheet" href="_astro/ThemeInitInline.BrTs4rS7.css"></head>
   <body>
     <header class="site-nav">
   <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
@@ -246,12 +246,10 @@
         </div>
 
         <div class="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-          <!-- もとは ring-line/70（実描画は v3 preflight 既定の薄い青リング。経緯は
-     BoardCard.astro のコメント参照）。見た目維持のため実際の色を明示。 -->
-<div class="overflow-hidden rounded-xl ring-1 ring-[rgb(59_130_246/0.5)]">
+          <div class="overflow-hidden rounded-xl ring-1 ring-line">
   <div class="px-3 py-1.5 text-xs font-bold" style="background: var(--c-surface); color: var(--c-muted)">⏳ 待ち</div>
   <div class="space-y-1.5 p-2">
-        <div class="board-card flex items-center gap-1.5 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="キャラ窓のダークモード実機目視（pnpm tauri dev＝人手）" data-lane="design" data-actors>
+        <div class="board-card flex items-center gap-1.5 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-design)" title="キャラ窓のダークモード実機目視（pnpm tauri dev＝人手）" data-lane="design" data-actors>
   <span class="grid h-5 w-6 flex-none place-items-center rounded text-[10px] font-bold text-white" style="background: var(--c-lane-design)">V1</span>
   <span class="min-w-0 flex-1 text-[11px] font-semibold">🔒 ダーク目視</span>
   
@@ -260,12 +258,10 @@
         
       </div>
 </div>
-          <!-- もとは ring-line/70（実描画は v3 preflight 既定の薄い青リング。経緯は
-     BoardCard.astro のコメント参照）。見た目維持のため実際の色を明示。 -->
-<div class="overflow-hidden rounded-xl ring-1 ring-[rgb(59_130_246/0.5)]">
+          <div class="overflow-hidden rounded-xl ring-1 ring-line">
   <div class="px-3 py-1.5 text-xs font-bold" style="background: var(--c-warn-soft); color: var(--c-warn)">🔨 進行中</div>
   <div class="space-y-1.5 p-2">
-        <div class="board-card flex items-center gap-1.5 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="M5 Google ドライブ同期。実装完了(機能B 23/23・OAuth/GDrive/keyring・Rustテスト緑)。実OAuth疎通は Google Cloud OAuthアプリ登録(client_id/secret)が必要＝PO 判断中" data-lane="eng" data-actors="🧑🏻‍💼">
+        <div class="board-card flex items-center gap-1.5 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-eng)" title="M5 Google ドライブ同期。実装完了(機能B 23/23・OAuth/GDrive/keyring・Rustテスト緑)。実OAuth疎通は Google Cloud OAuthアプリ登録(client_id/secret)が必要＝PO 判断中" data-lane="eng" data-actors="🧑🏻‍💼">
   <span class="grid h-5 w-6 flex-none place-items-center rounded text-[10px] font-bold text-white" style="background: var(--c-lane-eng)">M5</span>
   <span class="min-w-0 flex-1 text-[11px] font-semibold">🔒 GDrive同期</span>
   <a href="#spec-funcB" class="flex-none rounded bg-surface px-1.5 text-[10px] font-bold text-accent no-underline hover:underline" title="機能ごとの状態(spec)表の該当行へ">
@@ -276,77 +272,73 @@
         <div class="px-1 pt-0.5 text-[10px] text-muted">着手したカードはここへ。M5 は実装済・実 OAuth 疎通の扱いを PO 判断中。</div>
       </div>
 </div>
-          <!-- もとは ring-line/70（実描画は v3 preflight 既定の薄い青リング。経緯は
-     BoardCard.astro のコメント参照）。見た目維持のため実際の色を明示。 -->
-<div class="overflow-hidden rounded-xl ring-1 ring-[rgb(59_130_246/0.5)]">
+          <div class="overflow-hidden rounded-xl ring-1 ring-line">
   <div class="px-3 py-1.5 text-xs font-bold" style="background: var(--c-info-soft); color: var(--c-info)">🔍 レビュー中</div>
   <div class="p-2 text-center text-[11px] text-muted">—</div>
 </div>
-          <!-- もとは ring-line/70（実描画は v3 preflight 既定の薄い青リング。経緯は
-     BoardCard.astro のコメント参照）。見た目維持のため実際の色を明示。 -->
-<div class="overflow-hidden rounded-xl ring-1 ring-[rgb(59_130_246/0.5)]">
+          <div class="overflow-hidden rounded-xl ring-1 ring-line">
   <div class="px-3 py-1.5 text-xs font-bold" style="background: var(--c-ok-soft); color: var(--c-ok)">✅ 完了・受理</div>
   <div class="space-y-1.5 p-2">
-        <div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="M3 モデルと実対話のサインオフ。実装完了(機能C/chat・自動テスト緑が裏付け)。実機・実APIの実対話確認は PO 判断でサインオフ(実証ログは本セッション未取得)" data-lane="eng" data-actors="🧑🏻‍💼">
+        <div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-eng)" title="M3 モデルと実対話のサインオフ。実装完了(機能C/chat・自動テスト緑が裏付け)。実機・実APIの実対話確認は PO 判断でサインオフ(実証ログは本セッション未取得)" data-lane="eng" data-actors="🧑🏻‍💼">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-eng); font-size: 11px">M3</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">実機対話（PO サインオフ）</span>
   <a href="#spec-funcC" class="flex-none rounded bg-surface px-1.5 text-[10px] font-bold text-accent no-underline hover:underline" title="機能ごとの状態(spec)表の該当行へ">
         仕様→
       </a>
   <span style="font-size: 11px" title="PO サインオフ">🧑🏻‍💼</span>
-</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="カードに実アバター画像(createAvatar＋onerror頭文字フォールバック)。Designリーダー采配→デザイン実装(実装・worktree)→デザインRev 独立レビュー APPROVED。画面側 173→178・統合ブランチへ merge＋worktree 撤去" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-design)" title="カードに実アバター画像(createAvatar＋onerror頭文字フォールバック)。Designリーダー采配→デザイン実装(実装・worktree)→デザインRev 独立レビュー APPROVED。画面側 173→178・統合ブランチへ merge＋worktree 撤去" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">D2</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">アバター画像</span>
   
   <span style="font-size: 11px" title="デザイン実装(実装)→デザインRev APPROVED">👩🏼‍🎨🕵🏼‍♀️</span>
-</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="繰越5件 K1一覧更新/K2選択ハイライト/K3visual復元/K4削除UI/K5switcher全隠し。統括(実装)＋QA → EngRev APPROVED(独立レビュー・必須是正なし)" data-lane="eng" data-actors="👨🏼‍💼👨🏼‍🔬🛡️">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-eng)" title="繰越5件 K1一覧更新/K2選択ハイライト/K3visual復元/K4削除UI/K5switcher全隠し。統括(実装)＋QA → EngRev APPROVED(独立レビュー・必須是正なし)" data-lane="eng" data-actors="👨🏼‍💼👨🏼‍🔬🛡️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-eng); font-size: 10px">K1-5</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">繰越5件</span>
   
   <span style="font-size: 11px" title="統括＋QA → EngRev APPROVED">👨🏼‍💼👨🏼‍🔬🛡️</span>
-</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="カスタムキャラのカード表示＋編集→同id更新 / デザイン実装(実装)→デザインRev(レビュー)。繰越: 一覧更新/選択ハイライト/visual復元" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-design)" title="カスタムキャラのカード表示＋編集→同id更新 / デザイン実装(実装)→デザインRev(レビュー)。繰越: 一覧更新/選択ハイライト/visual復元" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">E2</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">キャラ編集</span>
   
   <span style="font-size: 11px" title="デザイン実装(実装)→デザインRev(レビュー)">👩🏼‍🎨🕵🏼‍♀️</span>
-</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="listen の unlisten 回収（character窓）/ 統括（統括・軽微直）" data-lane="eng" data-actors="👨🏼‍💼">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-eng)" title="listen の unlisten 回収（character窓）/ 統括（統括・軽微直）" data-lane="eng" data-actors="👨🏼‍💼">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-eng); font-size: 11px">R1</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">listen解除</span>
   
   <span style="font-size: 11px" title="統括（統括・軽微をコンダクター直）">👨🏼‍💼</span>
-</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="テーマのライブ同期(character窓)＋themeテスト二重化解消 / デザイン実装(実装)→デザインRev(レビュー)" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-design)" title="テーマのライブ同期(character窓)＋themeテスト二重化解消 / デザイン実装(実装)→デザインRev(レビュー)" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">A4</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">テーマ同期</span>
   
   <span style="font-size: 11px" title="デザイン実装(実装)→デザインRev(レビュー)">👩🏼‍🎨🕵🏼‍♀️</span>
-</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="観察日記(原則9) ON/OFF トグルを編集UIに追加 / 実装FE(実装)→EngRev(レビュー)" data-lane="eng" data-actors="🧩🕵🏼‍♂️">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-eng)" title="観察日記(原則9) ON/OFF トグルを編集UIに追加 / 実装FE(実装)→EngRev(レビュー)" data-lane="eng" data-actors="🧩🕵🏼‍♂️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-eng); font-size: 11px">D1</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">日記ON/OFF</span>
   
   <span style="font-size: 11px" title="実装FE(実装)→EngRev(レビュー)">🧩🕵🏼‍♂️</span>
-</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="フォント同梱＋CSP / 統括" data-lane="design" data-actors="👨🏼‍💼">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-design)" title="フォント同梱＋CSP / 統括" data-lane="design" data-actors="👨🏼‍💼">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">B</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">フォント同梱</span>
   
   <span style="font-size: 11px" title="統括">👨🏼‍💼</span>
-</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-eng)" title="観察日記 機能D / 実装BE(実装)→EngRev(レビュー)" data-lane="eng" data-actors="👨🏼‍💻🕵🏼‍♂️">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-eng)" title="観察日記 機能D / 実装BE(実装)→EngRev(レビュー)" data-lane="eng" data-actors="👨🏼‍💻🕵🏼‍♂️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-eng); font-size: 11px">C</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">観察日記</span>
   <a href="#spec-funcD" class="flex-none rounded bg-surface px-1.5 text-[10px] font-bold text-accent no-underline hover:underline" title="機能ごとの状態(spec)表の該当行へ">
         仕様→
       </a>
   <span style="font-size: 11px" title="実装BE(実装)→EngRev(レビュー)">👨🏼‍💻🕵🏼‍♂️</span>
-</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="UI リスタイル(mtt-体裁) / デザイン実装(実装)→デザインRev(レビュー)" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-design)" title="UI リスタイル(mtt-体裁) / デザイン実装(実装)→デザインRev(レビュー)" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">A</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">UIリスタイル</span>
   
   <span style="font-size: 11px" title="デザイン実装(実装)→デザインRev(レビュー)">👩🏼‍🎨🕵🏼‍♀️</span>
-</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="UI第2弾(設定折りたたみ/モデルカード/アバター) / デザイン実装→デザインRev" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-design)" title="UI第2弾(設定折りたたみ/モデルカード/アバター) / デザイン実装→デザインRev" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">A2</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">UI第2弾</span>
   
   <span style="font-size: 11px" title="デザイン実装(実装)→デザインRev(レビュー)">👩🏼‍🎨🕵🏼‍♀️</span>
-</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-[rgb(59_130_246/0.5)]" style="border-left: 3px solid var(--c-lane-design)" title="ライト/ダーク切替＋dead CSS / デザイン実装→デザインRev" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
+</div><div class="board-card flex items-center gap-2 rounded-lg bg-card p-1.5 ring-1 ring-line" style="border-left: 3px solid var(--c-lane-design)" title="ライト/ダーク切替＋dead CSS / デザイン実装→デザインRev" data-lane="design" data-actors="👩🏼‍🎨🕵🏼‍♀️">
   <span class="grid h-6 w-7 flex-none place-items-center rounded-md text-[11px] font-bold text-white" style="background: var(--c-lane-design); font-size: 11px">A3</span>
   <span class="min-w-0 flex-1 text-[11.5px] font-semibold">テーマ切替</span>
   
@@ -756,7 +748,7 @@
     <div class="text-xs text-muted">プロダクトオーナー / 意思決定者</div>
     <div class="mt-0.5 text-[11px] text-muted">専門: 大方針・優先順位・各フェーズ承認・公開（push）判断・要件の最終決定</div>
   </div>
-</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]">
+</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-line">
   <span class="text-2xl leading-none" aria-hidden="true">👨🏼‍💼</span>
   <div class="min-w-0">
     <div class="flex items-center gap-1.5 text-[13px] font-bold">
@@ -766,7 +758,7 @@
     <div class="text-xs text-muted">統括コンダクター</div>
     <div class="mt-0.5 text-[11px] text-muted">専門: 計画分解・委譲設計・証拠ベースの受理・PO へ報告</div>
   </div>
-</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]">
+</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-line">
   <span class="text-2xl leading-none" aria-hidden="true">👩🏼‍💼</span>
   <div class="min-w-0">
     <div class="flex items-center gap-1.5 text-[13px] font-bold">
@@ -776,7 +768,7 @@
     <div class="text-xs text-muted">運用マネージャー</div>
     <div class="mt-0.5 text-[11px] text-muted">専門: 運用の実行状況の台帳管理・運用相談の窓口・改善起案・心理的安全性/開示の健全性の観測</div>
   </div>
-</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]">
+</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-line">
   <span class="text-2xl leading-none" aria-hidden="true">🧑🏼‍💼</span>
   <div class="min-w-0">
     <div class="flex items-center gap-1.5 text-[13px] font-bold">
@@ -788,7 +780,7 @@
     <div class="text-xs text-muted">エンジニアリング・リーダー（采配）</div>
     <div class="mt-0.5 text-[11px] text-muted">専門: 実装レーンのタスク分解・実装者(実装BE/実装FE)割り当て・worktree 並行管理・レビュー手配（采配専念・統括/運用と連携）</div>
   </div>
-</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]">
+</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-line">
   <span class="text-2xl leading-none" aria-hidden="true">🧑🏼‍🎨</span>
   <div class="min-w-0">
     <div class="flex items-center gap-1.5 text-[13px] font-bold">
@@ -800,7 +792,7 @@
     <div class="text-xs text-muted">デザイン・リーダー（采配）</div>
     <div class="mt-0.5 text-[11px] text-muted">専門: デザイン・レーンの采配・実施者(デザイン実装)割り当て・レビュー手配（采配専念・統括/運用と連携）</div>
   </div>
-</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]">
+</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-line">
   <span class="text-2xl leading-none" aria-hidden="true">👩🏼‍🎨</span>
   <div class="min-w-0">
     <div class="flex items-center gap-1.5 text-[13px] font-bold">
@@ -810,7 +802,7 @@
     <div class="text-xs text-muted">デザイン実施者</div>
     <div class="mt-0.5 text-[11px] text-muted">専門: デザインシステム・UI ビジュアル・トークン設計・a11y</div>
   </div>
-</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]">
+</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-line">
   <span class="text-2xl leading-none" aria-hidden="true">🕵🏼‍♀️</span>
   <div class="min-w-0">
     <div class="flex items-center gap-1.5 text-[13px] font-bold">
@@ -820,7 +812,7 @@
     <div class="text-xs text-muted">デザイン・レビュアー</div>
     <div class="mt-0.5 text-[11px] text-muted">専門: コントラスト・状態網羅・原則8 の視覚監査</div>
   </div>
-</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]">
+</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-line">
   <span class="text-2xl leading-none" aria-hidden="true">👨🏼‍💻</span>
   <div class="min-w-0">
     <div class="flex items-center gap-1.5 text-[13px] font-bold">
@@ -830,7 +822,7 @@
     <div class="text-xs text-muted">実装エンジニア（Rust/（技術））</div>
     <div class="mt-0.5 text-[11px] text-muted">専門: trait シーム設計・TDD・バックエンド</div>
   </div>
-</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]">
+</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-line">
   <span class="text-2xl leading-none" aria-hidden="true">👩🏼‍💻</span>
   <div class="min-w-0">
     <div class="flex items-center gap-1.5 text-[13px] font-bold">
@@ -840,7 +832,7 @@
     <div class="text-xs text-muted">実装エンジニア（TypeScript）</div>
     <div class="mt-0.5 text-[11px] text-muted">専門: フロント状態管理・（技術） 配線・DOM テスト</div>
   </div>
-</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]">
+</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-line">
   <span class="text-2xl leading-none" aria-hidden="true">🕵🏼‍♂️</span>
   <div class="min-w-0">
     <div class="flex items-center gap-1.5 text-[13px] font-bold">
@@ -850,7 +842,7 @@
     <div class="text-xs text-muted">エンジニア・レビュアー</div>
     <div class="mt-0.5 text-[11px] text-muted">専門: 敵対的レビュー・証拠再実行・回帰/セキュリティ確認</div>
   </div>
-</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]">
+</div><div class="flex gap-2.5 rounded-xl bg-card p-2.5 ring-1 ring-line">
   <span class="text-2xl leading-none" aria-hidden="true">👨🏼‍🔬</span>
   <div class="min-w-0">
     <div class="flex items-center gap-1.5 text-[13px] font-bold">
@@ -962,12 +954,12 @@
 <div class="mt-6 mb-1 text-xs font-bold text-muted">フェーズ別 投入計画（ツリー体制図）</div>
 <div class="mb-2 rounded-lg bg-accent-soft px-3 py-2 text-[12px] ring-1 ring-accent"><p><b>▶ 現在のフェーズ：③ 実装</b>（④ レビュー／受理ゲートと往復中）。直近は M1（非アクティブ編集の一覧更新）を実装し、受理ゲート待ち。</p></div>
 <div class="mb-3 text-[11px] text-muted"><p>各ツリー：<b>PO → 統括＋運用（横断）→ そのフェーズで動く役</b>。実線＝配役済（現役）／破線＝候補（未投入）。現在フェーズのカードは強調表示。</p></div>
-<div class="grid grid-cols-1 gap-2.5 lg:grid-cols-2"><div class="rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">① Discovery／要件</div><pre class="mermaid" role="img" aria-label="① Discovery／要件フェーズの体制ツリー">flowchart TD
+<div class="grid grid-cols-1 gap-2.5 lg:grid-cols-2"><div class="rounded-xl bg-card p-2.5 ring-1 ring-line"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">① Discovery／要件</div><pre class="mermaid" role="img" aria-label="① Discovery／要件フェーズの体制ツリー">flowchart TD
   PO[&quot;🧑🏻‍💼 PO&quot;] --&gt; CD[&quot;👨🏼‍💼 統括&quot;]
   CD -. 報告 .- OPS[&quot;👩🏼‍💼 運用&quot;]
   CD --&gt; DESIGN[&quot;🧭 設計&lt;br/&gt;候補・着手前設計&quot;]
   classDef cand fill:#e7effb,stroke:#2563c9,stroke-dasharray: 3 2,color:#1c2333;
-  class DESIGN cand</pre></div><div class="rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">② 設計</div><pre class="mermaid" role="img" aria-label="② 設計フェーズの体制ツリー">flowchart TD
+  class DESIGN cand</pre></div><div class="rounded-xl bg-card p-2.5 ring-1 ring-line"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">② 設計</div><pre class="mermaid" role="img" aria-label="② 設計フェーズの体制ツリー">flowchart TD
   PO[&quot;🧑🏻‍💼 PO&quot;] --&gt; CD[&quot;👨🏼‍💼 統括&quot;]
   CD -. 報告 .- OPS[&quot;👩🏼‍💼 運用&quot;]
   CD --&gt; DESIGN[&quot;🧭 設計&lt;br/&gt;候補・主担当&quot;]
@@ -980,7 +972,7 @@
   CD --&gt; BE[&quot;👨🏼‍💻 実装BE&lt;br/&gt;実装&quot;]
   CD --&gt; FE[&quot;👩🏼‍💻 実装FE&lt;br/&gt;実装&quot;]
   CD --&gt; DES[&quot;👩🏼‍🎨 デザイン実装&lt;br/&gt;実装&quot;]
-  CD --&gt; QA[&quot;🔬 QA&lt;br/&gt;QA・テスト&quot;]</pre></div><div class="rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">④ レビュー／受理</div><pre class="mermaid" role="img" aria-label="④ レビュー／受理フェーズの体制ツリー">flowchart TD
+  CD --&gt; QA[&quot;🔬 QA&lt;br/&gt;QA・テスト&quot;]</pre></div><div class="rounded-xl bg-card p-2.5 ring-1 ring-line"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">④ レビュー／受理</div><pre class="mermaid" role="img" aria-label="④ レビュー／受理フェーズの体制ツリー">flowchart TD
   PO[&quot;🧑🏻‍💼 PO&quot;] --&gt; CD[&quot;👨🏼‍💼 統括&quot;]
   CD -. 報告 .- OPS[&quot;👩🏼‍💼 運用&quot;]
   CD --&gt; DREV[&quot;🕵🏼‍♀️ デザインRev&lt;br/&gt;受理&quot;]
@@ -990,12 +982,12 @@
   classDef rev fill:#ffffff,stroke:#146a48,color:#1c2333;
   classDef cand fill:#e7effb,stroke:#2563c9,stroke-dasharray: 3 2,color:#1c2333;
   class DREV,EREV rev
-  class SEC,PERF cand</pre></div><div class="rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">⑤ 公開（push）前</div><pre class="mermaid" role="img" aria-label="⑤ 公開（push）前フェーズの体制ツリー">flowchart TD
+  class SEC,PERF cand</pre></div><div class="rounded-xl bg-card p-2.5 ring-1 ring-line"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">⑤ 公開（push）前</div><pre class="mermaid" role="img" aria-label="⑤ 公開（push）前フェーズの体制ツリー">flowchart TD
   PO[&quot;🧑🏻‍💼 PO・承認&quot;] --&gt; CD[&quot;👨🏼‍💼 統括&quot;]
   CD -. 報告 .- OPS[&quot;👩🏼‍💼 運用&quot;]
   CD --&gt; SEC[&quot;🔐 セキュリティ監査&lt;br/&gt;候補・公開前&quot;]
   classDef cand fill:#e7effb,stroke:#2563c9,stroke-dasharray: 3 2,color:#1c2333;
-  class SEC cand</pre></div><div class="rounded-xl bg-card p-2.5 ring-1 ring-[rgb(59_130_246/0.5)]"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">⑥ 引き継ぎ</div><pre class="mermaid" role="img" aria-label="⑥ 引き継ぎフェーズの体制ツリー">flowchart TD
+  class SEC cand</pre></div><div class="rounded-xl bg-card p-2.5 ring-1 ring-line"><div class="mb-1 flex items-center gap-2 text-[12px] font-bold">⑥ 引き継ぎ</div><pre class="mermaid" role="img" aria-label="⑥ 引き継ぎフェーズの体制ツリー">flowchart TD
   PO[&quot;🧑🏻‍💼 PO&quot;] --&gt; CD[&quot;👨🏼‍💼 統括&quot;]
   CD -. 報告 .- OPS[&quot;👩🏼‍💼 運用&quot;]
   CD --&gt; HANDOFF[&quot;👩🏼‍💼 運用&lt;br/&gt;引き継ぎ主&quot;]

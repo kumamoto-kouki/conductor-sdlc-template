@@ -13,9 +13,7 @@ interface Props {
 const { title, style, items, size, footnote } = Astro.props;
 ---
 
-<!-- もとは ring-line/70（実描画は v3 preflight 既定の薄い青リング。経緯は
-     BoardCard.astro のコメント参照）。見た目維持のため実際の色を明示。 -->
-<div class="overflow-hidden rounded-xl ring-1 ring-[rgb(59_130_246/0.5)]">
+<div class="overflow-hidden rounded-xl ring-1 ring-line">
   <div class="px-3 py-1.5 text-xs font-bold" style={style}>{title}</div>
   {
     items.length ? (
