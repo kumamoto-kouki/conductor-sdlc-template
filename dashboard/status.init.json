@@ -6,9 +6,10 @@
       "label": "プロジェクト起動",
       "title": "プロジェクト起動",
       "difficulty": 1,
-      "estimateH": 0,
+      "estimateH": 1,
       "progress": 0,
       "badge": { "text": "これから", "tone": "mute" },
+      "note": "見積もりは起動作業の名目値。実タスクが決まったら実値へ更新する。",
       "evidence": []
     }
   ],

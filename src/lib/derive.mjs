@@ -96,7 +96,10 @@ export function computeEstimate(data) {
     0,
   );
   const totalRemain = totalEstimate - totalDone;
-  const overallPct = pct(totalDone / totalEstimate);
+  // totalEstimate=0（見積もり未設定の起動直後データ等）のとき 0/0=NaN になり、
+  // 派生先ダッシュボードに "NaN%" / "width: NaN%" が漏出する（実発生・独立レビュー指摘）。
+  // ゼロ除算はここで一箇所だけガードする（コンポーネント側では再計算しない設計のため）。
+  const overallPct = totalEstimate === 0 ? 0 : pct(totalDone / totalEstimate);
 
   return { rows, totalEstimate, totalDone, totalRemain, overallPct };
 }
