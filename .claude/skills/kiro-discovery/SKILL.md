@@ -173,6 +173,8 @@ Use the Write tool to create `.kiro/specs/<feature-name>/brief.md` with this str
 [technology, compatibility, or other constraints]
 ```
 
+If stakeholders are numerous or independent enough to warrant their own section, add `## Stakeholders` directly after `## Problem` — see `.claude/playbooks/full-sdlc.md`'s "超上流（要求定義）の詳細" for the upstream-item mapping, the optional advocacy-persona assignment (🙋/🏭/🤝), and `role-catalog.md`'s misuse guard for those personas (they stand in for a viewpoint, never for a reachable real stakeholder).
+
 **For Path D (multi-spec decomposition)**:
 
 Use the Write tool to create:
