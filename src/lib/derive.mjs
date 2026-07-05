@@ -45,6 +45,17 @@ export function pct(n) {
   return Math.round(n * 100);
 }
 
+// 更新箇所のピンポイント化（PO指示 v2 #7）: item.updatedAt（"YYYY-MM-DD"）から
+// チップ表示用の短い日付ラベルを作る（年を落とし M/D のみにする＝装飾的な精度を
+// 増やさない。writing-standards.md「後で参照しない固有名・数値は出さない」）。
+export function updatedChipLabel(updatedAt) {
+  if (!updatedAt) return null;
+  const parts = updatedAt.split("-");
+  if (parts.length !== 3) return `更新 ${updatedAt}`;
+  const [, m, d] = parts;
+  return `更新 ${Number(m)}/${Number(d)}`;
+}
+
 export function visibleMilestones(data) {
   return data.milestones.filter((m) => !m.hideCard);
 }

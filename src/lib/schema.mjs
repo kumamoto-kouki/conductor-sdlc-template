@@ -21,6 +21,16 @@ const badgeSchema = z.object({
 
 const evidenceSchema = z.array(z.enum(EVIDENCE_KINDS)).default([]);
 
+// 更新箇所のピンポイント化（PO指示 v2 #7）: card-updated の面塗り／ボード見出しの
+// 更新バッジという粗い粒度に代え、項目単位（節目・spec行・ボードカード・KPI・運用項目）
+// に updatedAt を持たせ、UIは該当項目にだけ小さな青「更新」チップを表示する。
+// 後方互換のため optional（無指定の既存データはチップなしで従来と同じ見た目）。
+//
+// 運用: status.json を更新するたびに、変更した項目へ当日日付で updatedAt を付け、
+// 前回の版で付けていた古い updatedAt は外す（チップは「常に最新版の差分」を示す
+// ものとして使う。付けっぱなしにすると全項目が「更新」化し、粗い粒度に戻ってしまう）。
+const updatedAtSchema = z.string().optional();
+
 const milestoneSchema = z.object({
   id: z.string(),
   label: z.string(),
@@ -33,6 +43,7 @@ const milestoneSchema = z.object({
   remainingNote: z.string().optional(),
   hideCard: z.boolean().optional(),
   evidence: evidenceSchema,
+  updatedAt: updatedAtSchema,
 });
 
 const specSchema = z.object({
@@ -49,6 +60,7 @@ const specSchema = z.object({
   screenTestsNote: z.string().optional(),
   badge: badgeSchema,
   evidence: evidenceSchema,
+  updatedAt: updatedAtSchema,
 });
 
 const sharedTestsSchema = z.object({
@@ -62,6 +74,7 @@ const kpiExtraSchema = z.object({
   label: z.string(),
   tone: z.string(),
   note: z.string(),
+  updatedAt: updatedAtSchema,
 });
 
 const boardCardSchema = z.object({
@@ -78,6 +91,7 @@ const boardCardSchema = z.object({
   // （すべてのカードが spec に対応するわけではない：例 V1 は実機目視タスクで
   // 単一 spec に紐づかない）。
   specRef: z.string().optional(),
+  updatedAt: updatedAtSchema,
 });
 
 const boardLanesSchema = z.object({
@@ -99,6 +113,7 @@ const incidentSchema = z.object({
   issue: z.string(),
   fix: z.string(),
   effect: z.string(),
+  updatedAt: updatedAtSchema,
 });
 
 const signalSchema = z.object({

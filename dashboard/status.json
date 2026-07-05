@@ -40,7 +40,8 @@
         "tone": "ok"
       },
       "note": "実装完了＋自動テスト緑が裏付け。実機・実APIの実対話は <b>PO 判断でサインオフ</b>（実証ログは本セッション未取得・必要なら後日 API キーで実証可）。",
-      "evidence": ["auto-test", "po-signoff"]
+      "evidence": ["auto-test", "po-signoff"],
+      "updatedAt": "2026-06-29"
     },
     {
       "id": "M4",
@@ -140,7 +141,8 @@
         "text": "完了",
         "tone": "ok"
       },
-      "evidence": ["auto-test"]
+      "evidence": ["auto-test"],
+      "updatedAt": "2026-06-29"
     }
   ],
   "sharedTests": {
@@ -198,7 +200,8 @@
           "title": "アバター画像",
           "actors": "👩🏼‍🎨🕵🏼‍♀️",
           "actorsTip": "デザイン実装(実装)→デザインRev APPROVED",
-          "tip": "カードに実アバター画像(createAvatar＋onerror頭文字フォールバック)。Designリーダー采配→デザイン実装(実装・worktree)→デザインRev 独立レビュー APPROVED。画面側 173→178・統合ブランチへ merge＋worktree 撤去"
+          "tip": "カードに実アバター画像(createAvatar＋onerror頭文字フォールバック)。Designリーダー采配→デザイン実装(実装・worktree)→デザインRev 独立レビュー APPROVED。画面側 173→178・統合ブランチへ merge＋worktree 撤去",
+          "updatedAt": "2026-06-29"
         },
         {
           "id": "K1-5",
