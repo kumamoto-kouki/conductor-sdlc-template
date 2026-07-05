@@ -73,7 +73,7 @@ fi
 # git 初期化 + 初回コミット（user.name/email 未設定の環境でも失敗しないようフォールバックを渡す）
 (
   cd "$TARGET"
-  git init -q
+  git init -q -b main
   # dashboard/ の生成物とビルド入力の整合を機械化するpre-commitフックを有効化する
   # （.githooks/pre-commit 本体はテンプレに同梱。詳細は同ファイルのコメント参照）。
   git config core.hooksPath .githooks
