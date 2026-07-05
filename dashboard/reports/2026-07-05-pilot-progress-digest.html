@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <script>
+  (function () {
+    try {
+      var v = localStorage.getItem("dashboard-theme");
+      if (v === "light" || v === "dark") {
+        document.documentElement.setAttribute("data-theme", v);
+      }
+    } catch (e) {
+      // localStorage が使えない環境（file:// の一部ブラウザ等）では何もしない
+      // ＝auto と同じ既定の見た目にフォールバックする。
+    }
+  })();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='58' font-size='58' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E">
+<title>2026-07-05 パイロット走行報告：progress-digest で SDLC を1周 ｜ 振り返り ｜（プロジェクト名） 開発ダッシュボード</title>
+  <link rel="stylesheet" href="../_astro/BaseHead.B4cnBREM.css"></head>
+  <body>
+    <header class="site-nav">
+  <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
+    <ul class="site-nav-links">
+      <li>
+            <a href="../status-dashboard.html" class>
+              📊 ダッシュボード
+            </a>
+          </li><li>
+            <a href="../overview.html" class>
+              📁 概要
+            </a>
+          </li><li>
+            <a href="../reports.html" aria-current="page" class="is-active">
+              📝 振り返り
+            </a>
+          </li><li>
+            <a href="../steering.html" class>
+              🧭 ステアリング
+            </a>
+          </li>
+    </ul>
+    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="表示テーマの切り替え（自動/ライト/ダーク）">
+      🌓 自動
+    </button>
+  </nav>
+</header>
+
+<script>
+  (function () {
+    var KEY = "dashboard-theme";
+    var STATES = ["auto", "light", "dark"];
+    var LABELS = { auto: "🌓 自動", light: "☀️ ライト", dark: "🌙 ダーク" };
+    var btn = document.getElementById("theme-toggle");
+
+    function currentState() {
+      var v = null;
+      try {
+        v = localStorage.getItem(KEY);
+      } catch (e) {}
+      return STATES.indexOf(v) === -1 ? "auto" : v;
+    }
+
+    function apply(state) {
+      if (state === "auto") {
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", state);
+      }
+      if (btn) {
+        btn.textContent = LABELS[state];
+        btn.setAttribute(
+          "aria-label",
+          "表示テーマの切り替え（現在: " + LABELS[state] + "）",
+        );
+      }
+    }
+
+    apply(currentState());
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = STATES[(STATES.indexOf(currentState()) + 1) % STATES.length];
+        try {
+          localStorage.setItem(KEY, next);
+        } catch (e) {}
+        apply(next);
+      });
+    }
+  })();
+</script>
+    <div class="wrap">
+      <header class="hero">
+        <h1 class="text-white">📝 2026-07-05 パイロット走行報告：progress-digest で SDLC を1周</h1>
+        <div class="mt-1.5 text-sm text-white/85">
+          <a class="text-white/85!" href="../reports.html">← 振り返り一覧へ戻る</a>
+        </div>
+      </header>
+
+      <div class="card markdown-body">
+        <h1 id="2026-07-05-パイロット走行報告progress-digest-で-sdlc-を1周">2026-07-05 パイロット走行報告：progress-digest で SDLC を1周</h1>
+<p>テンプレート（VERSION 0.1.0）から <code>/var/syslabo/progress-digest</code> を派生し、起動チェックリスト→Discovery/spec→実装→独立レビュー→受理→還流までを実走した。目的は「骨組みが動く」（派生テスト済み）の先、<strong>進め方として1周回るか</strong>の検証。</p>
+<h2 id="結果の要約">結果の要約</h2>
+<ul>
+<li><strong>1周完走</strong>。spec 3フェーズ承認（brief＝代弁ペルソナ3役割当・EARS 16基準・design I/F 6関数・tasks＋トレーサビリティ表16行）→ Maker 実装（feat ブランチ・14テスト全緑）→ 独立レビューAPPROVED（16/16基準・是正要求なし）→ 受理</li>
+<li><strong>段階反映②を初実践</strong>：代弁ペルソナの brief.md 割当と、要件ID→design節→タスク番号のトレーサビリティ表は、S プリセットの単一 spec でも書く負担が小さく、レビューの突き合わせを速くした（レビュアーが16基準の検算に実使用）</li>
+<li><strong>生成規律が効いた</strong>：design の I/F シグネチャを委譲プロンプトへ逐語で渡した結果、実装の再解釈ゼロ。さらに Maker が design 内の記述矛盾（出力例 §6.2 と型定義 §7）を発見・開示し、レビュアーが「§7 を正とする解決は要件に違反しない」と独立判定→受理後に design を修正、という開示ループが機能した</li>
+<li><strong>ドッグフーディングで即価値</strong>：完成した CLI をテンプレート本体の実 progress.log（15ストリーム・60行超）に実行し、accept で閉じていない実スレッド2件（design-refine-a・ssg-comparison）を検出。運用上の記録漏れ（受理相当の判断はあったが accept 行を書いていない）を機械が可視化した</li>
+<li><strong>フィードバックループ初実走</strong>：<code>TEMPLATE-FEEDBACK:</code> マーカー4件を派生側の振り返りに記録し、<code>collect-template-feedback.sh</code> が文脈・派生元バージョンつきで抽出できることを確認</li>
+</ul>
+<h2 id="テンプレートへの改善提案収集済みpo判断待ち">テンプレートへの改善提案（収集済み・PO判断待ち）</h2>
+<p>派生側 <code>2026-07-05-pilot-first-cycle.md</code> から収集した4件。反映する場合は通常の委譲規律（実装→独立レビュー）で行い、<code>VERSION</code> を上げる。</p>
+<ol>
+<li><strong>[欠陥] <code>.kiro/settings/templates/specs/</code> が存在しない</strong>：kiro-spec-* スキルが参照するテンプレ群（init.json 等）が本体に無く、kiro-spec-init は「エラー報告して停止」しか道がない。実ファイル同梱か、全スキルへの inline フォールバック明記が要る</li>
+<li><strong>[改善] kiro-discovery → full-sdlc.md の相互参照欠落</strong>：Stakeholders 節・代弁ペルソナ割当の根拠がスキルから辿れない。SKILL.md へ参照1行</li>
+<li><strong>[改善] spec.json の「生成済み・未承認」中間状態が未定義</strong>：委譲エージェントによる一括生成→統括/PO の事後承認、という実運用の状態を skills に明記する</li>
+<li><strong>[欠陥] init-project.sh の <code>git init</code> が既定ブランチ master を作る</strong>：<code>git init -b main</code> へ（テンプレの手順・playbooks は main 前提）</li>
+</ol>
+<h2 id="運用面の学び">運用面の学び</h2>
+<ul>
+<li>S プリセット（統括がレーンリーダー兼務・実装1＋レビュー1・WIP1）で規律A〜E は無理なく回る。省略したくなる圧力は感じなかった</li>
+<li>progress.log の記録規約に「受理相当の判断をしたら accept 行を書く」を徹底する価値がある（未完スレッド検出の誤検知はこの記録漏れだけだった）。2回目が観測されたら operations.md へ格上げ</li>
+<li>環境固有: この開発環境の node シムは <code>node --test &#x3C;dir></code>（ディレクトリ指定）が動かない。glob 展開（<code>node --test test/*.test.mjs</code>）で回避（テンプレの欠陥ではないため還流対象外）</li>
+</ul>
+<h2 id="次回への持ち越し">次回への持ち越し</h2>
+<ul>
+<li>上記フィードバック4件の反映可否（PO判断→採用分は委譲で実装）</li>
+<li>派生プロジェクト progress-digest は残置（PO指示）。次 spec 候補＝dispatch/accept 複数回のペア対応追跡（必要が実観測されたら）</li>
+</ul>
+      </div>
+
+      <div class="foot">
+        ダッシュボード本体へ戻る: <code>../status-dashboard.html</code>
+      </div>
+    </div>
+  </body>
+</html>
