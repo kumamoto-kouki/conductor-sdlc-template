@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <script>
+  (function () {
+    try {
+      var v = localStorage.getItem("dashboard-theme");
+      if (v === "light" || v === "dark") {
+        document.documentElement.setAttribute("data-theme", v);
+      }
+    } catch (e) {
+      // localStorage が使えない環境（file:// の一部ブラウザ等）では何もしない
+      // ＝auto と同じ既定の見た目にフォールバックする。
+    }
+  })();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='58' font-size='58' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E">
+<title>2026-07-05 振り返り：Wave3ポータル化・全幅化・レイアウトv2・体制拡張の段階反映 ｜ 振り返り ｜（プロジェクト名） 開発ダッシュボード</title>
+  <link rel="stylesheet" href="../_astro/BaseHead.B4cnBREM.css"></head>
+  <body>
+    <header class="site-nav">
+  <nav class="site-nav-inner" aria-label="ポータル内ナビゲーション">
+    <ul class="site-nav-links">
+      <li>
+            <a href="../status-dashboard.html" class>
+              📊 ダッシュボード
+            </a>
+          </li><li>
+            <a href="../overview.html" class>
+              📁 概要
+            </a>
+          </li><li>
+            <a href="../reports.html" aria-current="page" class="is-active">
+              📝 振り返り
+            </a>
+          </li><li>
+            <a href="../steering.html" class>
+              🧭 ステアリング
+            </a>
+          </li>
+    </ul>
+    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="表示テーマの切り替え（自動/ライト/ダーク）">
+      🌓 自動
+    </button>
+  </nav>
+</header>
+
+<script>
+  (function () {
+    var KEY = "dashboard-theme";
+    var STATES = ["auto", "light", "dark"];
+    var LABELS = { auto: "🌓 自動", light: "☀️ ライト", dark: "🌙 ダーク" };
+    var btn = document.getElementById("theme-toggle");
+
+    function currentState() {
+      var v = null;
+      try {
+        v = localStorage.getItem(KEY);
+      } catch (e) {}
+      return STATES.indexOf(v) === -1 ? "auto" : v;
+    }
+
+    function apply(state) {
+      if (state === "auto") {
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", state);
+      }
+      if (btn) {
+        btn.textContent = LABELS[state];
+        btn.setAttribute(
+          "aria-label",
+          "表示テーマの切り替え（現在: " + LABELS[state] + "）",
+        );
+      }
+    }
+
+    apply(currentState());
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = STATES[(STATES.indexOf(currentState()) + 1) % STATES.length];
+        try {
+          localStorage.setItem(KEY, next);
+        } catch (e) {}
+        apply(next);
+      });
+    }
+  })();
+</script>
+    <div class="wrap">
+      <header class="hero">
+        <h1 class="text-white">📝 2026-07-05 振り返り：Wave3ポータル化・全幅化・レイアウトv2・体制拡張の段階反映</h1>
+        <div class="mt-1.5 text-sm text-white/85">
+          <a class="text-white/85!" href="../reports.html">← 振り返り一覧へ戻る</a>
+        </div>
+      </header>
+
+      <div class="card markdown-body">
+        <h1 id="2026-07-05-振り返りwave3ポータル化全幅化レイアウトv2体制拡張の段階反映">2026-07-05 振り返り：Wave3ポータル化・全幅化・レイアウトv2・体制拡張の段階反映</h1>
+<p>前レポート（<code>2026-07-04-astro7-maximize-session.md</code>）以降のまとまり。ダッシュボードは1ページの生成物から、目次ナビ・3層報告・別ページ概要を持つ小さなサイトへ変わった。</p>
+<h2 id="何を実装したか">何を実装したか</h2>
+<ol>
+<li><strong>Wave 3</strong>：reports/steering の content collections によるポータル化（18ページ生成）＋アイランド対話性（ボードフィルタ・用語集検索・ダークトグル、vanilla JSのみ）。委譲→レビューAPPROVED→是正2件→統合</li>
+<li><strong>全幅化＋レスポンシブ</strong>：<code>max-w-[1080px]</code> 撤廃。390/768/1440/2560px で実描画検証。390px で実害のあった横はみ出し2件（コンポーネント表・Markdown由来の素の表）を実機検証で発見し是正</li>
+<li><strong>レイアウトv2（PO指示8項目）</strong>：概要の別ページ分離・需要側3役の体制図反映・報告の3層化（対会社→部内→チーム内）・最小フォント14px・favicon・レフトナビ・更新表示の項目単位チップ化・文章規範のsteering化（<code>writing-standards.md</code>）</li>
+<li><strong>体制拡張の段階反映①</strong>：代弁ペルソナ3役（エンドユーザー/現場/ステークホルダー）を候補ロスターへ登録、フォワードエンジニアリング強化3方向の発動判断基準を <code>full-sdlc.md</code> へ追記。実投入は次の実プロジェクト、機構化は2回効いてから</li>
+<li><strong>小タスク</strong>：青リングの本来色化（<code>ring-line</code> へ4箇所）・SSG PoCブランチ2本と残骸 <code>master</code> の撤去・Serena導入→PO判断で即日除外（判断材料は progress.log に残置）</li>
+</ol>
+<h2 id="詰まった点繰り返した判断">詰まった点・繰り返した判断</h2>
+<ul>
+<li><strong>独立レビューにも盲点がある。統括の受理時スクショ目視は省略しない</strong>：Wave3はレビューAPPROVED後の統合時に、統括自身のスクリーンショット確認でコードブロック判読不能（グローバル <code>code</code> チップCSSがshiki内部へ波及）を発見した。レビュアーは同ページのMermaid描画は見たが、下方のコードブロックまで目視していなかった。「見た目に関わる変更は実ブラウザ描画＋スクリーンショットで受理する」の実行主体はレビュアーだけでなく統括の受理段階にも要る。</li>
+<li><strong><code>.claude/settings.json</code> のセッション由来汚染（2回発生→正本へ格上げ済み）</strong>：サブエージェントの許可プロンプト応答が、使い捨てコマンドのallowルール・<code>git commit *</code> の包括許可・defaultMode変更としてガードレールファイルに書き込まれる。受理手順（<code>delegation.md</code> §3）に汚染チェックを追加した。</li>
+<li><strong>ベース是正ガードのマーカー粒度が粗いと、古いベースを検知できない</strong>：全幅化Makerのworktreeが直前コミット（77acc10）より古いmainから作られたが、ガードのマーカー（機能の存在確認）は満たしてしまい、生成物ファイルでマージコンフリクトになった。ソースは競合せず、<strong>生成物のコンフリクトは再ビルドで解決</strong>できた（手動マージしない）。次回から着手前ガードのマーカーは「直近コミットの内容」由来にする（1回目のため報告に留める。再発したら delegation.md へ格上げ）。</li>
+<li><strong>テンプレート自身が自分の起動チェックリストを未適用だった</strong>：<code>core.hooksPath</code> が本リポジトリで未設定＝pre-commitフックが一度も有効でなかった。steering がWave3でビルド入力になったことで露見した（role-catalog.md 変更時に生成物が再生成されず）。READMEに書いてある項目でも、書いた時点で自リポジトリに適用しなければ絵に描いた餅になる。</li>
+<li><strong>「情報量を減らさない」の証明は、ページ分割後はページ横断の合計で行う</strong>：概要の別ページ化で本体ページ単体の要素数は減る（verifyのチェック4は⚠を出す）。移動と削除を区別するには、移動前の単体 vs 移動後の合計＋消失トークンの個別分類（移動先に実在／指示による差し替え／無断削除）まで要る。レビュアーが独立に再計数し、消失7トークン全てを分類して「無断削除ゼロ」を確定した。</li>
+<li><strong>規範は実装より先にコミットして同じwaveから効かせる</strong>：文章規範（writing-standards.md）をレイアウトv2の委譲前にsteeringへコミットし、Makerの新規文言に適用させた。後から書くと「既存文の一括書き換えをどうするか」問題だけが残る（今回は「新規と触れた文から適用」を規範自体に明記）。</li>
+<li><strong>フォント床の変更は「最小値の機械証明」で受理する</strong>：最小14px指定は、全ページ×複数幅の computed font-size をCDPで走査した最小値の実出力で確認した。ソースgrep（arbitrary px値ゼロ）だけではSVG内やinline styleを見落とす。</li>
+</ul>
+<h2 id="clauderules--正本への格上げ"><code>.claude/rules/</code> / 正本への格上げ</h2>
+<ul>
+<li>済み：settings.json 汚染チェックを <code>delegation.md</code> §3 に追加（2回発生）</li>
+<li>候補（1回目・様子見）：着手前ガードのマーカーを直近コミット由来にする／統括の受理段階でのスクショ目視の明文化</li>
+</ul>
+<h2 id="次回への持ち越し">次回への持ち越し</h2>
+<ul>
+<li><strong>段階反映②</strong>：代弁ペルソナの実投入＋トレーサビリティ実践 → 次の実プロジェクトの Discovery 時</li>
+<li><strong>段階反映③</strong>：kiro-spec-* スキル改修・validate 必須ゲート化 → 実プロジェクトで2回効いてから（PO承認事項）</li>
+<li>レフトナビの現在地ハイライト（任意扱いで未実装）</li>
+<li><code>output:'server'</code> SSR は文書化済みの将来オプションのまま</li>
+<li>push は PO が随時実行する運用が確立（origin/main は本セッション中も同期されていた）</li>
+</ul>
+      </div>
+
+      <div class="foot">
+        ダッシュボード本体へ戻る: <code>../status-dashboard.html</code>
+      </div>
+    </div>
+  </body>
+</html>
