@@ -1,0 +1,44 @@
+---
+// レフトナビ（PO指示 v2 #6）: 各セクションへのアンカーリンク一覧。
+// lg以上では左に固定（sticky）表示、それ未満は既定で折りたたむ。
+// <details> の「[open]属性が無いと内容を表示しない」挙動はブラウザ実装依存で
+// media query だけからの上書きが崩れやすいため、SiteHeader.astro のダークモード
+// トグルと同じ方針（vanilla JSでシンプルに判定）で [open] 属性をビューポート幅に
+// 応じて付け外しする。JSが無効な環境では既定 [open] のまま（＝常に展開表示。
+// 折りたためないだけで情報は失われない＝情報量不変の原則）。
+interface Props {
+  items: Array<{ href: string; label: string; indent?: boolean }>;
+}
+const { items } = Astro.props;
+---
+
+<nav class="section-nav-wrap" aria-label="セクション内ナビゲーション">
+  <details class="section-nav" open>
+    <summary class="section-nav-toggle">📑 目次</summary>
+    <ul class="section-nav-list">
+      {
+        items.map((it) => (
+          <li class={it.indent ? "is-indent" : ""}>
+            <a href={it.href}>{it.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </details>
+</nav>
+
+<script is:inline>
+  (function () {
+    document.querySelectorAll("details.section-nav").forEach(function (el) {
+      function sync() {
+        if (window.innerWidth >= 1024) {
+          el.setAttribute("open", "");
+        } else {
+          el.removeAttribute("open");
+        }
+      }
+      sync();
+      window.addEventListener("resize", sync);
+    });
+  })();
+</script>
