@@ -9,7 +9,9 @@
 # 配布資産であり、これを除外すると npm install 前のダッシュボード表示が CSS/mermaid
 # 参照切れになる（独立レビュー指摘 F1）。
 #
-# [project-name] を指定すると、README.md 等の「（プロジェクト名）」プレースホルダを置換する。
+# [project-name] を指定すると、複製先ツリー全体を対象に「（プロジェクト名）」プレースホルダを
+# 置換する。対象ファイルは固定せず複製後に grep で検出するため、ページ追加に追随する。
+# scripts/init-project.sh 自身はこのプレースホルダ表記をコードとして持つため置換対象から外す。
 # 複製先には VERSION の内容を TEMPLATE_VERSION として記録する（派生元バージョンの追跡。
 # 詳細は .claude/playbooks/template-feedback.md を参照）。
 set -euo pipefail
@@ -51,18 +53,21 @@ else
   echo "warn: $ROOT/VERSION が見つかりません。TEMPLATE_VERSION は作成しません" >&2
 fi
 
-# プレースホルダ置換（実際の出現箇所: README.md / src/pages/status-dashboard.astro /
-# dashboard/status-dashboard.html。dashboard/status-dashboard.html はビルド生成物だが、
-# npm install 前でも複製直後から一貫した表示にするため直接置換する）
+# プレースホルダ置換（対象ファイルを決め打ちしない: ページ数はテンプレの発展で増減するため、
+# 複製済みの $TARGET を対象に grep でプレースホルダを含むテキストファイルを都度検出する。
+# dashboard/*.html はビルド生成物だが、npm install 前でも複製直後から一貫した表示にするため
+# 他ページ同様に直接置換する。scripts/init-project.sh 自身はこの置換パターンをコードとして
+# 保持する必要があるため、検出対象から明示的に除外する）
 if [ -n "$PROJECT_NAME" ]; then
   echo "プレースホルダ（プロジェクト名）を置換中: $PROJECT_NAME"
   # sed の置換文字列として安全になるよう / と & をエスケープする
   esc_name="$(printf '%s' "$PROJECT_NAME" | sed -e 's/[\/&]/\\&/g')"
-  for f in README.md src/pages/status-dashboard.astro dashboard/status-dashboard.html; do
-    if [ -f "$TARGET/$f" ]; then
-      sed -i "s/（プロジェクト名）/${esc_name}/g" "$TARGET/$f"
-    fi
-  done
+  self_script="$TARGET/scripts/init-project.sh"
+  # -l: 該当ファイル名のみ出力 / -I: バイナリファイルは対象外 / -Z: NUL区切りで安全にループ
+  while IFS= read -r -d '' f; do
+    [ "$f" = "$self_script" ] && continue
+    sed -i "s/（プロジェクト名）/${esc_name}/g" "$f"
+  done < <(grep -rlZI "（プロジェクト名）" "$TARGET" --exclude-dir=.git)
 fi
 
 # git 初期化 + 初回コミット（user.name/email 未設定の環境でも失敗しないようフォールバックを渡す）
