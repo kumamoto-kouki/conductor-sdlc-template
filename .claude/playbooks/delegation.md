@@ -78,8 +78,9 @@ worktree: .claude/worktrees/<feature> / branch: feat/<feature>（起点＝<統�
 2. メイン作業ディレクトリ（`<統合ブランチ>` をチェックアウト中）で `git merge feat/<feature>`。対象ファイルを明示 add（`git add -A` は使わない＝worktree ディレクトリの誤取り込み事故の反省）。
 3. `git worktree remove` ＋ merge 済みブランチを `git branch -d` で撤去する。テスト本数の二重カウントが無いことを確認する。
 4. ダッシュボード整合：`dashboard/status.json` を編集し `npm run build`（Astroビルド）で再生成する（**`dashboard/status-dashboard.html` を直接手編集しない**）。移動時の整合チェックリスト6項目（①ボード②節目③spec表④KPI⑤見積もり⑥更新履歴）を突き合わせる（`operations.md`）。
-5. `.orchestration/progress.log` に1行追記（委譲／受理／統合を開示。規律E）。
-6. 破棄した場合も同じ手順で worktree/ブランチを即撤去し、理由を progress.log と完了報告に明示する（黙って消さない）。
+5. **`git status` で `.claude/settings.json` の汚染を確認する**。サブエージェントの許可プロンプト応答が、使い捨てコマンドの allow ルールや包括許可（`git commit *` 等）・defaultMode 変更としてこのファイルへ書き込まれることがある（2026-07-05 に2回実発生）。セッション由来の差分は `git checkout -- .claude/settings.json` で捨てる。恒久化したい許可は PO 承認を経て意図的にコミットする。
+6. `.orchestration/progress.log` に1行追記（委譲／受理／統合を開示。規律E）。
+7. 破棄した場合も同じ手順で worktree/ブランチを即撤去し、理由を progress.log と完了報告に明示する（黙って消さない）。
 
 ## 使い方
 
