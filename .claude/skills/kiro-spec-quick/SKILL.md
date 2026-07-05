@@ -28,6 +28,8 @@ Execute 4 spec phases sequentially. In automatic mode, execute all phases withou
 
 Before claiming quick generation is complete, run one lightweight sanity review over the generated requirements, design, and tasks. If the host supports fresh subagents, use one. Otherwise run the sanity review inline.
 
+**spec.json approval state in Automatic Mode**: running all 4 phases back-to-back without stopping is exactly the bulk/delegated generation case. Each phase you complete sets that phase's `approvals.<phase>.generated: true` in `spec.json`; `approved` only becomes `true` when `-y` explicitly auto-approves it (Phases 3-4 do this per their own `-y` flag) or when a human/orchestrator records approval afterward. Do not treat `generated: true, approved: false` as a failure — it is the expected intermediate state a reviewer inspects after automatic mode finishes.
+
 ## Execution Steps
 
 ### Step 1: Parse Arguments and Initialize

@@ -27,6 +27,10 @@ Generate a unique feature name from the project description ($ARGUMENTS) and ini
      - `en` → language code (detect from user's input language, default to `en`)
    - Write `spec.json` and `requirements.md` to spec directory
 
+## spec.json Approval State
+
+Each phase in `spec.json.approvals` (`requirements`, `design`, `tasks`) carries two independent booleans: `generated` and `approved`. `init.json` starts both `false` for every phase — nothing exists yet. Once `/kiro-spec-requirements`, `/kiro-spec-design`, or `/kiro-spec-tasks` runs, that phase's `generated` flips to `true` immediately; `approved` stays `false` until a human or the orchestrator records approval (or `-y`/auto-approve is explicitly passed). `generated: true, approved: false` is therefore the formal intermediate state produced whenever a delegated agent runs one or more phases in bulk (e.g. autonomous batch generation) — it is not an error state, and downstream phases must still treat it as "not yet approved" when checking prerequisites.
+
 ## Important Constraints
 
 - Do NOT generate requirements, design, or tasks. This skill only creates spec.json and requirements.md.
