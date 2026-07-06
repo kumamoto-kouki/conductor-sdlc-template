@@ -52,9 +52,9 @@
 
 4. **記録**：反映したら `VERSION` を上げ（[Semantic Versioning](https://semver.org/) に準拠：
    互換性を壊す構造変更＝MAJOR、機能追加＝MINOR、文言修正等の軽微な変更＝PATCH）、
-   `.claude/reports/YYYY-MM-DD-template-feedback-<topic>.md` に「どの派生プロジェクトの提案を」
-   「何を」「なぜ」反映したかを記録する（reports の通常フォーマットに準拠。CHANGELOG 相当の役割を
-   reports が兼ねる＝新しいファイル形式を増やさない）。
+   `CHANGELOG.md` の該当バージョンに「どの派生プロジェクトの提案を」「何を」「なぜ」反映したかを
+   記録する（バージョン記録は `.claude/reports/` を経由せず直接 `CHANGELOG.md` へ書く。
+   `.claude/reports/README.md` の運用に従う）。
 
 ## GitHub 公開後の代替経路
 

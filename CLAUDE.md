@@ -71,7 +71,7 @@ Skills are located in `.claude/skills/kiro-*/SKILL.md`
 ## Harness Conventions (rules / reports)
 
 - `.claude/rules/` — path-glob-matched convention files, loaded when working on matching files. See `.claude/rules/README.md` for when/how to add one. Do not pre-write rules for patterns that don't exist yet.
-- `.claude/reports/` — lightweight post-implementation retrospectives (`YYYY-MM-DD-<topic>.md`). See `.claude/reports/README.md`. Write one after finishing a spec's implementation, especially if something caused repeated rework.
+- `.claude/reports/` — lightweight session reports / working notes (`YYYY-MM-DD-<topic>.md`). See `.claude/reports/README.md`. Not a permanent record: write permanent content directly to its proper home the moment it is identified — version history to `CHANGELOG.md`, cross-cutting learnings to `.kiro/steering/`, path-scoped learnings to `.claude/rules/`, delegation/playbook improvements to `.claude/playbooks/`. Reports may be deleted at any time once their permanent content has been written elsewhere.
 
 ## Token / Cost Efficiency
 

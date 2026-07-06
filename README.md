@@ -130,7 +130,7 @@ flowchart TD
 | 体制・運用（正本）     | `.kiro/steering/`                                      | `orchestration.md`（中核モデル）／`operations.md`（運用統治）／`role-catalog.md`（配役）／`review-checklists.md`／`README.md`（索引）                       |
 | 判断基準（lazy）       | `.claude/rules/`                                       | パス連動で必要時だけ読む規約。実例は `_examples/`                                                                                                           |
 | プレイブック           | `.claude/playbooks/`                                   | `delegation.md`（委譲雛形）／`knowledge-graph.md`（大規模化判断）／`full-sdlc.md`（超上流〜保守運用マッピング）／`template-feedback.md`（テンプレへの還流） |
-| 振り返り               | `.claude/reports/`                                     | 実装後の学びを記録し正本へ格上げ                                                                                                                            |
+| セッション報告         | `.claude/reports/`                                     | 作業メモ・中間レポート。恒久内容は書いた時点で `CHANGELOG.md`／正本へ直接記録し、レポート自体は随時削除できる                                               |
 | ガードレール           | `.claude/settings.json`                                | 破壊的操作の deny・作業系の allow                                                                                                                           |
 | 並行開発の道具         | `scripts/`                                             | `swarm-up.sh`／`swarm-down.sh`／`dev-dashboard.sh`                                                                                                          |
 | セットアップ・還流     | `scripts/`・`VERSION`                                  | `init-project.sh`（複製・初期化）／`collect-template-feedback.sh`（派生プロジェクトからの知見収集）                                                         |
@@ -151,7 +151,7 @@ flowchart TD
 
 - **worktree 戦略（ベース是正ガード）**：実装エージェントが作業を始める前に、既存の成果物が本当に存在するかをマーカーファイル等で機械的に検証する。欠けていれば `git merge` で最新を取り込んでからやり直す（`git reset --hard` は破壊的操作なので使わせない）。詳細は `orchestration.md`。
 - **信用を支える運用原則（P1〜P6）と堅実性ファースト**：ノイズは削ってよいが、安全機構・判断根拠・開示・受理ゲートは削らない。詳細は `orchestration.md`。
-- **振り返りを記録する**：節目ごとに `.claude/reports/` へ学びを残し、2回目以降も同じ判断を下す場面が来たら正本（`.kiro/steering/`・`.claude/rules/`）へ格上げする。
+- **振り返りを記録する**：節目ごとに `.claude/reports/`（セッションメモ）へ振り返りを残す。バージョン記録・持ち越し事項は書いた時点で `CHANGELOG.md` へ、2回目以降も同じ判断を下す場面が来た学びは正本（`.kiro/steering/`・`.claude/rules/`）へ、それぞれ直接記録する。
 - **大規模化したらナレッジグラフ化を検討する**：依存関係を横断する質問（「この変更は何に影響するか」等）が頻発しだしたら `.claude/playbooks/knowledge-graph.md`（判断基準・手法マトリクス・導入手順）を参照する。
 
 ## 困ったとき・FAQ
@@ -169,9 +169,9 @@ flowchart TD
 
 ## 経緯・注意
 
-このテンプレートの**成り立ち・設計判断・次にできること・継続の作法**は [`.claude/reports/2026-06-29-origin-and-decisions.md`](.claude/reports/2026-06-29-origin-and-decisions.md) に記録。このディレクトリで作業を続けるときは、まずそれを読む。
+このテンプレートの**成り立ち・設計判断・バージョンごとの変更**は [`CHANGELOG.md`](CHANGELOG.md) に記録。このディレクトリで作業を続けるときは、まずそれを読む。
 
-**v0.4.0** でダッシュボードのビルド生成物（`dashboard/*.html`・`_astro/`・`reports/`・`steering/`）を Git 管理外にした。生成物を都度コミットする運用は「入力（`status.json`）とビルド出力が食い違う」事故の温床になっており、生成物を管理外にして毎回ビルドし直す運用へ変更した（トレードオフ＝クローン直後に `file://` で即閲覧できていた利便性を失う。上記チェックリストの `npm install`＋`npm run build` を必須の初手として受け入れる）。詳細は `.claude/reports/2026-07-06-v040-generated-files-and-readme.md`。
+**v0.4.0** でダッシュボードのビルド生成物（`dashboard/*.html`・`_astro/`・`reports/`・`steering/`）を Git 管理外にした。生成物を都度コミットする運用は「入力（`status.json`）とビルド出力が食い違う」事故の温床になっており、生成物を管理外にして毎回ビルドし直す運用へ変更した（トレードオフ＝クローン直後に `file://` で即閲覧できていた利便性を失う。上記チェックリストの `npm install`＋`npm run build` を必須の初手として受け入れる）。詳細は `CHANGELOG.md` の `[0.4.0]` を参照。
 
 - ダッシュボードや steering 内の**固有名・数値・事故記号（A2/K1 等）は「例」**。教訓（なぜ）だけ受け取り、自分の実例に読み替える（各所に注記あり）。
 - スタック依存の `.claude/rules/` は**実装が先・ルール化は後**で自分のスタック向けに作る（例は `_examples/`）。
