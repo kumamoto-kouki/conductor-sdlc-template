@@ -34,7 +34,7 @@
 - ルート直下に本ファイル（`CHANGELOG.md`）を新設し、`.claude/reports/` の日付レポート10本（2026-06-29〜2026-07-06）が持っていた恒久内容をバージョン履歴として集約した。
 - 判断基準を正本へ追加反映した：着手前ガードのマーカーを機能の存在確認でなく直近コミット由来にする（`delegation.md`）、統括の受理手順にマージ前後の実描画スクリーンショット確認を明記する（`delegation.md`）、ビルド不能な中間コミット（bisect 不能点）を squash で main に持ち込まない（`orchestration.md`）。
 - `.claude/reports/` の日付レポート10本を削除し、`reports/README.md` を新しい運用規約（恒久内容は書いた時点で正本へ・レポートはセッションメモとして随時削除可）へ書き換えた。
-- レポート削除に伴い、`CLAUDE.md`・`README.md`・`.kiro/steering/operations.md`・`.kiro/steering/orchestration.md`・`.claude/playbooks/template-feedback.md`・`.claude/playbooks/full-sdlc.md` の参照を更新した。
+- レポート削除に伴い、`CLAUDE.md`・`README.md`・`.kiro/steering/orchestration.md`・`.claude/playbooks/template-feedback.md`・`.claude/playbooks/full-sdlc.md` の参照を更新した。
 
 ## [0.4.0] - 2026-07-06
 
