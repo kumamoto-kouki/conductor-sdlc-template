@@ -10,7 +10,7 @@
 flowchart TD
     A[プロジェクトを複製] --> B["product.md 等に<br/>プロジェクト情報を記入"]
     B --> C["アイデアを整理<br/>/kiro-discovery"]
-    C --> D["仕様を作成<br/>要件 → 設計 → タスク"]
+    C --> D["仕様を作成<br/>/kiro-spec-quick<br/>要件 → 設計 → タスク"]
     D --> E{{"人間(PO)が<br/>各フェーズを承認"}}
     E -->|承認| F["実装<br/>/kiro-impl（worktreeで並行）"]
     F --> G[独立レビュアーが受理判定]
@@ -113,7 +113,7 @@ flowchart LR
 ```mermaid
 flowchart TD
     ROOT["リポジトリ直下"]
-    ROOT --> KIRO[".kiro/<br/>steering（常時参照のルール）・specs（仕様）"]
+    ROOT --> KIRO[".kiro/<br/>steering（常時参照のルール）<br/>specs/機能名/（機能ごとの仕様）"]
     ROOT --> SKILLS[".claude/skills/<br/>SDLCの手順（17スキル）"]
     ROOT --> RULESD[".claude/rules/<br/>パス連動の判断基準"]
     ROOT --> PLAYBOOKS[".claude/playbooks/<br/>委譲・還流の雛形"]

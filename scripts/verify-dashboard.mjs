@@ -767,8 +767,8 @@ async function main() {
   checkDeterminism();
   await checkRenderSmoke();
   checkElementCountReport();
-  checkNoNaNOrUndefined();
   checkFailedBuildResidue();
+  checkNoNaNOrUndefined();
 
   console.log("\n=== 結果一覧 ===");
   for (const r of results) {
