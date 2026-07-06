@@ -21,11 +21,17 @@
 
 ### 既知の課題
 
-- 孫派生（このテンプレから派生したプロジェクトを、さらに複製した先）で `TEMPLATE_VERSION` が親プロジェクト自身の semver で上書きされ、テンプレ由来バージョンの追跡が断絶する。
-- `roadmap.md` の Wave 節（依存 wave の表現）が正式な仕様として文書化されていない。
-- 見積もり（`milestones[]` 由来の派生値）が `roadmap.md` と `status.json` の双方で扱われうる状態にあり、二重管理による食い違いのリスクが残る。
 - worktree 環境での Astro ビルドに非決定性がある（BaseHead ハッシュが実行ごとに変わる）。
 - `scripts/verify-dashboard.mjs` の要素数チェックは `git show HEAD:<path>` で直前コミットの生成物と比較する設計だが、v0.4.0 でダッシュボードの生成物を Git 管理外にした副作用により、比較対象が常に「新規ページ」判定になり HEAD 比較が実質機能しない。
+
+## [0.5.1] - 2026-07-07
+
+既知の課題3件の是正、および独立レビュー指摘によるガード追加。
+
+- `scripts/init-project.sh` の `TEMPLATE_VERSION` 生成を、複製元に `TEMPLATE_VERSION` があればそれを優先継承する方式に変更した。従来は複製元の `VERSION` を無条件にコピーしていたため、孫派生（親→子→孫）で子自身の semver が祖先テンプレ由来の値を上書きし、追跡が断絶していた。
+- `.claude/skills/kiro-spec-batch/SKILL.md` に、任意の `## Waves` 節（`## Specs (dependency order)` の直前に置く、依存 wave を人間向けに明示する節）を正式定義した。spec-batch の解析対象ではなく人間とレビュアーの読み物である旨・配置位置・実例を明記した。M プリセットのパイロット走行で実行者が自己判断で追加せざるを得なかった状態を解消した。
+- 上記 `## Waves` 節の規定に、見積もりの二重管理を防ぐ注意書きを追加した：見積もりの正本は `dashboard/status.json` の `milestones[].estimateH` であり、roadmap に見積もりを書く場合は独自の数値を作らず status.json の値を転記し、合計一致を明記する。
+- `scripts/init-project.sh` の ROOT 算出直後・rsync 実行前に、`$ROOT/VERSION` と `$ROOT/CLAUDE.md` の存在確認ガードを追加した。いずれか欠如時はリポジトリ外への単体コピー実行を疑うエラーメッセージを出して停止する（実事故: ROOT誤解決で `$HOME` 全体を rsync しかけた）。
 
 ## [0.5.0] - 2026-07-06
 

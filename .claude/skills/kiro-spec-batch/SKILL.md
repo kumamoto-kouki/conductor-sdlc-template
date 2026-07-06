@@ -30,8 +30,24 @@ allowed-tools: Read, Glob, Grep, Agent
    - `## Existing Spec Updates`
    - `## Direct Implementation Candidates`
      Do not include these in dependency-wave execution; they are awareness-only inputs for sequencing and consistency review.
-4. For each pending feature in `## Specs (dependency order)`, verify `.kiro/specs/<feature>/brief.md` exists
-5. If any brief.md is missing, stop and report: "Missing brief.md for: [list]. Run `/kiro-discovery` to generate briefs first."
+4. Roadmap.md may also contain an optional `## Waves` section, placed directly before `## Specs (dependency order)`. This section is a human-readable rendering of the wave grouping that Step 2 derives from the dependency graph — it exists so humans and reviewers can see the wave breakdown at a glance without re-deriving it from the dependency list. It is **not** parsed by spec-batch; Step 2 always computes waves programmatically from the `Dependencies:` annotations regardless of whether `## Waves` is present, stale, or absent.
+
+   Example:
+
+   ```
+   ## Waves
+   - Wave 1: feature-a
+   - Wave 2: feature-b, feature-c (depend on feature-a)
+   - Wave 3: feature-d (depends on feature-b, feature-c)
+
+   ## Specs (dependency order)
+   - [ ] feature-a -- ...
+   ```
+
+   If a roadmap author records effort estimates near `## Waves` (or anywhere in roadmap.md), the source of truth for estimates is `dashboard/status.json`'s `milestones[].estimateH`. Transcribe those values rather than inventing independent figures, and state that the per-feature sum matches the corresponding `status.json` total.
+
+5. For each pending feature in `## Specs (dependency order)`, verify `.kiro/specs/<feature>/brief.md` exists
+6. If any brief.md is missing, stop and report: "Missing brief.md for: [list]. Run `/kiro-discovery` to generate briefs first."
 
 ### Step 2: Build Dependency Waves
 

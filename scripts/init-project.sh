@@ -15,8 +15,9 @@
 # [project-name] を指定すると、複製先ツリー全体を対象に「（プロジェクト名）」プレースホルダを
 # 置換する。対象ファイルは固定せず複製後に grep で検出するため、ページ追加に追随する。
 # scripts/init-project.sh 自身はこのプレースホルダ表記をコードとして持つため置換対象から外す。
-# 複製先には VERSION の内容を TEMPLATE_VERSION として記録する（派生元バージョンの追跡。
-# 詳細は .claude/playbooks/template-feedback.md を参照）。
+# 複製先には TEMPLATE_VERSION を記録する（派生元バージョンの追跡。詳細は
+# .claude/playbooks/template-feedback.md を参照）。複製元に TEMPLATE_VERSION があれば
+# それを継承し、無ければ VERSION の内容を使う（孫派生でのテンプレ由来バージョン断絶を防止）。
 # 複製先の dashboard/status.json は dashboard/status.init.json（汎用の初期状態）へ入れ替える。
 # テンプレ本体側の status.json は見本用サンプルデータのまま変更しない。
 set -euo pipefail
@@ -31,6 +32,13 @@ TARGET_ARG="$1"
 PROJECT_NAME="${2:-}"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# ガード: ROOTにVERSION/CLAUDE.mdが無ければ、本スクリプトがリポジトリ外へ単体コピーされて
+# 実行された可能性を疑い停止する（実事故: ROOT誤解決で$HOME全体をrsyncしかけた）。
+if [ ! -f "$ROOT/VERSION" ] || [ ! -f "$ROOT/CLAUDE.md" ]; then
+  echo "error: $ROOT に VERSION または CLAUDE.md が見つかりません。scripts/init-project.sh をリポジトリ外へ単体コピーして実行していませんか？ conductor-sdlc-template リポジトリ内の scripts/ から実行してください" >&2
+  exit 1
+fi
 
 if [ -e "$TARGET_ARG" ]; then
   echo "error: 複製先が既に存在します: $TARGET_ARG（上書きは行いません）" >&2
@@ -55,8 +63,14 @@ rsync -a \
   --exclude='dashboard/steering/' \
   "$ROOT"/ "$TARGET"/
 
-# 派生元バージョンを記録（① テンプレへのフィードバック機構との連携）
-if [ -f "$ROOT/VERSION" ]; then
+# 派生元バージョンを記録（① テンプレへのフィードバック機構との連携）。
+# 複製元に TEMPLATE_VERSION（複製元自身が派生プロジェクトであり祖先テンプレ由来の
+# 値を保持している場合）があればそれを優先して継承する。複製元の VERSION を無条件に
+# コピーすると、孫派生（親→子→孫）で子の VERSION が祖先テンプレ由来の値を上書きし、
+# 追跡が断絶するため。
+if [ -f "$ROOT/TEMPLATE_VERSION" ]; then
+  cp "$ROOT/TEMPLATE_VERSION" "$TARGET/TEMPLATE_VERSION"
+elif [ -f "$ROOT/VERSION" ]; then
   cp "$ROOT/VERSION" "$TARGET/TEMPLATE_VERSION"
 else
   echo "warn: $ROOT/VERSION が見つかりません。TEMPLATE_VERSION は作成しません" >&2
