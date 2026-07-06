@@ -4,10 +4,13 @@
 #
 # 除外（ローカル専用・再生成される中間物のみコピーしない）:
 #   .git / node_modules / .orchestration / .claude/worktrees /
-#   .claude/settings.local.json / .astro / public/vendor
-# 注意: dashboard/_astro と dashboard/vendor は除外しない。テンプレが git コミット済みの
-# 配布資産であり、これを除外すると npm install 前のダッシュボード表示が CSS/mermaid
-# 参照切れになる（独立レビュー指摘 F1）。
+#   .claude/settings.local.json / .astro / public/vendor /
+#   dashboard/*.html・dashboard/_astro/・dashboard/reports/・dashboard/steering/
+# 注意: v0.4.0 で dashboard/ のビルド生成物を Git 管理外にした（.gitignore 参照）ため、
+# 複製元にこれらが存在しても中間生成物でしかない。複製先では npm install + npm run build
+# で作り直す前提に変わった（旧: 独立レビュー指摘 F1 により複製直後の file:// 表示のため
+# 複製していたが、正式閲覧が npm run preview 経由に変わったこと・生成物がGit管理外に
+# なったことでこの特例は不要になった）。
 #
 # [project-name] を指定すると、複製先ツリー全体を対象に「（プロジェクト名）」プレースホルダを
 # 置換する。対象ファイルは固定せず複製後に grep で検出するため、ページ追加に追随する。
@@ -46,6 +49,10 @@ rsync -a \
   --exclude='.claude/settings.local.json' \
   --exclude='.astro/' \
   --exclude='public/vendor/' \
+  --exclude='dashboard/*.html' \
+  --exclude='dashboard/_astro/' \
+  --exclude='dashboard/reports/' \
+  --exclude='dashboard/steering/' \
   "$ROOT"/ "$TARGET"/
 
 # 派生元バージョンを記録（① テンプレへのフィードバック機構との連携）
@@ -57,9 +64,9 @@ fi
 
 # プレースホルダ置換（対象ファイルを決め打ちしない: ページ数はテンプレの発展で増減するため、
 # 複製済みの $TARGET を対象に grep でプレースホルダを含むテキストファイルを都度検出する。
-# dashboard/*.html はビルド生成物だが、npm install 前でも複製直後から一貫した表示にするため
-# 他ページ同様に直接置換する。scripts/init-project.sh 自身はこの置換パターンをコードとして
-# 保持する必要があるため、検出対象から明示的に除外する）
+# dashboard/*.html・_astro/・reports/・steering/ はビルド生成物であり複製自体をrsyncの
+# 除外対象にしたため、ここでの置換対象にも自然と現れない。scripts/init-project.sh 自身は
+# この置換パターンをコードとして保持する必要があるため、検出対象から明示的に除外する）
 if [ -n "$PROJECT_NAME" ]; then
   echo "プレースホルダ（プロジェクト名）を置換中: $PROJECT_NAME"
   # sed の置換文字列として安全になるよう / と & をエスケープする
@@ -93,10 +100,10 @@ fi
   git config core.hooksPath .githooks
   git add -A
   base_version="$(cat "$TARGET/TEMPLATE_VERSION" 2>/dev/null || echo unknown)"
-  # 初回コミットは --no-verify で行う: この時点では npm install 前で node_modules が
-  # 無く、pre-commit フック（ビルド実行）は必ず失敗する。テンプレ一式の複製コミットに
-  # ビルド整合チェックは不要（生成物はテンプレ側でビルド済みのものをそのまま複製している）
-  # ——独立レビュー指摘（初回コミットが100%ブロックされる回帰）の是正。
+  # 初回コミットは --no-verify で行う: v0.4.0 の pre-commit フックは node_modules が
+  # 無ければ検証をスキップして警告するだけでブロックはしないが、npm install 前の
+  # この時点では status.json のスキーマ検証自体が意味を持たない（検証ロジックが
+  # node_modules 配下の zod に依存する）ため、確実に速く完了させる目的で明示的に迂回する。
   git -c user.name="$(git config user.name 2>/dev/null || echo project-init)" \
     -c user.email="$(git config user.email 2>/dev/null || echo project-init@local)" \
     commit -q --no-verify -m "chore: initialize project from conductor-sdlc-template (base VERSION ${base_version})"
@@ -108,6 +115,6 @@ echo ""
 echo "次にやること:"
 echo "  1. cd \"$TARGET\""
 echo "  2. npm install    # 初回のみ（Astro + Mermaid + Tailwind 等の依存取得）"
-echo "     npm run build   # dashboard/status.json（初期状態）から初期状態のダッシュボードを生成"
+echo "     npm run build   # dashboard/status.json（初期状態）から初期状態のダッシュボードを生成（v0.4.0以降、生成物は複製されないため必須）"
 echo "  3. README.md の「始め方」起動チェックリストに従い、product.md / tech.md / structure.md を記入"
 echo "  4. .kiro/steering/role-catalog.md の「規模別プリセット（S/M/L）」から今回の規模を選び、配役を確定"

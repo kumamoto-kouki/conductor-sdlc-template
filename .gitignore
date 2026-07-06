@@ -4,6 +4,13 @@ dist/
 target/
 .astro/
 
+# dashboard/ のビルド生成物（v0.4.0: Git管理外化。npm run build で再生成する）
+# status.json・status.init.json は唯一の真実／初期状態データなので対象外（明示的に除外しない）
+dashboard/*.html
+dashboard/_astro/
+dashboard/reports/
+dashboard/steering/
+
 # オーケストレーション作業（ローカル観測専用）
 .claude/worktrees/
 .orchestration/

@@ -10,6 +10,11 @@
 // CI・pre-commit・手動確認のいずれからも同じ判定基準で回せるようにする。個々の
 // チェックの「なぜ」は同ファイルを参照（各チェックの見出しコメントにも該当箇所を記す）。
 //
+// v0.4.0 で dashboard/ のビルド生成物を Git 管理外にした（.gitignore 参照）ため、
+// 「ビルド結果が git 管理下の生成物とbit一致するか」を確認していた「コミット整合」
+// チェックは前提が失われ撤去した（生成物はもう git 管理下にないので、そもそも
+// 比較対象が存在しない）。
+//
 // 依存パッケージなし（node標準のみ、既存スクリプトの作法を踏襲）。
 // 1つの失敗で止めず、すべてのチェックを実行してから合否をまとめて報告する
 // （個々の失敗の因果関係を1回のログで把握できるようにするため）。
@@ -173,43 +178,14 @@ function checkDeterminism() {
   }
 }
 
-// ---- 2. コミット整合: ビルド結果が git 管理下の生成物とbit一致 ----
-// (dashboard-verification.md の対象外だが、①file://直開き運用は「dashboard/がgit上の
-//  実体そのもの」を前提にしており、status.json/テンプレ変更後の再ビルド漏れは
-//  file://で開いたときに古い生成物を見せる事故に直結する)
-function checkCommitIntegrity() {
-  const NAME = "2. コミット整合（dashboard/ の未コミット差分なし）";
-  let out;
-  try {
-    out = execSync("git status --porcelain -- dashboard/", {
-      cwd: ROOT,
-      encoding: "utf8",
-    });
-  } catch (e) {
-    record(NAME, "fail", `git status の実行に失敗しました: ${e.message}`);
-    return;
-  }
-  if (out.trim() === "") {
-    record(NAME, "pass", "git status --porcelain dashboard/ は空");
-  } else {
-    record(
-      NAME,
-      "fail",
-      "status.json やテンプレ（src/ 等）を変更したのに生成物（dashboard/ 配下）を" +
-        "再コミットしていない可能性があります。`npm run build` を実行し、変更された" +
-        `dashboard/ 配下を同じコミットに含めてください。\n差分:\n${out}`,
-    );
-  }
-}
-
-// ---- 3. 実描画スモーク（2段構え） ----
+// ---- 2. 実描画スモーク（2段構え） ----
 // (dashboard-verification.md: 「正式閲覧はサーバー経由（npm run preview）。file://は
 //  コア表示のフォールバック」「実描画検証は2段構え。①http検証（正式閲覧相当）
 //  ②file://検証（フォールバック確認）」)
 //
-// 3a. http検証: astro preview を子プロセスで起動し、実際のURLを headless chromium で
+// 2a. http検証: astro preview を子プロセスで起動し、実際のURLを headless chromium で
 //     開いてMermaidの実描画（正式閲覧での見え方）を確認する。
-// 3b. file://検証: file:// で開いた際に CSS が適用されていること、および
+// 2b. file://検証: file:// で開いた際に CSS が適用されていること、および
 //     Mermaidモジュールが実行できない環境向けのプレースホルダーが生コードの露出を
 //     防いでいることを確認する（Mermaid実描画自体は要求しない）。
 //
@@ -340,7 +316,7 @@ function evaluateRenderSmokeDom(dom, builtHtml, label) {
 
 async function checkRenderSmokeHttp(chromiumBin) {
   const NAME =
-    "3a. 実描画スモーク（http・astro preview経由・全生成ページ対象）";
+    "2a. 実描画スモーク（http・astro preview経由・全生成ページ対象）";
   const htmlFiles = existsSync(DASHBOARD_DIR)
     ? findAllHtmlFiles(DASHBOARD_DIR)
     : [];
@@ -501,7 +477,7 @@ function evaluateFileFallbackDom(dom, label) {
 
 function checkRenderSmokeFileFallback(chromiumBin) {
   const NAME =
-    "3b. file://フォールバック（CSS適用＋Mermaidプレースホルダー表示・全生成ページ対象）";
+    "2b. file://フォールバック（CSS適用＋Mermaidプレースホルダー表示・全生成ページ対象）";
   const htmlFiles = existsSync(DASHBOARD_DIR)
     ? findAllHtmlFiles(DASHBOARD_DIR)
     : [];
@@ -591,12 +567,12 @@ async function checkRenderSmoke() {
       "chromium/chromium-browser/google-chrome のいずれも見つかりません。" +
       "この環境ではスキップします（既存のprettierベストエフォート方針と同じfail-soft）。";
     record(
-      "3a. 実描画スモーク（http・astro preview経由・全生成ページ対象）",
+      "2a. 実描画スモーク（http・astro preview経由・全生成ページ対象）",
       "skip",
       detail,
     );
     record(
-      "3b. file://フォールバック（CSS適用＋Mermaidプレースホルダー表示・全生成ページ対象）",
+      "2b. file://フォールバック（CSS適用＋Mermaidプレースホルダー表示・全生成ページ対象）",
       "skip",
       detail,
     );
@@ -606,11 +582,11 @@ async function checkRenderSmoke() {
   checkRenderSmokeFileFallback(chromiumBin);
 }
 
-// ---- 4. 要素数レポート: h2/h3/tr/li/badge等の出現数をHEADコミット版と比較 ----
+// ---- 3. 要素数レポート: h2/h3/tr/li/badge等の出現数をHEADコミット版と比較 ----
 // (dashboard-verification.md: 「『情報量を減らさない』は機械カウントで証明する」。
 //  差分自体はエラーにしない＝意図的な変更もあるため。情報が減る方向の差だけ⚠で警告する)
 function checkElementCountReport() {
-  const NAME = "4. 要素数レポート（HEAD比較・全生成ページ対象・減少方向のみ⚠）";
+  const NAME = "3. 要素数レポート（HEAD比較・全生成ページ対象・減少方向のみ⚠）";
   const htmlFiles = existsSync(DASHBOARD_DIR)
     ? findAllHtmlFiles(DASHBOARD_DIR)
     : [];
@@ -672,7 +648,7 @@ function checkElementCountReport() {
   }
 }
 
-// ---- 5. 失敗ビルド残留: 必須フィールド欠落でビルド失敗させ、内部アーティファクトが
+// ---- 4. 失敗ビルド残留: 必須フィールド欠落でビルド失敗させ、内部アーティファクトが
 //         dashboard/ 直下に残留しないこと・復元後の再ビルドで元に戻ることを確認 ----
 // (dashboard-verification.md: 「失敗ビルド後の状態も検証対象。emptyOutDir:false 運用の
 //  ため、ビルド失敗時に内部アーティファクトが dashboard/ に残留しうる」)
@@ -694,7 +670,7 @@ function listInternalArtifacts() {
 
 function checkFailedBuildResidue() {
   const NAME =
-    "5. 失敗ビルド残留（壊れたstatus.jsonでのビルド失敗→内部アーティファクト非残留→復元）";
+    "4. 失敗ビルド残留（壊れたstatus.jsonでのビルド失敗→内部アーティファクト非残留→復元）";
   const original = readFileSync(STATUS_JSON, "utf8");
   try {
     const data = JSON.parse(original);
@@ -749,12 +725,12 @@ function checkFailedBuildResidue() {
   }
 }
 
-// ---- 6. NaN/undefined漏れ: 生成HTMLに \bNaN\b|\bundefined\b が出現しないこと ----
+// ---- 5. NaN/undefined漏れ: 生成HTMLに \bNaN\b|\bundefined\b が出現しないこと ----
 // (schema.mjs: zod検証は「範囲外の値をNaNの静かな漏出でなく明確なエラーで止める」ためだが、
 //  検証を通過した正常データ経路でも算出ロジックの誤りでNaN/undefinedが漏れうるため、
 //  生成物側でも独立に確認する)
 function checkNoNaNOrUndefined() {
-  const NAME = "6. NaN/undefined漏れ（生成HTML全ページへの静かな漏出防止）";
+  const NAME = "5. NaN/undefined漏れ（生成HTML全ページへの静かな漏出防止）";
   const htmlFiles = existsSync(DASHBOARD_DIR)
     ? findAllHtmlFiles(DASHBOARD_DIR)
     : [];
@@ -789,7 +765,6 @@ async function main() {
   );
 
   checkDeterminism();
-  checkCommitIntegrity();
   await checkRenderSmoke();
   checkElementCountReport();
   checkNoNaNOrUndefined();

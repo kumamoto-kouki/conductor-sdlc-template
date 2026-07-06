@@ -1,76 +1,80 @@
 #!/usr/bin/env bash
-# dashboard/ の生成物とビルド入力（status.json / src/ / astro.config.mjs /
-# tailwind.config.mjs）の整合を機械化するpre-commitフック。
+# dashboard/status.json（および dashboard/status.init.json）の手編集ミスを、
+# コミット前にスキーマ検証で水際チェックするpre-commitフック。
 #
-# なぜ必要か: dashboard/status-dashboard.html はビルド生成物であり、入力
-# （status.json やテンプレ）を変更したのに再ビルドを忘れてコミットすると、
-# file:// で開いたときに古い内容が表示され続ける事故になる（整合規約は
-# .claude/rules/dashboard-verification.md・.kiro/steering/operations.md 参照。
-# scripts/verify-dashboard.mjs の「2. コミット整合」チェックと同じ問題意識の、
-# コミット前での機械化）。
-#
-# ポータル化（Wave3 #3）で .claude/reports/*.md・.kiro/steering/*.md が
-# content collections 経由のビルド入力になった（src/content.config.mjs 参照）ため、
-# これらの変更もトリガー対象に追加した。追加しないと、振り返り/ステアリングの
-# 文書を更新してもポータルページ（dashboard/reports/**.html・
-# dashboard/steering/**.html）が再ビルドされず古い内容のまま残る事故になる。
+# なぜ必要か: v0.4.0 で dashboard/ のビルド生成物（*.html・_astro/・reports/・
+# steering/）を Git 管理外にした（.gitignore 参照）ため、これまでこのフックが
+# 担っていた「生成物の再ビルド漏れ防止（コミット整合）」という役目は消えた。
+# 一方、status.json は唯一の真実として引き続き手編集する運用（.kiro/steering/
+# operations.md 参照）であり、必須フィールド欠落や範囲外の値をコミットしてから
+# npm run build 時に初めて気づく事故は防ぎたい。src/lib/schema.mjs の
+# parseStatus（zod検証）をコミット前に直接呼び、失敗ならブロックする。
 #
 # 有効化: `git config core.hooksPath .githooks` が必要（scripts/init-project.sh の
-# 初期化処理で自動設定される。既存リポジトリでは README.md の起動チェックリスト
-# 参照）。
+# 初期化処理で自動設定される。既存リポジトリでは README.md の起動チェックリスト参照）。
 #
 # 挙動:
-#   - ステージに dashboard/status.json・src/・astro.config.mjs・tailwind.config.mjs・
-#     .claude/reports/・.kiro/steering/ のいずれかが含まれる場合のみ npm run build を
-#     実行し、変化した dashboard/ 配下を自動で git add してから同じコミットに含める。
-#   - それ以外のコミットでは何もしない（高速。無関係なコミットでビルドを待たせない）。
-#   - node_modules が無い場合は npm install を促してブロックする
-#     （--no-verify での迂回方法も案内する）。
+#   - ステージに dashboard/status.json・dashboard/status.init.json のいずれかが
+#     含まれる場合のみ検証する。それ以外のコミットは何もしない（高速）。
+#   - node_modules が無い場合は検証をスキップして警告する（ブロックしない）。
+#     init-project.sh の初回コミット時点では npm install がまだで node_modules が
+#     無いため、ここでブロックすると初回コミットが必ず失敗する回帰を再発させる。
+#   - 検証対象はステージ内容（work treeでなく `git show :path` で読む）。
 set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
-TRIGGER_PATTERN='^(dashboard/status\.json|src/|astro\.config\.mjs|tailwind\.config\.mjs|\.claude/reports/|\.kiro/steering/)'
+TARGET_FILES=()
+while IFS= read -r f; do
+  [ -n "$f" ] && TARGET_FILES+=("$f")
+done < <(git diff --cached --name-only --diff-filter=ACM -- dashboard/status.json dashboard/status.init.json)
 
-# D(削除)も含める: src/ のテンプレ・コンテンツ削除も生成物に影響するため
-# （独立レビュー指摘: ACMRのみだと削除コミットで古い生成物が同梱される抜け穴）。
-# 既知のトレードオフ: このフックはステージ内容でなく作業ツリーをビルドするため、
-# 部分ステージ時はコミット内容と生成物が一致しない可能性がある。また
-# `git add dashboard/` は dashboard/ 配下の無関係な作業ツリー変更も巻き込む。
-# 厳密な整合が必要な場面では全変更をステージしてからコミットすること。
-staged_files="$(git diff --cached --name-only --diff-filter=ACMRD)"
-
-if ! printf '%s\n' "$staged_files" | grep -Eq "$TRIGGER_PATTERN"; then
-  # 対象外の変更のみのコミット。何もしない。
+if [ "${#TARGET_FILES[@]}" -eq 0 ]; then
+  # status.json/status.init.json 以外の変更のみのコミット。何もしない。
   exit 0
 fi
 
-echo "pre-commit: dashboard のビルド入力に変更を検知。npm run build を実行します..."
+echo "pre-commit: dashboard/status(.init).json の変更を検知。スキーマ検証を実行します..."
 
 if [ ! -d "$ROOT/node_modules" ]; then
   echo "" >&2
-  echo "pre-commit: node_modules が見つかりません。npm install を実行してから" >&2
+  echo "pre-commit: node_modules が見つからないため、スキーマ検証をスキップします。" >&2
+  echo "npm install 後は次回コミットから検証が有効になります。" >&2
+  exit 0
+fi
+
+status=0
+for f in "${TARGET_FILES[@]}"; do
+  if ! git show ":${f}" | node -e "
+    import('./src/lib/schema.mjs').then(({ parseStatus }) => {
+      let raw = '';
+      process.stdin.setEncoding('utf8');
+      process.stdin.on('data', (chunk) => { raw += chunk; });
+      process.stdin.on('end', () => {
+        try {
+          parseStatus(JSON.parse(raw));
+          console.log('  OK: ${f}');
+        } catch (e) {
+          console.error(e.message);
+          process.exit(1);
+        }
+      });
+    });
+  " 2>&1; then
+    status=1
+  fi
+done
+
+if [ "$status" -ne 0 ]; then
+  echo "" >&2
+  echo "pre-commit: スキーマ検証に失敗しました。上記のエラーを解消してから" >&2
   echo "再度コミットしてください。" >&2
-  echo "  npm install" >&2
   echo "" >&2
   echo "どうしてもこのフックを迂回してコミットする場合（緊急時のみ・非推奨）:" >&2
   echo "  git commit --no-verify" >&2
   exit 1
 fi
 
-if ! npm run build; then
-  echo "" >&2
-  echo "pre-commit: npm run build が失敗しました。上記のエラーを解消してから" >&2
-  echo "再度コミットしてください（例: dashboard/status.json の必須フィールド欠落等）。" >&2
-  echo "" >&2
-  echo "どうしてもこのフックを迂回してコミットする場合（緊急時のみ・非推奨）:" >&2
-  echo "  git commit --no-verify" >&2
-  exit 1
-fi
-
-# ビルドで変化した dashboard/ 配下を同じコミットへ自動で含める
-git add dashboard/
-
-echo "pre-commit: dashboard/ の再ビルド結果をコミットに含めました。"
+echo "pre-commit: スキーマ検証に合格しました。"
 exit 0
