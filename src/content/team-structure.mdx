@@ -3,7 +3,8 @@ import MermaidDiagram from "../components/MermaidDiagram.astro";
 import personas from "../data/personas.json";
 
 export const mainOrgChart = `flowchart TD
-  DEMAND["🙋🏭🤝 代弁ペルソナ（需要側・候補）<br/>要求・受け入れ観点の供給元"]
+  DEMAND["🙋🏭🤝 代弁ペルソナ（需要側・候補）<br/>実在アクセスが無い時の仮説の供給元"]
+  FDE["🧑‍🚀 FDE（フォワードデプロイド・候補）<br/>現場へ直接常駐（Eng/Design対応）"]
   PO["🧑🏻‍💼 あなた（人間・PO・承認/公開）"]
   CD["👨🏼‍💼 統括コンダクター"]
   OPS["👩🏼‍💼 運用マネージャー<br/>運用状況の管理・相談窓口（横断）"]
@@ -16,7 +17,8 @@ export const mainOrgChart = `flowchart TD
   DESMAKE["実施者（Maker）×複数<br/>デザイン実装・Claude Design＋同期"]
   DESREV["レビュアー（Checker）<br/>デザインRev・デザイン独立レビュー"]
 
-  DEMAND -. 入力（要求・受け入れ観点） .-> PO
+  DEMAND -. 仮説（要求・受け入れ観点） .-> PO
+  FDE -. 提案（現場の一次情報） .-> CD
   PO --> CD
   CD -. 報告 .- OPS
   CD --> ENGLANE
@@ -43,6 +45,7 @@ export const mainOrgChart = `flowchart TD
   class CD lead
   class OPS ops
   class DEMAND demand
+  class FDE demand
   class ENGLANE lane
   class DESLANE laneDesign
   class ENGMAKE leaf
@@ -151,12 +154,15 @@ export const phaseTrees = [
   ※ <b>🧑🏻‍💼 あなたは実在の人間</b>（プロダクトオーナー＝大方針・承認・公開判断）。担当名（👨🏼‍💼 統括・👩🏼‍💼 運用・🧑🏼‍💼 Engリーダー・🧑🏼‍🎨 Designリーダー・👩🏼‍🎨 デザイン実装・🕵🏼‍♀️ デザインRev・👨🏼‍💻 実装BE・👩🏼‍💻 実装FE・🕵🏼‍♂️ EngRev・👨🏼‍🔬 QA）は AI エージェントの役割ペルソナです（実在の個人ではありません）。
 </div>
 <div class="mt-1 text-xs text-muted">
-  ※ 代弁ペルソナ（🙋 エンドユーザー代弁・🏭 現場代弁・🤝 ステークホルダー代弁）は実在の人間の代替ではありません。実在の利用者・現場担当・ステークホルダーに直接当たれる場面ではそちらを優先し、代弁は要求定義・受け入れレビューで需要側の視点が抜けることを防ぐ用途に限ります（<code>role-catalog.md</code> の誤用ガード）。
+  ※ 代弁ペルソナ（🙋 エンドユーザー代弁・🏭 現場代弁・🤝 ステークホルダー代弁）は意見でなく検証すべき仮説を示す役（プロトペルソナ）で、実在の人間の代替ではありません。記入は断定でなく「未検証・根拠」つきの仮説形式で行います。実在の利用者・現場担当・ステークホルダーに直接当たれる場面、または🧑‍🚀 FDEが投入されている場面ではそちらを優先し、代弁は両方とも無い場合のフォールバックです（<code>role-catalog.md</code> の誤用ガード）。
+</div>
+<div class="mt-1 text-xs text-muted">
+  ※ 🧑‍🚀 FDE（フォワードデプロイド）は現場・ステークホルダーへ直接常駐する実施者（Maker）で、権限は実装範囲内の自律調整に限定されます。spec・スコープの変更は既存のDiscovery→PO承認フローを必ず通し、現場情報は優先度の高い根拠であって無条件の正解として扱いません（<code>role-catalog.md</code> のFDE charter）。
 </div>
 
 <MermaidDiagram
   code={mainOrgChart}
-  ariaLabel="開発体制の図。左に需要側の代弁ペルソナ（候補・破線）が人間POへ要求と受け入れ観点を入力し、PO の下に統括コンダクター、その横に運用マネージャー（横断支援）、その下にエンジニアリングとデザインの2レーン、各レーンに采配リーダー（Engリーダー・Designリーダー）・実施者・レビュアー"
+  ariaLabel="開発体制の図。左に需要側の代弁ペルソナ（候補・破線、実在アクセスが無い時の仮説の供給元）とFDE（候補・破線、現場へ直接常駐し統括へ提案を上げる）が入力し、PO の下に統括コンダクター、その横に運用マネージャー（横断支援）、その下にエンジニアリングとデザインの2レーン、各レーンに采配リーダー（Engリーダー・Designリーダー）・実施者・レビュアー"
   class="mx-auto max-w-[760px]"
 />
 
