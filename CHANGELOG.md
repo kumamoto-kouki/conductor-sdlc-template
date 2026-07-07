@@ -24,6 +24,11 @@
 - worktree 環境での Astro ビルドに非決定性がある（BaseHead ハッシュが実行ごとに変わる）。
 - `scripts/verify-dashboard.mjs` の要素数チェックは `git show HEAD:<path>` で直前コミットの生成物と比較する設計だが、v0.4.0 でダッシュボードの生成物を Git 管理外にした副作用により、比較対象が常に「新規ページ」判定になり HEAD 比較が実質機能しない。
 
+## [0.6.0] - 2026-07-07
+
+- `role-catalog.md` の候補ロスターへ **🧑‍🚀 FDE（フォワードデプロイド）** を追加した（出典: [Forward Deployed Engineer](https://zenn.dev/hellorusk/articles/f75f6d41b0a30c)）。実在の現場・ステークホルダーに直接常駐する Maker 役で、Eng/Design 両レーンに対応する。権限は実装範囲内の自律調整に限定し、spec・スコープの変更は既存の Discovery→PO承認フローを通す（PO判断）。Maker≠Checker は不変。
+- `full-sdlc.md` の Stakeholders 節へ、FDE 投入時は代弁ペルソナより現場の一次情報を優先する旨の参照を追加した。
+
 ## [0.5.1] - 2026-07-07
 
 既知の課題3件の是正、および独立レビュー指摘によるガード追加。
