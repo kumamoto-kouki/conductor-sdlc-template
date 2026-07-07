@@ -58,11 +58,13 @@ export const phaseTrees = [
     title: "① Discovery／要件",
     current: false,
     code: `flowchart TD
+  DEMAND["🙋🏭🤝 代弁ペルソナ<br/>候補・仮説"] -. 仮説 .-> CD
+  FDE["🧑‍🚀 FDE<br/>候補・実在アクセス優先"] -. 提案 .-> CD
   PO["🧑🏻‍💼 PO"] --> CD["👨🏼‍💼 統括"]
   CD -. 報告 .- OPS["👩🏼‍💼 運用"]
   CD --> DESIGN["🧭 設計<br/>候補・着手前設計"]
   classDef cand fill:#e7effb,stroke:#2563c9,stroke-dasharray: 3 2,color:#1c2333;
-  class DESIGN cand`,
+  class DESIGN,DEMAND,FDE cand`,
   },
   {
     title: "② 設計",
@@ -73,8 +75,9 @@ export const phaseTrees = [
   CD --> DESIGN["🧭 設計<br/>候補・主担当"]
   CD --> DREV["🕵🏼‍♀️ デザインRev<br/>観点助言"]
   CD --> EREV["🕵🏼‍♂️ EngRev<br/>観点助言"]
+  CD --> GENBA["🏭 現場代弁<br/>候補・運用設計レビュー"]
   classDef cand fill:#e7effb,stroke:#2563c9,stroke-dasharray: 3 2,color:#1c2333;
-  class DESIGN cand`,
+  class DESIGN,GENBA cand`,
   },
   {
     title: "③ 実装",
@@ -85,7 +88,10 @@ export const phaseTrees = [
   CD --> BE["👨🏼‍💻 実装BE<br/>実装"]
   CD --> FE["👩🏼‍💻 実装FE<br/>実装"]
   CD --> DES["👩🏼‍🎨 デザイン実装<br/>実装"]
-  CD --> QA["🔬 QA<br/>QA・テスト"]`,
+  CD --> QA["🔬 QA<br/>QA・テスト"]
+  CD --> FDE["🧑‍🚀 FDE<br/>候補・単一顧客深い密着"]
+  classDef cand fill:#e7effb,stroke:#2563c9,stroke-dasharray: 3 2,color:#1c2333;
+  class FDE cand`,
   },
   {
     title: "④ レビュー／受理",
@@ -97,10 +103,11 @@ export const phaseTrees = [
   CD --> EREV["🕵🏼‍♂️ EngRev<br/>受理"]
   CD --> SEC["🔐 セキュ<br/>候補"]
   CD --> PERF["⚡ パフォ<br/>候補"]
+  CD --> ENDUSER["🙋 エンドユーザー代弁<br/>候補・受け入れ"]
   classDef rev fill:#ffffff,stroke:#146a48,color:#1c2333;
   classDef cand fill:#e7effb,stroke:#2563c9,stroke-dasharray: 3 2,color:#1c2333;
   class DREV,EREV rev
-  class SEC,PERF cand`,
+  class SEC,PERF,ENDUSER cand`,
   },
   {
     title: "⑤ 公開（push）前",
@@ -113,7 +120,18 @@ export const phaseTrees = [
   class SEC cand`,
   },
   {
-    title: "⑥ 引き継ぎ",
+    title: "⑥ 保守運用",
+    current: false,
+    code: `flowchart TD
+  PO["🧑🏻‍💼 PO"] --> CD["👨🏼‍💼 統括"]
+  CD -. 報告 .- OPS["👩🏼‍💼 運用<br/>主担当"]
+  CD --> SPOT["👨🏼‍💻 実装系<br/>スポット投入"]
+  CD --> FDE["🧑‍🚀 FDE<br/>候補・現場常駐継続案件"]
+  classDef cand fill:#e7effb,stroke:#2563c9,stroke-dasharray: 3 2,color:#1c2333;
+  class FDE cand`,
+  },
+  {
+    title: "⑦ 引き継ぎ",
     current: false,
     code: `flowchart TD
   PO["🧑🏻‍💼 PO"] --> CD["👨🏼‍💼 統括"]
@@ -223,5 +241,5 @@ export const phaseTrees = [
 </div>
 
 <div class="mt-2.5 rounded-lg bg-ok-soft px-3 py-2 text-xs text-muted ring-1 ring-line">
-  <b>横断（全期間）</b>：👩🏼‍💼 運用（運用マネージャー）＝運用状況の管理・相談窓口。フェーズに依らず常時。
+  <b>横断（全期間）</b>：👩🏼‍💼 運用（運用マネージャー）＝運用状況の管理・相談窓口。フェーズに依らず常時。補助で 🤝 ステークホルダー代弁（候補）＝節目報告・判断場面での関心事の仮説提示。
 </div>

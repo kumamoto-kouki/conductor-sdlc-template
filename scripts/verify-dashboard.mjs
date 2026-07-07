@@ -40,6 +40,8 @@ const ROOT = join(__dirname, "..");
 const DASHBOARD_DIR = join(ROOT, "dashboard");
 const STATUS_JSON = join(DASHBOARD_DIR, "status.json");
 const HTML_PATH = join(DASHBOARD_DIR, "status-dashboard.html");
+const ROLE_CATALOG_MD = join(ROOT, ".kiro", "steering", "role-catalog.md");
+const PERSONAS_JSON = join(ROOT, "src", "data", "personas.json");
 
 // ポータル化（Wave3 #3）で dashboard/reports/**・dashboard/steering/** の
 // ネストしたページが増えたため、レンダースモーク・NaN漏れチェックは
@@ -759,6 +761,121 @@ function checkNoNaNOrUndefined() {
   }
 }
 
+// ---- 6. role-catalog.md ⇔ personas.json 役割整合（Markdown表とJSONの双子drift検知） ----
+// (`.kiro/steering/role-catalog.md` の「配役表（現状）」表と「候補ロスター」表が役割一覧の
+//  正本で、`src/data/personas.json` はそれをダッシュボード描画用に転記した別フォーマットの
+//  双子。Markdown表とJSONは本質的にフォーマットが異なり「参照（リンク）」だけでは二重化を
+//  防げないため、`.claude/rules/steering-consistency.md` の方針どおり機械的な突き合わせで
+//  検知する。片方だけに存在する役割名があれば失敗として報告する)
+function extractMarkdownTableSection(content, headingText) {
+  const idx = content.indexOf(headingText);
+  if (idx === -1) return null;
+  const rest = content.slice(idx + headingText.length);
+  const nextHeadingMatch = rest.match(/\n##\s/);
+  const end = nextHeadingMatch ? nextHeadingMatch.index : rest.length;
+  return rest.slice(0, end);
+}
+
+function extractPersonaNamesFromMarkdownTable(section) {
+  const names = [];
+  const lines = section.split("\n").filter((l) => l.trim().startsWith("|"));
+  for (const line of lines) {
+    const cells = line
+      .split("|")
+      .map((c) => c.trim())
+      .filter((c) => c.length > 0);
+    if (cells.length === 0) continue;
+    const first = cells[0];
+    if (/^-+$/.test(first.replace(/:/g, ""))) continue; // 区切り行（|---|---|）
+    if (first === "ペルソナ" || first === "候補") continue; // ヘッダー行
+    // セルは「絵文字 役割名」形式（例: "🧑🏼‍💼 統括"）。絵文字はスペースを含まないため
+    // 最初の空白で分割すれば役割名だけが残る。
+    const spaceIdx = first.indexOf(" ");
+    if (spaceIdx === -1) continue;
+    const name = first.slice(spaceIdx + 1).trim();
+    if (name) names.push(name);
+  }
+  return names;
+}
+
+function checkRoleCatalogPersonaConsistency() {
+  const NAME =
+    "6. role-catalog.md ⇔ personas.json 役割整合（配役表＋候補ロスター）";
+  if (!existsSync(ROLE_CATALOG_MD) || !existsSync(PERSONAS_JSON)) {
+    record(
+      NAME,
+      "fail",
+      `role-catalog.md または personas.json が見つかりません（${ROLE_CATALOG_MD} / ${PERSONAS_JSON}）`,
+    );
+    return;
+  }
+  const roleCatalogContent = readFileSync(ROLE_CATALOG_MD, "utf8");
+  const assignedSection = extractMarkdownTableSection(
+    roleCatalogContent,
+    "## 配役表（現状）",
+  );
+  const candidateSection = extractMarkdownTableSection(
+    roleCatalogContent,
+    "## 候補ロスター",
+  );
+  if (!assignedSection || !candidateSection) {
+    record(
+      NAME,
+      "fail",
+      "role-catalog.md から「配役表（現状）」または「候補ロスター」の節を抽出できませんでした（見出し文言が変わった可能性）",
+    );
+    return;
+  }
+  const catalogNames = new Set([
+    ...extractPersonaNamesFromMarkdownTable(assignedSection),
+    ...extractPersonaNamesFromMarkdownTable(candidateSection),
+  ]);
+  if (catalogNames.size === 0) {
+    record(
+      NAME,
+      "fail",
+      "role-catalog.md の配役表・候補ロスターから役割名を1件も抽出できませんでした（表フォーマットが変わった可能性）",
+    );
+    return;
+  }
+
+  let personas;
+  try {
+    personas = JSON.parse(readFileSync(PERSONAS_JSON, "utf8"));
+  } catch (e) {
+    record(NAME, "fail", `personas.json の parse に失敗しました: ${e.message}`);
+    return;
+  }
+  const personaNames = new Set(personas.map((p) => p.name));
+
+  const onlyInCatalog = [...catalogNames]
+    .filter((n) => !personaNames.has(n))
+    .sort();
+  const onlyInPersonas = [...personaNames]
+    .filter((n) => !catalogNames.has(n))
+    .sort();
+
+  if (onlyInCatalog.length === 0 && onlyInPersonas.length === 0) {
+    record(
+      NAME,
+      "pass",
+      `${catalogNames.size} 件の役割名が role-catalog.md と personas.json で一致`,
+    );
+  } else {
+    const detail = [
+      onlyInCatalog.length > 0
+        ? `role-catalog.md のみに存在（personas.json に反映漏れ）: ${onlyInCatalog.join(", ")}`
+        : "",
+      onlyInPersonas.length > 0
+        ? `personas.json のみに存在（role-catalog.md に反映漏れ、または命名不一致）: ${onlyInPersonas.join(", ")}`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    record(NAME, "fail", detail);
+  }
+}
+
 async function main() {
   console.log(
     "=== dashboard 検証ハーネス（scripts/verify-dashboard.mjs） ===\n",
@@ -769,6 +886,7 @@ async function main() {
   checkElementCountReport();
   checkFailedBuildResidue();
   checkNoNaNOrUndefined();
+  checkRoleCatalogPersonaConsistency();
 
   console.log("\n=== 結果一覧 ===");
   for (const r of results) {

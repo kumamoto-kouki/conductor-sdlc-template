@@ -6,7 +6,7 @@
 
 - **報告**: 運用 → 統括→ あなた（PO）。承認判断は PO（運用・統括は実行と提案まで）。
 - **境界**: 運用は受理判断（証拠での合否）に踏み込まない（それは各レビュアー＋統括）。「運用が健全に回っているか」を見る。運用 ≠ 統括の独立が統括の自己評価バイアスを避ける。
-- **運用が管理する正本**: 本ファイル・`role-catalog.md`（役割カタログ＋投入計画）・`review-checklists.md`（レビュー観点）。外部参照は agent-skills（[[agent-skills-and-role-catalog]]）。
+- **運用が定期点検（陳腐化確認）の対象として確認する文書**: 本ファイル・`role-catalog.md`（役割カタログ＋投入計画）・`review-checklists.md`（レビュー観点）。外部参照は agent-skills（[[agent-skills-and-role-catalog]]）。
 
 ## 台帳化・可視化
 

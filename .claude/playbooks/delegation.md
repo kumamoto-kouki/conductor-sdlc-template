@@ -27,7 +27,7 @@
 worktree: .claude/worktrees/<feature> / branch: feat/<feature>（起点＝<統合ブランチ>）
 
 ## 着手前ガード（必須・省略不可）
-1. 以下のマーカーで自分の worktree が最新の起点から作られているか検証する。**マーカーは「機能の存在確認」でなく「直近コミット由来」にする**（機能の存在確認だけだと、古いベースでもマーカーが偶然満たされてしまい、生成物のマージコンフリクトが実際に発生した＝2026-07-05・全幅化 Maker）：
+1. 以下のマーカーで自分の worktree が最新の起点から作られているか検証する（判断基準＝なぜ主検証を `merge-base` にするかは `orchestration.md` のベース是正ガード節を参照）：
    - `git merge-base --is-ancestor <統合ブランチ> HEAD` が成功する（自分の HEAD が統合ブランチの最新コミットを取り込み済み）ことを確認する
    - 補助として `git cat-file -e HEAD:<既存成果を示すファイルパス>` / `git grep -q "<既存成果を示す文字列トークン>" HEAD` も併用してよいが、これ単独では合格にしない
 2. 1つでも欠けたら `git merge <統合ブランチ>` で取り込み、再度 1. を検証する。
@@ -78,8 +78,8 @@ worktree: .claude/worktrees/<feature> / branch: feat/<feature>（起点＝<統�
 2. メイン作業ディレクトリ（`<統合ブランチ>` をチェックアウト中）で `git merge feat/<feature>`。対象ファイルを明示 add（`git add -A` は使わない＝worktree ディレクトリの誤取り込み事故の反省）。
 3. `git worktree remove` ＋ merge 済みブランチを `git branch -d` で撤去する。テスト本数の二重カウントが無いことを確認する。
 4. ダッシュボード整合：`dashboard/status.json` を編集し `npm run build`（Astroビルド）で再生成する（**`dashboard/status-dashboard.html` を直接手編集しない**）。移動時の整合チェックリスト6項目（①ボード②節目③spec表④KPI⑤見積もり⑥更新履歴）を突き合わせる（`operations.md`）。
-5. **見た目に関わる変更は、独立レビューが APPROVED でも統括が自分の目でスクリーンショットを確認してから受理する**（マージ前後の両方）。独立レビュアーの確認範囲は完全ではない——Wave3 統合時、レビュアーは Mermaid 描画は確認したがページ下方のコードブロックまでは目視しておらず、統括の受理時スクリーンショット確認でコードブロックの表示崩れを発見した実績がある（2026-07-05）。独立レビューの目視漏れを、統括の受理段階の目視がもう一段拾う。
-6. **`git status` で `.claude/settings.json` の汚染を確認する**。サブエージェントの許可プロンプト応答が、使い捨てコマンドの allow ルールや包括許可（`git commit *` 等）・defaultMode 変更としてこのファイルへ書き込まれることがある（2026-07-05 に2回実発生）。セッション由来の差分は `git checkout -- .claude/settings.json` で捨てる。恒久化したい許可は PO 承認を経て意図的にコミットする。
+5. **見た目に関わる変更は、独立レビューが APPROVED でも統括が自分の目でスクリーンショットを確認してから受理する**（マージ前後の両方。判断基準は `orchestration.md` 規律(B)を参照）。
+6. **`git status` で `.claude/settings.json` の汚染を確認する**（判断基準は `orchestration.md` 規律(B)を参照）。セッション由来の差分は `git checkout -- .claude/settings.json` で捨てる。恒久化したい許可は PO 承認を経て意図的にコミットする。
 7. `.orchestration/progress.log` に1行追記（委譲／受理／統合を開示。規律E）。
 8. 破棄した場合も同じ手順で worktree/ブランチを即撤去し、理由を progress.log と完了報告に明示する（黙って消さない）。
 

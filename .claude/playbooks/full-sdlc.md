@@ -6,16 +6,18 @@
 
 ## フェーズマップ
 
-| フェーズ           | 使う既存スキル／文書                                                               | 成果物                                                                              | 動く役割（`role-catalog.md` フェーズ表と整合） |
-| ------------------ | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------- |
-| 超上流（要求定義） | `/kiro-discovery`                                                                  | `.kiro/specs/<feature>/brief.md`（単一spec）／`.kiro/steering/roadmap.md`（多spec） | 統括・（設計）                                 |
-| 要件定義           | `/kiro-spec-requirements`（EARS 形式）                                             | `.kiro/specs/<feature>/requirements.md`                                             | 統括・（設計）                                 |
-| 設計               | `/kiro-spec-design`（`/kiro-validate-design` で任意レビュー）                      | `.kiro/specs/<feature>/design.md`                                                   | 設計（アーキテクト）・各レビュアー             |
-| 実装               | `/kiro-impl`                                                                       | 実装コード・commit（worktree 隔離）                                                 | 実装BE/実装FE/デザイン実装（実施者群）・QA     |
-| 検証               | `/kiro-validate-impl`（feature 横断整合）＋ `kiro-verify-completion`（証拠ゲート） | 検証レポート・独立レビュー判定（APPROVED/REJECTED）                                 | デザインRev/EngRev（レビュアー）・統括         |
-| リリース           | 通常の統合手順（`delegation.md` 3節）＋セキュリティ監査（着手前投入）              | 統合ブランチへの merge・push 判断                                                   | 統括・PO（補助＝セキュリティ監査）             |
-| 保守運用           | 本ファイル「保守運用フェーズ」節                                                   | 定期健全性チェック結果・障害是正記録・恒久対策の CHANGELOG/正本への反映             | 運用・統括（補助＝実装系をスポット投入）       |
-| 引き継ぎ           | handoff ドキュメント＋`.claude/reports/`                                           | 引き継ぎメモ・セッション報告                                                        | 運用・統括（補助＝テクニカルライター）         |
+| フェーズ           | 使う既存スキル／文書                                                               | 成果物                                                                              |
+| ------------------ | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| 超上流（要求定義） | `/kiro-discovery`                                                                  | `.kiro/specs/<feature>/brief.md`（単一spec）／`.kiro/steering/roadmap.md`（多spec） |
+| 要件定義           | `/kiro-spec-requirements`（EARS 形式）                                             | `.kiro/specs/<feature>/requirements.md`                                             |
+| 設計               | `/kiro-spec-design`（`/kiro-validate-design` で任意レビュー）                      | `.kiro/specs/<feature>/design.md`                                                   |
+| 実装               | `/kiro-impl`                                                                       | 実装コード・commit（worktree 隔離）                                                 |
+| 検証               | `/kiro-validate-impl`（feature 横断整合）＋ `kiro-verify-completion`（証拠ゲート） | 検証レポート・独立レビュー判定（APPROVED/REJECTED）                                 |
+| リリース           | 通常の統合手順（`delegation.md` 3節）＋セキュリティ監査（着手前投入）              | 統合ブランチへの merge・push 判断                                                   |
+| 保守運用           | 本ファイル「保守運用フェーズ」節                                                   | 定期健全性チェック結果・障害是正記録・恒久対策の CHANGELOG/正本への反映             |
+| 引き継ぎ           | handoff ドキュメント＋`.claude/reports/`                                           | 引き継ぎメモ・セッション報告                                                        |
+
+役割配置は `role-catalog.md` のフェーズ別投入計画表を正本とする（本表では重複させない）。
 
 ### 超上流（要求定義）の詳細
 

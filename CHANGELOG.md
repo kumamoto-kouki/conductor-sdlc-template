@@ -24,6 +24,19 @@
 - worktree 環境での Astro ビルドに非決定性がある（BaseHead ハッシュが実行ごとに変わる）。
 - `scripts/verify-dashboard.mjs` の要素数チェックは `git show HEAD:<path>` で直前コミットの生成物と比較する設計だが、v0.4.0 でダッシュボードの生成物を Git 管理外にした副作用により、比較対象が常に「新規ページ」判定になり HEAD 比較が実質機能しない。
 
+## [0.8.0] - 2026-07-08
+
+3方向の監査で発見した7件の文書不整合を是正し、再発防止の drift 検知機構を追加した。根本原因は同じ事実を独立した文章で複数箇所に書いていたこと（Single Source of Truth 違反）に収束する。
+
+- `orchestration.md` のベース是正ガード節を更新し、`git merge-base --is-ancestor` を主検証・`cat-file`/`grep` を補助検証に格上げ／格下げして `delegation.md` の現行手順と揃えた。あわせて規律(B)へ、統括の受理時スクリーンショット確認・`.claude/settings.json` 汚染チェックの判断基準を追加した。`delegation.md` 側は該当箇所の説明文を短縮し `orchestration.md` への参照に変えた。
+- `team-structure.mdx` の `phaseTrees` に欠落していた「保守運用」フェーズの図を追加し、既存の Discovery／設計／実装／レビュー・受理の各図へ代弁ペルソナ・FDE のノードを反映した（`role-catalog.md` のフェーズ別投入計画表との不一致を解消）。全期間横断の脚注にステークホルダー代弁への言及も追加した。
+- `kiro-discovery/SKILL.md` の代弁ペルソナ列挙を撤去し、`full-sdlc.md` の該当節への参照へ置き換えた（FDE 未言及の二重コピーを解消）。
+- `personas.json` の代弁ペルソナ3件（エンドユーザー代弁・現場代弁・ステークホルダー代弁）の `role`/`desc` を、`role-catalog.md` の「仮説（プロトペルソナ）」再定義後の文言に合わせて更新した。
+- `operations.md` の文書管理記述を「運用が管理する正本」から「運用が定期点検の対象として確認する文書」へ変更し、`review-checklists.md` の著者権を主張しない表現にした（`README.md` の所有記述との矛盾を解消）。
+- `full-sdlc.md` のフェーズマップ表から役割列の個別列挙を削り、役割配置は `role-catalog.md` のフェーズ別投入計画表を正本とする参照に置き換えた。
+- `scripts/verify-dashboard.mjs` に新しい検証（6. role-catalog.md ⇔ personas.json 役割整合）を追加した。`role-catalog.md` の配役表・候補ロスターの役割名一覧と `personas.json` の `name` 一覧を突き合わせ、片方だけに存在する役割があれば失敗として報告する。Markdown 表と JSON という本質的にフォーマットが異なる双子は参照だけでは同期を保てないため、機械チェックで drift を検知する。
+- `.claude/rules/steering-consistency.md` を新設し、steering／playbook／skill 間の重複回避と drift 検知の判断基準を明文化した。
+
 ## [0.7.1] - 2026-07-08
 
 - FDE（フォワードデプロイド）をダッシュボードの体制図・チーム名簿へ反映した（`src/data/personas.json`・`src/content/team-structure.mdx`）。他の候補ロール（設計・セキュリティ監査等）と同じ表示パターン（破線・「これから」バッジ）に揃え、体制図に FDE ノードと統括への提案フローを追加した。代弁ペルソナの需要側ノードのラベルも「要求・受け入れ観点の供給元」から「実在アクセスが無い時の仮説の供給元」へ更新し、記入優先順（実在アクセス→FDE→代弁ペルソナ）と整合させた。
