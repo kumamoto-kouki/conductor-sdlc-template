@@ -76,6 +76,8 @@ Skills are located in `.claude/skills/kiro-*/SKILL.md`
 ## Token / Cost Efficiency
 
 - Model: default to Sonnet for implementation tasks; reserve Opus for design-phase review (`kiro-spec-design` / `kiro-validate-design`) and complex architectural decisions
+- Delegation tier: split subagent work by task shape, not role. Mechanical reading/locating (grep, file discovery) → Haiku (Explore-type delegation default); judgment-heavy synthesis (implementation, review, architecture) → frontier tier per the Model line above (rationale: [coordinator/worker pattern](https://github.com/anthropics/claude-cookbooks/blob/main/managed_agents/CMA_plan_big_execute_small.ipynb)).
+- Never downgrade review of subtle material to save cost, and don't delegate what you can answer directly — each subagent call has a fixed floor cost, so batch coherent work rather than over-fragmenting.
 - Context: prefer targeted `Read` (with `offset`/`limit`) and `Grep` over full-file reads on large files; use Explore subagents for broad/uncertain searches to keep main context lean
 - Output: keep responses concise; avoid restating full file contents already shown in the conversation
 - Session hygiene: use `/clear` when switching to an unrelated spec, `/compact` at milestone boundaries
