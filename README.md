@@ -65,14 +65,14 @@ flowchart LR
 リポジトリを clone しなくても、`npx` で新規プロジェクトを生成できる（Unix 系 / WSL 前提。内部で bash の `scripts/init-project.sh` を実行する）。コピペで実行する。
 
 ```bash
-npx github:kumamoto-kouki/conductor-sdlc-template#v0.10.0 ../my-project "My Project"
+npx github:kumamoto-kouki/conductor-sdlc-template ../my-project "My Project"
 cd ../my-project
 npm install
 npm run build
 npm run preview
 ```
 
-`#v0.10.0` はテンプレートのバージョン（`VERSION`）に対応する git タグ。バージョンを固定すると再現性が保てる。最新の `main` に追従したい場合は `#v0.10.0` を省略する。
+上記は常に `main`（最新）を取得する。特定バージョンに固定して再現性を確保したい場合のみ、末尾に git タグを付ける（例: `npx github:kumamoto-kouki/conductor-sdlc-template#v0.10.0 ...`。ただし対応するタグが `origin` に push 済みであること）。
 
 **こうなれば成功**: 最後のコマンドがターミナルに `Local http://localhost:4321/` のようなURLを表示する。そのURLをブラウザで開くと、節目M0・仕様ゼロ件の初期状態のダッシュボードが表示される。
 
