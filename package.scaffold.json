@@ -1,14 +1,11 @@
 {
-  "name": "conductor-sdlc-template",
+  "name": "conductor-sdlc-template-dashboard",
   "private": true,
   "type": "module",
-  "version": "0.10.0",
-  "description": "conductor-sdlc-template のスキャフォルダ CLI 兼 Astro 開発ダッシュボード。`npx github:kumamoto-kouki/conductor-sdlc-template <target> [name]` で新規プロジェクトを複製生成する。ダッシュボード開発用スクリプト（dev/build/preview/serve/verify）も保持する。",
+  "version": "0.1.0",
+  "description": "Astro ベースの開発ダッシュボード（dashboard/status.json を唯一の真実としてビルド時に静的HTML化する）",
   "engines": {
     "node": ">=22.12"
-  },
-  "bin": {
-    "conductor-sdlc-template": "./bin/create.mjs"
   },
   "scripts": {
     "dev": "astro dev",
@@ -17,7 +14,7 @@
     "serve": "bash scripts/serve-dashboard.sh",
     "verify": "node scripts/verify-dashboard.mjs"
   },
-  "devDependencies": {
+  "dependencies": {
     "@astrojs/mdx": "^7.0.0",
     "@tailwindcss/vite": "^4.0.0",
     "astro": "^7.0.0",

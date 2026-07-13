@@ -6,6 +6,9 @@
 #   .git / node_modules / .orchestration / .claude/worktrees /
 #   .claude/settings.local.json / .astro / public/vendor /
 #   dashboard/*.html・dashboard/_astro/・dashboard/reports/・dashboard/steering/
+# 加えて CLI 固有物も除外する: ルート /package.json（複製元のCLIマニフェスト）・/bin/（npx入口）・
+#   /package-lock.json・/package.scaffold.json。複製先の package.json には package.scaffold.json
+#   （ダッシュボード用マニフェストの正本）を配置する（詳細は下記の複製処理のコメント参照）。
 # 注意: v0.4.0 で dashboard/ のビルド生成物を Git 管理外にした（.gitignore 参照）ため、
 # 複製元にこれらが存在しても中間生成物でしかない。複製先では npm install + npm run build
 # で作り直す前提に変わった（旧: 独立レビュー指摘 F1 により複製直後の file:// 表示のため
@@ -49,6 +52,23 @@ mkdir -p "$TARGET_ARG"
 TARGET="$(cd "$TARGET_ARG" && pwd)"
 
 echo "テンプレートを複製中: $ROOT -> $TARGET"
+# CLI 固有物（複製元を npx スキャフォルダとして機能させるための入口・ロック）は複製先へ運ばない。
+# これらは複製元にしか無い or 複製先で作り直せるため、存在しなくても除外は無害な no-op。
+#   /bin/              … npx スキャフォルダ入口（bin/create.mjs）。複製先には不要。
+#   /package-lock.json … 複製元のロックファイル。複製先は自身の npm install で作り直す。
+#   /package.scaffold.json … 複製先 package.json の中身（テンプレ本体のみ保持）。cp で明示配置する。
+# 先頭 '/' 付き exclude は転送ルート直下のみに効く（配下の同名は対象外）。
+#
+# package.json の扱いは複製元の種別で分岐する:
+#   - テンプレ本体（$ROOT/package.scaffold.json あり）: 複製元 root の package.json は CLI マニフェスト
+#     （bin/devDependencies 入り）で複製先に不適切なため除外し、代わりに package.scaffold.json を
+#     複製先の package.json として配置する。
+#   - 派生プロジェクト（package.scaffold.json 無し・孫派生時）: root の package.json は既にダッシュボード用
+#     マニフェストなので、そのまま複製する（除外も cp もしない）。これにより孫派生でも成立する。
+pkg_excludes=( --exclude='/bin/' --exclude='/package-lock.json' --exclude='/package.scaffold.json' )
+if [ -f "$ROOT/package.scaffold.json" ]; then
+  pkg_excludes+=( --exclude='/package.json' )
+fi
 rsync -a \
   --exclude='.git' \
   --exclude='node_modules/' \
@@ -61,7 +81,15 @@ rsync -a \
   --exclude='dashboard/_astro/' \
   --exclude='dashboard/reports/' \
   --exclude='dashboard/steering/' \
+  "${pkg_excludes[@]}" \
   "$ROOT"/ "$TARGET"/
+
+# テンプレ本体の場合のみ、ダッシュボード用マニフェストの正本 package.scaffold.json を
+# 複製先の package.json として配置する。プレースホルダ置換の前に置くことで、万一 name 等に
+# （プロジェクト名）が含まれても後続の置換対象に入る。
+if [ -f "$ROOT/package.scaffold.json" ]; then
+  cp "$ROOT/package.scaffold.json" "$TARGET/package.json"
+fi
 
 # 派生元バージョンを記録（① テンプレへのフィードバック機構との連携）。
 # 複製元に TEMPLATE_VERSION（複製元自身が派生プロジェクトであり祖先テンプレ由来の

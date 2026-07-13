@@ -24,6 +24,15 @@
 - worktree 環境での Astro ビルドに非決定性がある（BaseHead ハッシュが実行ごとに変わる）。
 - `scripts/verify-dashboard.mjs` の要素数チェックは `git show HEAD:<path>` で直前コミットの生成物と比較する設計だが、v0.4.0 でダッシュボードの生成物を Git 管理外にした副作用により、比較対象が常に「新規ページ」判定になり HEAD 比較が実質機能しない。
 
+## [0.10.0] - 2026-07-13
+
+パッケージマネージャー（`npx`）からの一発インストール導線を追加した。リポジトリを clone しなくても `npx github:kumamoto-kouki/conductor-sdlc-template#v0.10.0 <target> [name]` で新規プロジェクトを生成できる。
+
+- `bin/create.mjs`（Node ESM の薄いラッパー）を追加し、`package.json` に `bin` を宣言した。複製・プレースホルダ置換・git 初期化ロジックの正本は従来どおり bash の `scripts/init-project.sh` に置き、ラッパーはこれを shell-out するだけ（ロジックの二重管理を避ける）。対象は Unix 系 / WSL（bash 前提）。
+- `package.json` の2役の衝突を解消するため、マニフェストを分離した。ルート `package.json` を CLI マニフェストへ転用（`bin` 追加・Astro スタックを `dependencies` → `devDependencies` へ移動。これにより `npx github:` の依存取得が軽量化される。`private:true` は維持しレジストリ公開はしない）。複製先へ配るダッシュボード用マニフェストは新設の `package.scaffold.json` に保持し、`init-project.sh` が複製先で `package.json` として配置する。
+- `scripts/init-project.sh` の rsync 除外に CLI 固有物（ルート `/package.json`・`/bin/`・`/package-lock.json`・`/package.scaffold.json`）を追加した。
+- 備忘: 将来 npm レジストリへ公開する場合は、tarball から `.gitignore` が除去される等のパッキング対応（`template.gitignore` へのリネーム・`.npmignore` 追加・`files` ホワイトリスト・`LICENSE`）が別途必要。git-npx 経路（clone ベース）ではこれらは不要。
+
 ## [0.9.0] - 2026-07-09
 
 Anthropic公式クックブック（coordinator/workerパターン）を踏まえ、委譲時のモデル選択方針を役割固定から見直した。
