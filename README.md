@@ -4,81 +4,36 @@
 
 ## すぐに始める
 
-このテンプレートから新しいプロジェクトを作り、ダッシュボードが表示されるまで、コピペで数分。**Unix 系 / WSL 前提**（内部で bash を使う。Windows ネイティブは非対応）。
-
-**前提を先に確認**（どちらも `nvm` なら sudo 不要で用意できる）:
-
-- **Node.js 22.12 以上**（Astro 7 の要件）— `node -v` で確認。古い/未導入なら [nvm](https://github.com/nvm-sh/nvm) で `nvm install --lts`。
-- **npm 10 以上** — `npm -v` で確認。**9 系以下だと `npx github:` が失敗する**（`could not determine executable to run`）。その場合も nvm で新しい Node を入れれば新しい npm が付いてくる。
-
-```mermaid
-flowchart LR
-    S1["① 生成<br/>npx"] --> S2["② 依存取得<br/>npm install"]
-    S2 --> S3["③ ビルド<br/>npm run build"]
-    S3 --> S4["④ 確認<br/>npm run preview"]
-```
-
-リポジトリを clone しなくても、`npx` で新規プロジェクトを生成できる（内部で `scripts/init-project.sh` を実行）。`<生成先>` は**存在しない新規パス**、`"<プロジェクト名>"` は表示名（日本語可）。
+**前提**: Node.js 22.12 以上・npm 10 以上（`node -v` / `npm -v` で確認。古ければ [nvm](https://github.com/nvm-sh/nvm) で更新）。
 
 ```bash
 npx github:kumamoto-kouki/conductor-sdlc-template ~/projects/my-app "マイアプリ"
 cd ~/projects/my-app
-npm install     # 依存取得（初回のみ）
-npm run build   # 初期状態のダッシュボードを生成（生成物はGit管理外なので初回必須）
-npm run preview # ブラウザで確認
+npm install
+npm run build
+npm run preview
 ```
 
-**こうなれば成功**: `npm run preview` が `Local http://localhost:4321/` のような URL を表示する。開くと**節目 M0・仕様ゼロ件の初期状態ダッシュボード**が出る。（複数プロジェクトを並行して preview するときは、2つ目以降を `npm run preview -- --port 4322` のようにポートをずらす。）
+`npm run preview` が表示する `http://localhost:4321/` を開き、初期ダッシュボードが出れば成功。
 
-<details>
-<summary><b>バージョン固定 / clone 済みの場合 / うまくいかないとき</b>（クリックで展開）</summary>
+<details><summary>うまくいかないとき</summary>
 
-- **バージョン固定**: 上記は常に `main`（最新）を取得する。再現性が要るときだけ末尾に git タグを付ける（例: `…conductor-sdlc-template#v0.10.0 …`。対応タグが `origin` に push 済みであること）。
-- **clone 済みの場合**: リポジトリ内から `scripts/init-project.sh ~/projects/my-app "マイアプリ"` で同じ処理を直接実行できる。手動コピーや GitHub の `Use this template` ボタンでも代替可。
-- **失敗の切り分け**（`npx` は「①npm が取得して bin 起動 → ②スクリプトが生成」の2段階。表示される `error:` 行が原因）:
-  - `could not determine executable to run`（①）→ **npm が古い**（9 系以下）。nvm で 10 以上へ更新する。
-  - `could not read Username for 'https://github.com'` / HTTP 404（①）→ **リポジトリが private**で匿名 clone 不可。Public 化するか認証情報を設定する。
-  - `複製先ディレクトリを作成できませんでした` / `Permission denied`（②）→ 生成先の**親ディレクトリに書き込み権限がない**（例: root 所有の `/var/…` 配下を一般ユーザーで指定）。`~/projects/<name>` 等の書き込み可能なパスにする。
-  - `複製先が既に存在します`（②）→ 同名ディレクトリが既存。**別の新規パス**にするか、既存を退避する（`npx` は新規パスにしか生成しない）。
-  - `必須コマンドが見つかりません`（②）→ `rsync`/`git` 等が未導入。表示されたコマンドを入れる。
+- `could not determine executable to run` … npm が古い。nvm で 10 以上に更新する。
+- `Permission denied` / `複製先ディレクトリを作成できません` … 書き込めるパス（`~/projects/<名前>`）を指定する。
+- `複製先が既に存在します` … 別の新規パスにする（既存は上書きしない）。
 
 </details>
 
 ## インストール後にすること
 
-ダッシュボードが表示できたら、**実装を始める前に運用パラメータを確定**する。後付けにすると「未定義のまま進めてドリフト（決めごとが曖昧なまま運用が個人差でぶれること）」の温床になる（実プロジェクトでの反省）。上から順に。
+対象プロジェクトのフォルダで Claude Code を開いて進める。
 
-### 1. プロジェクト情報を記入（ステアリング）
+1. **`.kiro/steering/` の `product.md` / `tech.md` / `structure.md` を記入**（`/kiro-steering` でも可）— AI に渡る前提知識
+2. **規模プリセット S/M/L を選んで配役を決める**（`role-catalog.md`）— 実装者(Maker)と検査者(Checker)は別人にする
+3. **最初の機能を作る**: `/kiro-discovery "アイデア"` → `/kiro-spec-quick {機能名}` → `/kiro-impl {機能名}`（各段階を承認）
+4. **進捗を反映**: `dashboard/status.json` を更新して `npm run build`
 
-- [ ] `.kiro/steering/` の **`product.md`・`tech.md`・`structure.md`** を記入する（`/kiro-steering` で対話生成も可）。
-  - **なぜ**: これらは**ステアリング**（毎セッション自動で読み込まれるプロジェクト共通のメモ）として AI エージェントに常時渡る前提知識になる。空のままだと AI が前提を推測してドリフトする。
-
-### 2. 規模を選び、配役を確定
-
-- [ ] **規模プリセット（S/M/L）を選んでから配役を確定**する（`role-catalog.md` の「規模別プリセット」）。
-  - **なぜ**: 標準キャスト（統括・Eng/Design リーダー・実装/デザイン担当＝Maker・EngRev/デザインRev＝Checker・QA）から今回動かす役を決めないと、誰が実装し誰が検査するか（**Maker≠Checker**、規律C）が曖昧になる。
-
-### 3. 運用パラメータを確定
-
-- [ ] **WIP 上限・整合の担当・ID 体系**を決める（既定: レビュー中の WIP 上限＝3／整合の実施＝統括・担当＝運用／ID 体系＝M＝節目専用・K＝繰越・D＝デザイン・V＝目視）。
-  - **なぜ**: 節目 ID とタスク ID が衝突すると、どの ID が何を指すか事後に読み解けなくなる事故が実際に起きた。
-
-### 4. 技術セットアップの最終確認
-
-- [ ] **`npm install` 済み**（Astro・Mermaid・Tailwind 等。**Node.js 22.12+** が前提）。
-- [ ] **`dashboard/status.json` を確認して `npm run build` 済み**（v0.4.0 以降ダッシュボードの生成物は Git 管理外なので、初回は必ず自分でビルドしないと画面に何も出ない）。
-- [ ] **`git config core.hooksPath .githooks` 済み**（`npx`/`init-project.sh` 経由の生成では自動設定済み。既存リポジトリへ後付け導入した場合だけ手動実行。設定しないと `status.json` の入力ミスを検知する pre-commit フックが働かない）。
-
-### 5. 最初の機能を作り始める
-
-準備ができたら、対象プロジェクトのディレクトリで Claude Code を開き、SDLC を1周回す（各フェーズの承認は人間＝PO が行う）:
-
-1. **`/kiro-discovery "アイデア"`** — アイデアを整理し、単一/複数スペックの方針を決める
-2. **`/kiro-spec-quick {feature}`** — 要件 → 設計 → タスク（3段階承認）
-3. **`/kiro-impl {feature}`** — worktree で並行実装 → 独立レビュアーが受理判定
-4. **`dashboard/status.json` を更新 → `npm run build`** で進捗を反映
-
-進行中はいつでも **`/kiro-spec-status {feature}`** で状況を確認できる。全体像は次の「全体の流れ」を参照。
+状況確認はいつでも `/kiro-spec-status {機能名}`。
 
 ## 全体の流れ（1周）
 
