@@ -2,6 +2,84 @@
 
 **AIエージェント主体の開発**を、コンダクター・オーケストレーション（メインのAIセッションが指揮役となり、複数のワーカーへ実装を割り振り独立レビューで受け取る体制）＋Kiro Spec-Driven Development（要件→設計→タスクの3段階承認で仕様化してから実装する進め方）＋可視化ダッシュボードで回すためのプロジェクト・テンプレート。実プロジェクト（（プロジェクト名））で確立した手法・体制・ノウハウ・ダッシュボードの骨格を、次のプロジェクトの起点として切り出したもの。
 
+## すぐに始める
+
+このテンプレートから新しいプロジェクトを作り、ダッシュボードが表示されるまで、コピペで数分。**Unix 系 / WSL 前提**（内部で bash を使う。Windows ネイティブは非対応）。
+
+**前提を先に確認**（どちらも `nvm` なら sudo 不要で用意できる）:
+
+- **Node.js 22.12 以上**（Astro 7 の要件）— `node -v` で確認。古い/未導入なら [nvm](https://github.com/nvm-sh/nvm) で `nvm install --lts`。
+- **npm 10 以上** — `npm -v` で確認。**9 系以下だと `npx github:` が失敗する**（`could not determine executable to run`）。その場合も nvm で新しい Node を入れれば新しい npm が付いてくる。
+
+```mermaid
+flowchart LR
+    S1["① 生成<br/>npx"] --> S2["② 依存取得<br/>npm install"]
+    S2 --> S3["③ ビルド<br/>npm run build"]
+    S3 --> S4["④ 確認<br/>npm run preview"]
+```
+
+リポジトリを clone しなくても、`npx` で新規プロジェクトを生成できる（内部で `scripts/init-project.sh` を実行）。`<生成先>` は**存在しない新規パス**、`"<プロジェクト名>"` は表示名（日本語可）。
+
+```bash
+npx github:kumamoto-kouki/conductor-sdlc-template ~/projects/my-app "マイアプリ"
+cd ~/projects/my-app
+npm install     # 依存取得（初回のみ）
+npm run build   # 初期状態のダッシュボードを生成（生成物はGit管理外なので初回必須）
+npm run preview # ブラウザで確認
+```
+
+**こうなれば成功**: `npm run preview` が `Local http://localhost:4321/` のような URL を表示する。開くと**節目 M0・仕様ゼロ件の初期状態ダッシュボード**が出る。（複数プロジェクトを並行して preview するときは、2つ目以降を `npm run preview -- --port 4322` のようにポートをずらす。）
+
+<details>
+<summary><b>バージョン固定 / clone 済みの場合 / うまくいかないとき</b>（クリックで展開）</summary>
+
+- **バージョン固定**: 上記は常に `main`（最新）を取得する。再現性が要るときだけ末尾に git タグを付ける（例: `…conductor-sdlc-template#v0.10.0 …`。対応タグが `origin` に push 済みであること）。
+- **clone 済みの場合**: リポジトリ内から `scripts/init-project.sh ~/projects/my-app "マイアプリ"` で同じ処理を直接実行できる。手動コピーや GitHub の `Use this template` ボタンでも代替可。
+- **失敗の切り分け**（`npx` は「①npm が取得して bin 起動 → ②スクリプトが生成」の2段階。表示される `error:` 行が原因）:
+  - `could not determine executable to run`（①）→ **npm が古い**（9 系以下）。nvm で 10 以上へ更新する。
+  - `could not read Username for 'https://github.com'` / HTTP 404（①）→ **リポジトリが private**で匿名 clone 不可。Public 化するか認証情報を設定する。
+  - `複製先ディレクトリを作成できませんでした` / `Permission denied`（②）→ 生成先の**親ディレクトリに書き込み権限がない**（例: root 所有の `/var/…` 配下を一般ユーザーで指定）。`~/projects/<name>` 等の書き込み可能なパスにする。
+  - `複製先が既に存在します`（②）→ 同名ディレクトリが既存。**別の新規パス**にするか、既存を退避する（`npx` は新規パスにしか生成しない）。
+  - `必須コマンドが見つかりません`（②）→ `rsync`/`git` 等が未導入。表示されたコマンドを入れる。
+
+</details>
+
+## インストール後にすること
+
+ダッシュボードが表示できたら、**実装を始める前に運用パラメータを確定**する。後付けにすると「未定義のまま進めてドリフト（決めごとが曖昧なまま運用が個人差でぶれること）」の温床になる（実プロジェクトでの反省）。上から順に。
+
+### 1. プロジェクト情報を記入（ステアリング）
+
+- [ ] `.kiro/steering/` の **`product.md`・`tech.md`・`structure.md`** を記入する（`/kiro-steering` で対話生成も可）。
+  - **なぜ**: これらは**ステアリング**（毎セッション自動で読み込まれるプロジェクト共通のメモ）として AI エージェントに常時渡る前提知識になる。空のままだと AI が前提を推測してドリフトする。
+
+### 2. 規模を選び、配役を確定
+
+- [ ] **規模プリセット（S/M/L）を選んでから配役を確定**する（`role-catalog.md` の「規模別プリセット」）。
+  - **なぜ**: 標準キャスト（統括・Eng/Design リーダー・実装/デザイン担当＝Maker・EngRev/デザインRev＝Checker・QA）から今回動かす役を決めないと、誰が実装し誰が検査するか（**Maker≠Checker**、規律C）が曖昧になる。
+
+### 3. 運用パラメータを確定
+
+- [ ] **WIP 上限・整合の担当・ID 体系**を決める（既定: レビュー中の WIP 上限＝3／整合の実施＝統括・担当＝運用／ID 体系＝M＝節目専用・K＝繰越・D＝デザイン・V＝目視）。
+  - **なぜ**: 節目 ID とタスク ID が衝突すると、どの ID が何を指すか事後に読み解けなくなる事故が実際に起きた。
+
+### 4. 技術セットアップの最終確認
+
+- [ ] **`npm install` 済み**（Astro・Mermaid・Tailwind 等。**Node.js 22.12+** が前提）。
+- [ ] **`dashboard/status.json` を確認して `npm run build` 済み**（v0.4.0 以降ダッシュボードの生成物は Git 管理外なので、初回は必ず自分でビルドしないと画面に何も出ない）。
+- [ ] **`git config core.hooksPath .githooks` 済み**（`npx`/`init-project.sh` 経由の生成では自動設定済み。既存リポジトリへ後付け導入した場合だけ手動実行。設定しないと `status.json` の入力ミスを検知する pre-commit フックが働かない）。
+
+### 5. 最初の機能を作り始める
+
+準備ができたら、対象プロジェクトのディレクトリで Claude Code を開き、SDLC を1周回す（各フェーズの承認は人間＝PO が行う）:
+
+1. **`/kiro-discovery "アイデア"`** — アイデアを整理し、単一/複数スペックの方針を決める
+2. **`/kiro-spec-quick {feature}`** — 要件 → 設計 → タスク（3段階承認）
+3. **`/kiro-impl {feature}`** — worktree で並行実装 → 独立レビュアーが受理判定
+4. **`dashboard/status.json` を更新 → `npm run build`** で進捗を反映
+
+進行中はいつでも **`/kiro-spec-status {feature}`** で状況を確認できる。全体像は次の「全体の流れ」を参照。
+
 ## 全体の流れ（1周）
 
 複製してから機能が1つ育ってダッシュボードに反映されるまでの1周は次のとおり。人間（PO＝プロダクトオーナー）が承認するポイントを色つきで示す。
@@ -53,47 +131,6 @@ flowchart TD
     class RE,RD checker
 ```
 
-## 5分で始める
-
-```mermaid
-flowchart LR
-    S1["① 複製<br/>npx で生成"] --> S2["② 依存関係を取得<br/>npm install"]
-    S2 --> S3["③ ダッシュボードを生成<br/>npm run build"]
-    S3 --> S4["④ ブラウザで確認<br/>npm run preview"]
-```
-
-リポジトリを clone しなくても、`npx` で新規プロジェクトを生成できる（Unix 系 / WSL 前提。内部で bash の `scripts/init-project.sh` を実行する）。コピペで実行する。
-
-```bash
-npx github:kumamoto-kouki/conductor-sdlc-template ../my-project "My Project"
-cd ../my-project
-npm install
-npm run build
-npm run preview
-```
-
-上記は常に `main`（最新）を取得する。特定バージョンに固定して再現性を確保したい場合のみ、末尾に git タグを付ける（例: `npx github:kumamoto-kouki/conductor-sdlc-template#v0.10.0 ...`。ただし対応するタグが `origin` に push 済みであること）。
-
-**こうなれば成功**: 最後のコマンドがターミナルに `Local http://localhost:4321/` のようなURLを表示する。そのURLをブラウザで開くと、節目M0・仕様ゼロ件の初期状態のダッシュボードが表示される。
-
-**リポジトリを clone 済みの場合**は、リポジトリ内から同じ処理を直接実行できる。
-
-```bash
-scripts/init-project.sh ../my-project "My Project"
-```
-
-`scripts/init-project.sh` は手動コピーでも代替できる。GitHubで公開している場合は `Use this template` ボタンでの複製も選択肢になる。
-
-### うまくいかないとき（npx インストールの失敗切り分け）
-
-`npx` インストールは「①npm がリポジトリを取得して bin を起動 → ②`bin/create.mjs`→`scripts/init-project.sh` が生成」の2段階。失敗メッセージから原因を切り分ける。
-
-- **`could not determine executable to run`（①で失敗）**: npm が古い。`npm -v` が 9 系以下なら bin 解決が壊れている。sudo 不要の [nvm](https://github.com/nvm-sh/nvm) で新しい npm へ更新する: `nvm install --lts` 後に `npm -v` が 10 以上になっていること。
-- **`could not read Username for 'https://github.com'` / HTTP 404（①で失敗）**: リポジトリが private で匿名 clone できない。GitHub の Settings でリポジトリを Public にするか、認証情報を設定する。
-- **`複製先ディレクトリを作成できませんでした` / `Permission denied`（②で失敗）**: 生成先の親ディレクトリに書き込み権限がない（例: root 所有の `/var/...` 配下を一般ユーザーで指定）。**書き込み可能なパス（例: `~/projects/<name>`）を指定する**。
-- **`複製先が既に存在します`（②で失敗）**: 同名ディレクトリが既にある。別の新規パスを指定する。
-- **`必須コマンドが見つかりません`（②で失敗）**: `rsync`/`git` 等が未導入。表示されたコマンドをインストールする。
-
 ## 画面で進捗を見る
 
 進捗の唯一の真実は `dashboard/status.json` で、これを Astro（静的サイト生成ツール）がビルド時にHTMLへ変換する。**`dashboard/status-dashboard.html` はビルド生成物であり手編集しない**。
@@ -108,23 +145,6 @@ flowchart LR
 - 状態を変えたら（着手・進行中・レビュー中・完了）その都度 `status.json` を編集してコミットする。コミット時に pre-commit フックが `src/lib/schema.mjs` のスキーマで検証し、必須フィールドの欠落など明らかな入力ミスをその場でブロックする。
 - 見るときは `npm run build` → `npm run preview` を実行し、表示された URL をブラウザで開く（**正式な閲覧方式**）。`npm run preview` は既にある生成物を配信するだけで自動ビルドしないため、生成物が無い・古い場合は先に `npm run build` を行う。
 - `dashboard/status-dashboard.html` を `file://` で直接開くこともできるが、その場合は Mermaid 図が実描画されない（進捗・ボード・KPI 等のテキスト情報は読める）**フォールバック表示**になる。
-
-## 始める前のチェックリスト
-
-運用パラメータは最初に確定する。後付けにすると「未定義のまま進めてドリフト（決めごとが曖昧なまま運用が個人差でぶれること）」の温床になる（実プロジェクトでの反省）。
-
-- [ ] **`product.md`・`tech.md`・`structure.md` を記入した**（`/kiro-steering` で対話生成も可）
-      なぜ: これらは **ステアリング**（`.kiro/steering/` に置く、毎セッション自動で読み込まれるプロジェクト共通のメモ）としてAIエージェントに常時渡る前提知識になる。空のままだとAIが前提を推測してドリフトする。
-- [ ] **規模プリセット（S/M/L）を選んでから配役を確定した**（`role-catalog.md` の「規模別プリセット」）
-      なぜ: 標準キャスト（統括・Engリーダー/Designリーダー・実装BE/実装FE/デザイン実装（Maker）・EngRev/デザインRev（Checker）・QA）から今回動かす役を決めないと、誰が実装し誰が検査するか（Maker≠Checker、規律C）が曖昧になる。
-- [ ] **運用パラメータを確定した**（レビュー中の WIP 上限＝既定3・整合の実施＝統括／担当＝運用・ID 体系＝M＝節目専用・K＝繰越・D＝デザイン・V＝目視）
-      なぜ: 節目 ID とタスク ID が衝突すると、どのIDが何を指すか事後に読み解けなくなる事故が実際に起きた。
-- [ ] **`npm install` を実行した**（初回のみ）
-      なぜ: Astro・Mermaid・Tailwind 等の依存を取得しないと、ダッシュボードのビルド・pre-commit のスキーマ検証がどちらも動かない。**Node.js 22.12 以上が必要**（Astro 7 の要件）。
-- [ ] **`dashboard/status.json` を確認して `npm run build` を実行した**
-      なぜ: `scripts/init-project.sh` 経由の複製では節目M0・仕様ゼロ件の初期状態データは入っているが、**v0.4.0 以降ダッシュボードの生成物（HTML等）自体はリポジトリに含まれない**ため、初回は必ず自分でビルドしないと画面に何も表示されない。
-- [ ] **`git config core.hooksPath .githooks` を実行した**
-      なぜ: `scripts/init-project.sh` 経由の複製では自動設定済みだが、既存リポジトリへ後から導入した場合は手動実行が必要。これを設定しないと `status.json` の入力ミスをコミット前に検知するフックが働かない。
 
 ## 中身の地図
 
@@ -189,7 +209,7 @@ flowchart TD
 
 このテンプレートの**成り立ち・設計判断・バージョンごとの変更**は [`CHANGELOG.md`](CHANGELOG.md) に記録。このディレクトリで作業を続けるときは、まずそれを読む。
 
-**v0.4.0** でダッシュボードのビルド生成物（`dashboard/*.html`・`_astro/`・`reports/`・`steering/`）を Git 管理外にした。生成物を都度コミットする運用は「入力（`status.json`）とビルド出力が食い違う」事故の温床になっており、生成物を管理外にして毎回ビルドし直す運用へ変更した（トレードオフ＝クローン直後に `file://` で即閲覧できていた利便性を失う。上記チェックリストの `npm install`＋`npm run build` を必須の初手として受け入れる）。詳細は `CHANGELOG.md` の `[0.4.0]` を参照。
+**v0.4.0** でダッシュボードのビルド生成物（`dashboard/*.html`・`_astro/`・`reports/`・`steering/`）を Git 管理外にした。生成物を都度コミットする運用は「入力（`status.json`）とビルド出力が食い違う」事故の温床になっており、生成物を管理外にして毎回ビルドし直す運用へ変更した（トレードオフ＝クローン直後に `file://` で即閲覧できていた利便性を失う。「すぐに始める」の `npm install`＋`npm run build` を必須の初手として受け入れる）。詳細は `CHANGELOG.md` の `[0.4.0]` を参照。
 
 - ダッシュボードや steering 内の**固有名・数値・事故記号（A2/K1 等）は「例」**。教訓（なぜ）だけ受け取り、自分の実例に読み替える（各所に注記あり）。
 - スタック依存の `.claude/rules/` は**実装が先・ルール化は後**で自分のスタック向けに作る（例は `_examples/`）。
