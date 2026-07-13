@@ -57,22 +57,30 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    S1["① 複製<br/>scripts/init-project.sh"] --> S2["② 依存関係を取得<br/>npm install"]
+    S1["① 複製<br/>npx で生成"] --> S2["② 依存関係を取得<br/>npm install"]
     S2 --> S3["③ ダッシュボードを生成<br/>npm run build"]
     S3 --> S4["④ ブラウザで確認<br/>npm run preview"]
 ```
 
-コピペで実行する。
+リポジトリを clone しなくても、`npx` で新規プロジェクトを生成できる（Unix 系 / WSL 前提。内部で bash の `scripts/init-project.sh` を実行する）。コピペで実行する。
 
 ```bash
-scripts/init-project.sh ../my-project "My Project"
+npx github:kumamoto-kouki/conductor-sdlc-template#v0.10.0 ../my-project "My Project"
 cd ../my-project
 npm install
 npm run build
 npm run preview
 ```
 
+`#v0.10.0` はテンプレートのバージョン（`VERSION`）に対応する git タグ。バージョンを固定すると再現性が保てる。最新の `main` に追従したい場合は `#v0.10.0` を省略する。
+
 **こうなれば成功**: 最後のコマンドがターミナルに `Local http://localhost:4321/` のようなURLを表示する。そのURLをブラウザで開くと、節目M0・仕様ゼロ件の初期状態のダッシュボードが表示される。
+
+**リポジトリを clone 済みの場合**は、リポジトリ内から同じ処理を直接実行できる。
+
+```bash
+scripts/init-project.sh ../my-project "My Project"
+```
 
 `scripts/init-project.sh` は手動コピーでも代替できる。GitHubで公開している場合は `Use this template` ボタンでの複製も選択肢になる。
 
