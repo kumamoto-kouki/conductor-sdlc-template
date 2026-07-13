@@ -14,7 +14,7 @@ npm run build
 npm run preview
 ```
 
-`npm run preview` が表示する `http://localhost:4321/` を開き、初期ダッシュボードが出れば成功。
+`npm run preview` が表示する URL の末尾に **`/status-dashboard`** を付けて開く（例: `http://localhost:4321/status-dashboard`）。初期ダッシュボードが出れば成功。
 
 <details><summary>うまくいかないとき</summary>
 
@@ -98,8 +98,8 @@ flowchart LR
 ```
 
 - 状態を変えたら（着手・進行中・レビュー中・完了）その都度 `status.json` を編集してコミットする。コミット時に pre-commit フックが `src/lib/schema.mjs` のスキーマで検証し、必須フィールドの欠落など明らかな入力ミスをその場でブロックする。
-- 見るときは `npm run build` → `npm run preview` を実行し、表示された URL をブラウザで開く（**正式な閲覧方式**）。`npm run preview` は既にある生成物を配信するだけで自動ビルドしないため、生成物が無い・古い場合は先に `npm run build` を行う。
-- `dashboard/status-dashboard.html` を `file://` で直接開くこともできるが、その場合は Mermaid 図が実描画されない（進捗・ボード・KPI 等のテキスト情報は読める）**フォールバック表示**になる。
+- 見るときは `npm run build` → `npm run preview` を実行し、表示された URL に **`/status-dashboard`** を付けて開く（＝ダッシュボード本体。**正式な閲覧方式**）。root `/` にトップページは無いので必ずパスを付ける。他ページ（`/overview`・`/reports`・`/steering`）へは画面内のナビから移動できる。`npm run preview` は既にある生成物を配信するだけで自動ビルドしないため、生成物が無い・古い場合は先に `npm run build` を行う。
+- パス無しで手早く見たいときは、生成ファイル `dashboard/status-dashboard.html` を `file://` で直接開いてもよい（その場合は Mermaid 図が実描画されない（進捗・ボード・KPI 等のテキスト情報は読める）**フォールバック表示**になる）。
 
 ## 中身の地図
 
