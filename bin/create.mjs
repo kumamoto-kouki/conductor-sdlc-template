@@ -64,4 +64,21 @@ if (res.error) {
   }
   fail(String(res.error.message || res.error));
 }
-process.exit(res.status ?? 1);
+
+// init-project.sh が非0で終了した場合は、黙って終了コードだけ透過せず、失敗した事実と
+// 直前に出た具体的エラーへの注意喚起を明示する（npx 経由だと出力が流れて見落としやすいため）。
+const status = res.status ?? 1;
+if (status !== 0) {
+  console.error(
+    [
+      "",
+      `スキャフォルドに失敗しました（scripts/init-project.sh が終了コード ${status} で終了）。`,
+      "上に表示された 'error:' 行が具体的な原因です。よくある原因と対処:",
+      "  - 複製先が既に存在する        → 別の新規パスを指定する",
+      "  - 親ディレクトリに書き込み不可 → 書き込み可能なパス（例: ~/projects/<name>）にする",
+      "  - git / rsync が未インストール → それらを導入する",
+      "使い方: npx github:kumamoto-kouki/conductor-sdlc-template <target-dir> [project-name]",
+    ].join("\n"),
+  );
+}
+process.exit(status);

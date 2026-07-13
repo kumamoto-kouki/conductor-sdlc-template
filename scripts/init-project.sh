@@ -34,6 +34,17 @@ usage() {
 TARGET_ARG="$1"
 PROJECT_NAME="${2:-}"
 
+# 必須コマンドの事前チェック（欠けている場合は複製の途中で不明瞭に失敗するため、先に明示して止める）。
+missing_tools=""
+for tool in rsync git sed grep; do
+  command -v "$tool" >/dev/null 2>&1 || missing_tools="${missing_tools} ${tool}"
+done
+if [ -n "$missing_tools" ]; then
+  echo "error: 必須コマンドが見つかりません:${missing_tools}" >&2
+  echo "       これらをインストールしてから再実行してください（例: Debian/Ubuntu なら 'sudo apt install rsync git' 等）。" >&2
+  exit 1
+fi
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # ガード: ROOTにVERSION/CLAUDE.mdが無ければ、本スクリプトがリポジトリ外へ単体コピーされて
@@ -45,10 +56,24 @@ fi
 
 if [ -e "$TARGET_ARG" ]; then
   echo "error: 複製先が既に存在します: $TARGET_ARG（上書きは行いません）" >&2
+  echo "       別の新規パスを指定するか、既存ディレクトリを退避してから再実行してください。" >&2
   exit 1
 fi
 
-mkdir -p "$TARGET_ARG"
+# 複製先ディレクトリを作成する。親ディレクトリに書き込み権限が無い場合（例: root 所有の
+# /var/... 配下を kouki 権限で指定）は mkdir が Permission denied で失敗するため、素の
+# bash エラーで終わらせず、原因と対処を明示して止める。
+if ! mkdir -p "$TARGET_ARG" 2>/dev/null; then
+  parent="$(dirname "$TARGET_ARG")"
+  echo "error: 複製先ディレクトリを作成できませんでした: $TARGET_ARG" >&2
+  if [ -e "$parent" ] && [ ! -w "$parent" ]; then
+    echo "       親ディレクトリ '$parent' に書き込み権限がありません（所有者=$(stat -c '%U' "$parent" 2>/dev/null || echo '不明')）。" >&2
+  else
+    echo "       親ディレクトリを作成/書き込みできません（権限またはパスを確認してください）。" >&2
+  fi
+  echo "       対処: 書き込み可能なパス（例: ~/projects/<name>）を指定してください。" >&2
+  exit 1
+fi
 TARGET="$(cd "$TARGET_ARG" && pwd)"
 
 echo "テンプレートを複製中: $ROOT -> $TARGET"

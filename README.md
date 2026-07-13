@@ -84,6 +84,16 @@ scripts/init-project.sh ../my-project "My Project"
 
 `scripts/init-project.sh` は手動コピーでも代替できる。GitHubで公開している場合は `Use this template` ボタンでの複製も選択肢になる。
 
+### うまくいかないとき（npx インストールの失敗切り分け）
+
+`npx` インストールは「①npm がリポジトリを取得して bin を起動 → ②`bin/create.mjs`→`scripts/init-project.sh` が生成」の2段階。失敗メッセージから原因を切り分ける。
+
+- **`could not determine executable to run`（①で失敗）**: npm が古い。`npm -v` が 9 系以下なら bin 解決が壊れている。sudo 不要の [nvm](https://github.com/nvm-sh/nvm) で新しい npm へ更新する: `nvm install --lts` 後に `npm -v` が 10 以上になっていること。
+- **`could not read Username for 'https://github.com'` / HTTP 404（①で失敗）**: リポジトリが private で匿名 clone できない。GitHub の Settings でリポジトリを Public にするか、認証情報を設定する。
+- **`複製先ディレクトリを作成できませんでした` / `Permission denied`（②で失敗）**: 生成先の親ディレクトリに書き込み権限がない（例: root 所有の `/var/...` 配下を一般ユーザーで指定）。**書き込み可能なパス（例: `~/projects/<name>`）を指定する**。
+- **`複製先が既に存在します`（②で失敗）**: 同名ディレクトリが既にある。別の新規パスを指定する。
+- **`必須コマンドが見つかりません`（②で失敗）**: `rsync`/`git` 等が未導入。表示されたコマンドをインストールする。
+
 ## 画面で進捗を見る
 
 進捗の唯一の真実は `dashboard/status.json` で、これを Astro（静的サイト生成ツール）がビルド時にHTMLへ変換する。**`dashboard/status-dashboard.html` はビルド生成物であり手編集しない**。
