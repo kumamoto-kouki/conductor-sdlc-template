@@ -42,6 +42,7 @@ Before applying judgment, verify these mechanically:
 - **File Structure Plan populated**: The File Structure Plan section must contain concrete file paths (not just "TBD" or empty). Scan for placeholder text in that section.
 - **Boundary ↔ file structure alignment**: The File Structure Plan must reflect the stated responsibility boundary. If files imply broader ownership than the boundary section claims, report a mismatch.
 - **No orphan components**: Every component mentioned in the design must appear in the File Structure Plan with a file path. Scan for component names that have no corresponding file entry.
+- **Technology selection populated**: If the design introduces a new dependency or technology, the `### 技術選定` subsection under Architecture must not be empty or placeholder-only.
 
 ## Review Loop
 

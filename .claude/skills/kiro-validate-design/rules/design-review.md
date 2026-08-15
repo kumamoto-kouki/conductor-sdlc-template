@@ -47,6 +47,12 @@ Conduct interactive quality review of technical design documents to ensure they 
 - Clear API boundaries and data structures
 - Input validation and error handling coverage
 
+### 5. Technology Selection Record
+
+- When the design introduces a new dependency or technology, confirm the "技術選定" subsection in `design.md` §4 records the adopted technology/version, the reason it is a stable version, and rejected alternatives -- not placeholder-only
+- Confirm the adopted version is a latest-stable release, not a `dev`/`rc`/`preview` tag, per `.claude/playbooks/tech-selection.md`
+- This criterion checks that the selection is *recorded and justified*, not that the reviewer re-runs the selection itself -- re-deriving the choice or finalizing technology decisions remains out of scope per Scope & Non-Goals above
+
 ## Review Process
 
 ### Step 1: Analyze

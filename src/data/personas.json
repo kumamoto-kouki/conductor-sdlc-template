@@ -84,7 +84,7 @@
     "emoji": "🧭",
     "name": "設計（アーキテクト）",
     "role": "着手前の設計判断",
-    "desc": "専門: UX・データモデル・I/F の事前設計。E2/D2 で即興判断した反省点。投入の目安: 新 spec／大機能の着手前。",
+    "desc": "専門: UX・データモデル・I/F の事前設計・技術選定（判断基準は `.claude/playbooks/tech-selection.md`）。E2/D2 で即興判断した反省点。投入の目安: 新 spec／大機能の着手前。",
     "status": "candidate",
     "badge": { "text": "投入すべきだった", "tone": "warn" }
   },

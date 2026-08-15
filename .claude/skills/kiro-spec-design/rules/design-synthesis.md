@@ -18,6 +18,7 @@ For each major component in the emerging design, ask: is this problem already so
 - Prefer adopting existing solutions over building custom ones when they fit the requirements without significant adaptation
 - If adopting: verify the solution is actively maintained, compatible with the project's stack (check steering), and meets non-functional requirements
 - If building: document why existing solutions were rejected (capture in `research.md`)
+- Once "adopt" is decided, which specific version to adopt follows `.claude/playbooks/tech-selection.md` (latest-stable vs. latest, handling PO-proposed tech)
 
 ## 3. Simplification
 

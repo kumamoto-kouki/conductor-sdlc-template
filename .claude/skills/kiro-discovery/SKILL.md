@@ -115,6 +115,8 @@ Recommend one approach and explain why.
 
 If the viability check reveals issues, present them to the user and revisit the approach selection. If no issues, proceed to Step 6.
 
+Judging what counts as a stable version, and how to handle a technology the PO proposes directly, follows `.claude/playbooks/tech-selection.md`.
+
 ### Step 6: Refine and Confirm
 
 - Address user's questions or concerns about the approaches
