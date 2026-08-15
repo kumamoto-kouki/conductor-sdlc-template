@@ -21,6 +21,10 @@
 
 ### 変更
 
+- `CLAUDE.md` を日本語化した。指示内容は変えず、コマンド名・パス・フラグ・ツール名・モデル名は原文表記のまま残した。
+- README の「中身の地図」を現状のツリーへ更新した。追加後に未反映だった要素（`writing-standards.md`／`.claude/rules/` の実ルール4件／`discovery-personas.md`・`swarm-multiprocess.md`／`bin/create.mjs`・`package.scaffold.json`・`TEMPLATE_VERSION`／`_wt-status.sh`／`.githooks/pre-commit`／`format-on-edit.mjs`／ダッシュボードの4ページ）を追記し、npm スクリプト一覧（dev/build/preview/serve/verify）を添えた。「経緯・注意」は現行バージョン（v0.10.0）を明示し、手順に直結する v0.4.0（生成物の Git 管理外化）と v0.10.0（`npx` 導線）だけを抜粋する形へ整理した。
+- README 冒頭の由来記述にあったプレースホルダ「（プロジェクト名）」を実際の由来（Tauri デスクトップアプリ）へ置き換えた。`scripts/init-project.sh` は複製時にこのプレースホルダを新プロジェクト名へ一括置換するため、派生プロジェクトの README で「実プロジェクト（＜自分の名前＞）で確立した手法」という誤った文になっていた。
+- README 再構成で消えた節を指していた相互参照を更新した：`scripts/init-project.sh` の完了メッセージと `.kiro/steering/role-catalog.md` の「規模別プリセット」前置きが、いずれも撤去済みの「README.md の『始め方』起動チェックリスト」を参照していたため「インストール後にすること」へ差し替えた。
 - README の `npx` インストール例を、既定でバージョン固定なし（常に `main` 追従）に変更した。バージョン固定（`#v<tag>`）は再現性が必要な場合の任意手段に格下げし、タグ push が前提である旨を明記した。
 - README を「アクション先行」に再構成した。冒頭のプロジェクト説明の直下へ、要点だけに絞った「すぐに始める」（前提の Node/npm バージョン＋npx 生成〜preview の5コマンド＋成功の目安）と「インストール後にすること」（ステアリング記入→規模/配役→最初の機能→進捗反映の4ステップ）を移動した。旧「5分で始める」「始める前のチェックリスト」を統合・撤去。失敗切り分けは折りたたみ（`<details>`）に最小限で収め、バージョン固定の説明は削除した。
 - README のダッシュボード閲覧導線を修正・明記した。`build.format: "file"` でトップページ（root `/`）が無いため、`npm run preview` の URL 末尾に `/status-dashboard` を付けて開く旨と、他ページ（`/overview`・`/reports`・`/steering`）への画面内ナビを追記した（従来の「`http://localhost:4321/` を開く」は 404 になる不正確な記述だった）。
