@@ -25,6 +25,8 @@
 - README を「アクション先行」に再構成した。冒頭のプロジェクト説明の直下へ、要点だけに絞った「すぐに始める」（前提の Node/npm バージョン＋npx 生成〜preview の5コマンド＋成功の目安）と「インストール後にすること」（ステアリング記入→規模/配役→最初の機能→進捗反映の4ステップ）を移動した。旧「5分で始める」「始める前のチェックリスト」を統合・撤去。失敗切り分けは折りたたみ（`<details>`）に最小限で収め、バージョン固定の説明は削除した。
 - README のダッシュボード閲覧導線を修正・明記した。`build.format: "file"` でトップページ（root `/`）が無いため、`npm run preview` の URL 末尾に `/status-dashboard` を付けて開く旨と、他ページ（`/overview`・`/reports`・`/steering`）への画面内ナビを追記した（従来の「`http://localhost:4321/` を開く」は 404 になる不正確な記述だった）。
 - `npx` インストール失敗時のメッセージを明示化した。`scripts/init-project.sh` に必須コマンド（rsync/git/sed/grep）の事前チェックと、複製先ディレクトリ作成失敗（親ディレクトリの書き込み権限なし＝root 所有配下を一般ユーザーで指定した場合など）の原因・対処メッセージを追加。`bin/create.mjs` は下位スクリプトが非0終了したとき、失敗の事実とよくある原因・対処の一覧を明示するようにした。README に失敗切り分け（うまくいかないとき）の節を追加し、npm 側で起きる `could not determine executable to run`（npm が古い）／認証要求・404（private リポジトリ）も含めて明文化した。
+- 常時ロードされる `.kiro/steering/*.md` から陳腐化した参照（実在しない `.orchestration/STATE.md`、`tech.md` に残っていたスタック固有コマンド例、`src-tauri/` 固有パス、commit trailer に固定書きされたモデル名）を除去し、`orchestration.md`／`role-catalog.md` 内で二重化していた表・前置き・列挙を削って正本への参照に置き換えた（誤情報の除去と正本判断コストの低減が目的で、削減量自体は目的ではない）。
+- 特定パスに触れた時だけ要る条件付きコンテンツを lazy 側へ移設した：`orchestration.md` の「振り返りの運用」節を `.claude/rules/retrospective.md`（`.claude/reports/**` 発火）へ、「可視化：真マルチプロセス swarm」節と `role-catalog.md` の代弁ペルソナ運用詳細・FDE charter を `.claude/playbooks/swarm-multiprocess.md`／`discovery-personas.md` へ移し、移動元にはポインタを残して `full-sdlc.md`・`kiro-discovery/SKILL.md` の参照先も更新した。「ループエンジニアリング」節は `src/content/autonomy-tiers.mdx` と重複する一般論を削り、段階的自律と停止条件のみに圧縮した。
 
 ### 既知の課題
 

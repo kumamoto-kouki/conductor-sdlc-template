@@ -11,12 +11,13 @@
 
 ## コマンド（検証の要）
 
-- テスト: `（例 pnpm test / cargo test）`
-- 型チェック: `（例 pnpm check）`
-- ビルド: `（例 pnpm build）`
-- E2E: `（例 pnpm e2e）`
+- テスト: `（例 npm test / pytest / go test）`
+- 型チェック: `（例 npm run check / mypy / tsc）`
+- ビルド: `（例 npm run build / make build）`
+- E2E: `（例 npm run e2e / playwright test）`
 
 > 受理は**このコマンドの実出力（新鮮な証拠）**で行う（`kiro-verify-completion`）。
+> このテンプレ本体リポジトリ自身（`.kiro/steering/` 等ドキュメントの検証）は `npm run verify` / `npm run build` で行う。
 
 ## 制約・方針
 
