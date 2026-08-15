@@ -68,7 +68,8 @@ After all parallel research completes, synthesize patterns for steering files.
    - Structure: Organization, naming, imports
 4. Generate steering files (follow templates)
 5. Load principles from `rules/steering-principles.md` from this skill's directory
-6. Present summary for review
+6. Check the scale preset line in `.kiro/steering/role-catalog.md` (`**採用中プリセット**`). If it is `未選択`, propose one of S/M/L from evidence already gathered (spec count, file count, whether parallel worktrees are in use) with a one-line rationale. Do not write the choice — the PO decides.
+7. Present summary for review
 
 **Focus**: Patterns that guide decisions, not catalogs of files/dependencies.
 
@@ -82,6 +83,7 @@ After all parallel research completes, synthesize patterns for steering files.
    - **Steering → Code**: Missing elements → Warning
    - **Code → Steering**: New patterns → Update candidate
    - **Custom files**: Check relevance
+   - **Scale preset drift**: `採用中プリセット` vs actual state (`.kiro/specs/` count, parallel worktrees, the 状態 column of 配役表). Report as Warning; propose, do not rewrite.
 4. Propose updates (additive, preserve user content)
 5. Report: Updates, warnings, recommendations
 
@@ -123,6 +125,8 @@ Steering Created
 - tech.md: [Key stack]
 - structure.md: [Organization]
 
+## Scale preset: [採用中プリセット value; if 未選択, the proposed S/M/L + one-line rationale]
+
 Review and approve as Source of Truth.
 ```
 
@@ -137,6 +141,9 @@ Steering Updated
 
 ## Code Drift:
 - Components not following import conventions
+
+## Scale preset:
+- 採用中プリセット S vs 3 active specs + parallel worktrees → propose M
 
 ## Recommendations:
 - Consider api-standards.md

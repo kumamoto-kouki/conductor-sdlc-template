@@ -21,6 +21,9 @@
 # 複製先には TEMPLATE_VERSION を記録する（派生元バージョンの追跡。詳細は
 # .claude/playbooks/template-feedback.md を参照）。複製元に TEMPLATE_VERSION があれば
 # それを継承し、無ければ VERSION の内容を使う（孫派生でのテンプレ由来バージョン断絶を防止）。
+# 加えて .kiro/steering/role-catalog.md の「採用中プリセット」行を「未選択」へ戻す（テンプレ本体の
+# 値を複製先が暗黙に引き継がないようにするため）。この置換は行頭の **採用中プリセット** という表記に
+# 依存するので、role-catalog.md 側の文言を変えるときは下記 sed パターンも同時に直す。
 # 複製先の dashboard/status.json は dashboard/status.init.json（汎用の初期状態）へ入れ替える。
 # テンプレ本体側の status.json は見本用サンプルデータのまま変更しない。
 set -euo pipefail
@@ -146,6 +149,15 @@ if [ -n "$PROJECT_NAME" ]; then
   done < <(grep -rlZI "（プロジェクト名）" "$TARGET" --exclude-dir=.git)
 fi
 
+# 採用中プリセット行を複製先だけ「未選択」へ戻す。テンプレ本体の値（M）はテンプレ自身の開発体制で
+# あり、複製先がそれを暗黙に引き継ぐと「今回の規模を選ぶ」判断そのものが飛ばされるため。
+role_catalog="$TARGET/.kiro/steering/role-catalog.md"
+if [ -f "$role_catalog" ] && grep -q '^\*\*採用中プリセット\*\*' "$role_catalog"; then
+  sed -i 's|^\*\*採用中プリセット\*\*.*|**採用中プリセット**：未選択（複製直後の初期値。最初の spec に着手する前に「規模別プリセット（S/M/L）」から選び、この行と下表の 状態 列を書き換える）|' "$role_catalog"
+else
+  echo "warn: $role_catalog に「採用中プリセット」行が見つかりません。手動で確認してください" >&2
+fi
+
 # 初期状態の status.json へ入れ替える（PO指示: 派生プロジェクトはテンプレの例データ入り
 # status.json をそのまま受け取らず、初期状態から始める）。テンプレ本体の dashboard/status.json
 # はテンプレの見本用サンプルデータのまま残し、複製先には dashboard/status.init.json（節目
@@ -184,4 +196,4 @@ echo "  1. cd \"$TARGET\""
 echo "  2. npm install    # 初回のみ（Astro + Mermaid + Tailwind 等の依存取得）"
 echo "     npm run build   # dashboard/status.json（初期状態）から初期状態のダッシュボードを生成（v0.4.0以降、生成物は複製されないため必須）"
 echo "  3. README.md の「インストール後にすること」に従い、product.md / tech.md / structure.md を記入"
-echo "  4. .kiro/steering/role-catalog.md の「規模別プリセット（S/M/L）」から今回の規模を選び、配役を確定"
+echo "  4. .kiro/steering/role-catalog.md「配役表（現状）」冒頭の『採用中プリセット』行に S/M/L を記入（未選択のままにしない）"

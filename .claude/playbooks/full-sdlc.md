@@ -101,8 +101,8 @@ brief.md のセクションに厳密に一致しない場合（例：ステー�
 - **`.claude/rules/` の GC**：`.claude/rules/README.md` の手入れ規約どおり、対応するコード/
   パターンが消えたルールを削除する。
 - **steering の陳腐化点検**：`.kiro/steering/*.md` が実態と乖離していないか（例：配役表に載って
-  いない役が実際に動いている、規模プリセットが実態と合わなくなった等）を確認し、乖離があれば
-  正本を更新する。
+  いない役が実際に動いている、`role-catalog.md`「配役表（現状）」冒頭の**採用中プリセット**行が
+  実態と合わなくなった等）を確認し、乖離があれば正本を更新する。
 - **検証ハーネス／pre-commitフックは整合チェックリストの機械化**：`scripts/verify-dashboard.mjs`
   （`.claude/rules/dashboard-verification.md` の検証基準を1コマンドで実行）と
   `.githooks/pre-commit`（ビルド入力変更時の再ビルド漏れ防止）は、上記「`status.json` 整合」

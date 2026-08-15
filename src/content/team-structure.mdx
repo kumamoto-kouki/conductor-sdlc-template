@@ -54,6 +54,8 @@ export const mainOrgChart = `flowchart TD
   class DESREV rev`;
 
 export const phaseTrees = [
+  // current: 「いまここ」を強調したいプロジェクトが該当フェーズだけ true にする任意の演出。
+  // テンプレートは全 false（進行中の作業はボードで追うため、ここを正本にしない）。
   {
     title: "① Discovery／要件",
     current: false,
@@ -81,7 +83,7 @@ export const phaseTrees = [
   },
   {
     title: "③ 実装",
-    current: true,
+    current: false,
     code: `flowchart TD
   PO["🧑🏻‍💼 PO"] --> CD["👨🏼‍💼 統括"]
   CD -. 報告 .- OPS["👩🏼‍💼 運用"]
@@ -222,10 +224,10 @@ export const phaseTrees = [
 
 <div class="mt-6 mb-1 text-xs font-bold text-muted">フェーズ別 投入計画（ツリー体制図）</div>
 <div class="mb-2 rounded-lg bg-accent-soft px-3 py-2 text-xs ring-1 ring-accent">
-  <b>▶ 現在のフェーズ：③ 実装</b>（④ レビュー／受理ゲートと往復中）。直近は M1（非アクティブ編集の一覧更新）を実装し、受理ゲート待ち。
+  各フェーズで誰を投入するかは <code>.kiro/steering/role-catalog.md</code>（配役の正本）。進行中の作業そのものは、このダッシュボードのボード（🔨 進行中／🔍 レビュー中）で追う。
 </div>
 <div class="mb-3 text-xs text-muted">
-  各ツリー：<b>PO → 統括＋運用（横断）→ そのフェーズで動く役</b>。実線＝配役済（現役）／破線＝候補（未投入）。現在フェーズのカードは強調表示。
+  各ツリー：<b>PO → 統括＋運用（横断）→ そのフェーズで動く役</b>。実線＝配役済（現役）／破線＝候補（未投入）。`current: true` を立てたフェーズのカードは強調表示される（テンプレートでは未設定）。
 </div>
 
 <div class="grid grid-cols-1 gap-2.5 lg:grid-cols-2">

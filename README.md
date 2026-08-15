@@ -29,7 +29,7 @@ npm run preview
 対象プロジェクトのフォルダで Claude Code を開いて進める。
 
 1. **`.kiro/steering/` の `product.md` / `tech.md` / `structure.md` を記入**（`/kiro-steering` でも可）— AI に渡る前提知識
-2. **規模プリセット S/M/L を選んで配役を決める**（`role-catalog.md`）— 実装者(Maker)と検査者(Checker)は別人にする
+2. **規模プリセット S/M/L を選ぶ** — `.kiro/steering/role-catalog.md`「配役表（現状）」冒頭の**採用中プリセット**行に記入し、配役表の 状態 列を合わせる（実装者(Maker)と検査者(Checker)を別人にする規律は規模に関わらず不変）
 3. **最初の機能を作る**: `/kiro-discovery "アイデア"` → `/kiro-spec-quick {機能名}` → `/kiro-impl {機能名}`（各段階を承認）
 4. **進捗を反映**: `dashboard/status.json` を更新して `npm run build`
 
@@ -42,7 +42,8 @@ npm run preview
 ```mermaid
 flowchart TD
     A[プロジェクトを複製] --> B["product.md 等に<br/>プロジェクト情報を記入"]
-    B --> C["アイデアを整理<br/>/kiro-discovery"]
+    B --> B2["規模プリセットS/M/Lを選ぶ<br/>role-catalog.mdに記録（節目ごとに見直す）"]
+    B2 --> C["アイデアを整理<br/>/kiro-discovery"]
     C --> D["仕様を作成<br/>/kiro-spec-quick<br/>要件 → 設計 → タスク"]
     D --> E{{"人間(PO)が<br/>各フェーズを承認"}}
     E -->|承認| F["実装<br/>/kiro-impl（worktreeで並行）"]
@@ -85,6 +86,8 @@ flowchart TD
     class ME,MD maker
     class RE,RD checker
 ```
+
+図は **M（標準）プリセット**の体制。S/M/L でどの役を置くかは `.kiro/steering/role-catalog.md`「規模別プリセット（S/M/L）」を参照する。
 
 ## 画面で進捗を見る
 

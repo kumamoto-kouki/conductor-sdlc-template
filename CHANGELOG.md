@@ -21,6 +21,9 @@
 
 ### 変更
 
+- 規模プリセット（S/M/L）の記録先を `.kiro/steering/role-catalog.md`「配役表（現状）」冒頭の**採用中プリセット**行として新設し、`scripts/init-project.sh` が複製時にこの行を「未選択」へ戻すようにした。あわせて導線を記録先へ通した：README の手順2・全体フロー図（規模選択ノードを追加）・体制図の注記（図は M プリセット）、`init-project.sh` の完了メッセージ、`.claude/skills/kiro-steering/SKILL.md`（Bootstrap で未選択なら S/M/L を提案・Sync で採用中プリセットの drift を Warning 報告。いずれも値は書き込まず PO が決める）、`.claude/playbooks/full-sdlc.md` の steering 陳腐化点検。配役表直下に 状態 の語彙（`未配役` を追加）と「プリセットを小さくしても行は削除しない」旨を明記した（役割名は `src/data/personas.json` と機械照合されるため、行を消すと `npm run verify` のチェック6 が落ちる）。
+- WIP 上限の正本を `.kiro/steering/operations.md` に一本化した。`role-catalog.md` のプリセット表から「WIP 上限」列を削除して `operations.md` への参照に置き換え、`operations.md` 側は「既定 3。S プリセット採用時は 1〜2 に下げる」と記述して S の例外を反映した（従来は role-catalog が S=1〜2、operations が無条件で 3 と書き、どちらが優先か文書上未解決だった）。
+- `src/content/team-structure.mdx` から元プロジェクト由来のハードコード文言（「▶ 現在のフェーズ：③ 実装…M1（非アクティブ編集の一覧更新）」）を汎用文へ置き換え、`phaseTrees` の `current: true` を全 false にした。`init-project.sh` の置換対象は `（プロジェクト名）` のみのため、この文言は派生プロジェクトのダッシュボードにそのまま残っていた。`current` フィールドと強調表示ロジック自体は任意の演出として残す。あわせて `dashboard/status.json` の signal 文言から WIP の数値を落とした。
 - `CLAUDE.md` を日本語化した。指示内容は変えず、コマンド名・パス・フラグ・ツール名・モデル名は原文表記のまま残した。
 - README の「中身の地図」を現状のツリーへ更新した。追加後に未反映だった要素（`writing-standards.md`／`.claude/rules/` の実ルール4件／`discovery-personas.md`・`swarm-multiprocess.md`／`bin/create.mjs`・`package.scaffold.json`・`TEMPLATE_VERSION`／`_wt-status.sh`／`.githooks/pre-commit`／`format-on-edit.mjs`／ダッシュボードの4ページ）を追記し、npm スクリプト一覧（dev/build/preview/serve/verify）を添えた。「経緯・注意」は現行バージョン（v0.10.0）を明示し、手順に直結する v0.4.0（生成物の Git 管理外化）と v0.10.0（`npx` 導線）だけを抜粋する形へ整理した。
 - README 冒頭の由来記述にあったプレースホルダ「（プロジェクト名）」を実際の由来（Tauri デスクトップアプリ）へ置き換えた。`scripts/init-project.sh` は複製時にこのプレースホルダを新プロジェクト名へ一括置換するため、派生プロジェクトの README で「実プロジェクト（＜自分の名前＞）で確立した手法」という誤った文になっていた。
@@ -34,6 +37,7 @@
 
 ### 既知の課題
 
+- ダッシュボードのフェーズ強調（`team-structure.mdx` の `phaseTrees[].current`）を `status.json` 由来にする案は未着手（`src/lib/schema.mjs` のスキーマ拡張が必要）。現状は各プロジェクトが mdx を手編集する。
 - worktree 環境での Astro ビルドに非決定性がある（BaseHead ハッシュが実行ごとに変わる）。
 - `scripts/verify-dashboard.mjs` の要素数チェックは `git show HEAD:<path>` で直前コミットの生成物と比較する設計だが、v0.4.0 でダッシュボードの生成物を Git 管理外にした副作用により、比較対象が常に「新規ページ」判定になり HEAD 比較が実質機能しない。
 
