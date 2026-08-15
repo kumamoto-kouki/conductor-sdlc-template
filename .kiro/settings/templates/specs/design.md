@@ -40,6 +40,19 @@ direction explicitly, e.g. Types -> Config -> Repository -> Service -> Runtime -
 
 - **Dependency direction**: <layer> -> <layer> -> ...
 
+### Technology Selection
+
+<!-- Only required when this design introduces a new dependency or technology
+choice. Judgment criteria (latest-stable vs. latest, handling PO-proposed
+tech): .claude/playbooks/tech-selection.md. Build-vs-adopt itself is decided
+in design-synthesis.md §2 -- this records the version decision for what was
+adopted. Mechanically checked by the design review gate when new
+dependencies/technologies are introduced -- do not leave placeholder-only. -->
+
+- **Adopted**: <name>@<version>
+- **Why this is the stable release**: <dist-tag / peerDependencies check result>
+- **Rejected alternatives**: <alternative and why it was rejected>
+
 ## 5. File Structure Plan
 
 <!-- Mechanically checked: must contain concrete file paths, and every
