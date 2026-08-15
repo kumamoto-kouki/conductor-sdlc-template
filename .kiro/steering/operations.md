@@ -10,7 +10,7 @@
 
 ## 台帳化・可視化
 
-委譲サマリ（件数・成功/再実行/破棄）、事故 → 是正、レビュー判定（PASS/条件付き/FAIL）、**効力確認**（直したルールが効くか）。正本 `.orchestration/STATE.md` ＋可視化 `dashboard/status-dashboard.html`「運用の実行状況」パネル。
+委譲サマリ（件数・成功/再実行/破棄）、事故 → 是正、レビュー判定（PASS/条件付き/FAIL）、**効力確認**（直したルールが効くか）。正本 `dashboard/status.json` ＋可視化 `dashboard/status-dashboard.html`「運用の実行状況」パネル。
 
 ## チケット状態遷移とダッシュボード整合
 
