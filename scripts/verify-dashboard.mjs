@@ -930,6 +930,64 @@ function checkModelUsageRoleConsistency() {
   }
 }
 
+// ---- 8. AI向けドキュメントのリポジトリ相対参照の実在検証 ----
+// (棚卸し（.claude/playbooks/full-sdlc.md「### 1. 定期健全性チェック」）で
+//  ドキュメントを移動・削除すると、他の文書に残った相対参照だけがリンク切れになる。
+//  これを機械で検知する。対象は CLAUDE.md・.claude/ 配下・.kiro/steering/ 配下の
+//  Markdown（AI が読む文書の全体）。抽出はバッククォートで囲まれ、かつ
+//  .claude/.kiro/scripts/src/dashboard/bin のいずれかで始まる「リポジトリ相対と
+//  明確に分かる」参照だけに絞る。裸のファイル名参照（例: "orchestration.md" が
+//  .kiro/steering/orchestration.md を指す）やスキル相対参照（例:
+//  "rules/design-principles.md"）、spec生成物（design.md・tasks.md・spec.json 等）
+//  まで対象にすると誤検知が大量に出て、チェックが無視されるようになるため対象外。
+//  プレースホルダ・テンプレ記法（<...>・*・{...}・$...・（...）を含むもの）も除外する。
+const DOC_REF_TARGET_PATTERN = /^(CLAUDE\.md|\.claude\/|\.kiro\/steering\/)/;
+const DOC_REF_PATTERN =
+  /`((?:\.claude|\.kiro|scripts|src|dashboard|bin)\/[^`\s]+\.(?:md|mjs|json|sh|astro|mdx))`/g;
+const DOC_REF_PLACEHOLDER_CHARS = /[<>*{}$（）]/;
+// 許可リスト（実在しなくてよい参照）: .kiro/steering/roadmap.md は
+// /kiro-discovery が複数spec構成のプロジェクトで生成する成果物であり、
+// テンプレート状態のリポジトリには存在しないのが正常なため除外する。
+const DOC_REF_ALLOWLIST = new Set([".kiro/steering/roadmap.md"]);
+
+function checkDocReferencesExist() {
+  const NAME = "8. AI向けドキュメントのリポジトリ相対参照の実在検証";
+  const files = execSync("git ls-files '*.md'", { cwd: ROOT, encoding: "utf8" })
+    .split("\n")
+    .filter(Boolean)
+    .filter((f) => DOC_REF_TARGET_PATTERN.test(f));
+
+  let total = 0;
+  const missing = [];
+  for (const f of files) {
+    const content = readFileSync(join(ROOT, f), "utf8");
+    const lines = content.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const re = new RegExp(DOC_REF_PATTERN);
+      let m;
+      while ((m = re.exec(lines[i]))) {
+        const ref = m[1];
+        if (DOC_REF_PLACEHOLDER_CHARS.test(ref)) continue;
+        total++;
+        if (DOC_REF_ALLOWLIST.has(ref)) continue;
+        if (!existsSync(join(ROOT, ref))) {
+          missing.push(`${f}:${i + 1} -> ${ref}`);
+        }
+      }
+    }
+  }
+
+  if (missing.length === 0) {
+    record(
+      NAME,
+      "pass",
+      `${files.length} ファイル走査・明確な相対参照 ${total} 件のうち実在しないもの0件（許可リスト適用後）`,
+    );
+  } else {
+    record(NAME, "fail", missing.join("\n"));
+  }
+}
+
 async function main() {
   console.log(
     "=== dashboard 検証ハーネス（scripts/verify-dashboard.mjs） ===\n",
@@ -942,6 +1000,7 @@ async function main() {
   checkNoNaNOrUndefined();
   checkRoleCatalogPersonaConsistency();
   checkModelUsageRoleConsistency();
+  checkDocReferencesExist();
 
   console.log("\n=== 結果一覧 ===");
   for (const r of results) {
