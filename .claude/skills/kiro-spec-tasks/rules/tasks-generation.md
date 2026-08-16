@@ -64,6 +64,10 @@ Focus on capabilities and outcomes, not code structure.
 
 **Do not over-annotate**: If a task simply depends on the task directly before it, ordering alone is sufficient.
 
+### 4.5 Model Annotation (optional)
+
+Add `_Model: <haiku|sonnet|opus|fable>_` only when a task calls for a model other than the implementer's default (e.g. an architecture-sensitive task that warrants `opus`, or a mechanical sweep that only needs `haiku`). Judge by task shape, not by role -- see `.claude/playbooks/model-assignment.md` for the cost/effort tradeoffs behind the choice.
+
 ### 5. Boundary Scope
 
 **Each task should declare its component boundary** using design.md component/module names:

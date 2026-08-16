@@ -876,6 +876,60 @@ function checkRoleCatalogPersonaConsistency() {
   }
 }
 
+// ---- 7. modelUsage[].role ⇔ personas.json 役割整合 ----
+// (dashboard/status.json の modelUsage は「規定でなく実績」の記録
+// （.claude/playbooks/model-assignment.md 参照）。role は表記ゆれなく
+// src/data/personas.json の name と一致している必要があり、これが崩れると
+// 存在しない役割名がダッシュボードにそのまま表示されてしまう。modelUsage は
+// 後方互換のため status.json に無くてもよい任意キー（schema.mjs で optional）
+// なので、その場合はスキップにする。)
+function checkModelUsageRoleConsistency() {
+  const NAME = "7. modelUsage[].role ⇔ personas.json 役割整合";
+  let data;
+  try {
+    data = JSON.parse(readFileSync(STATUS_JSON, "utf8"));
+  } catch (e) {
+    record(NAME, "fail", `status.json の parse に失敗しました: ${e.message}`);
+    return;
+  }
+  if (!data.modelUsage) {
+    record(NAME, "skip", "status.json に modelUsage が無いためスキップ");
+    return;
+  }
+  if (!existsSync(PERSONAS_JSON)) {
+    record(NAME, "fail", `personas.json が見つかりません（${PERSONAS_JSON}）`);
+    return;
+  }
+  let personas;
+  try {
+    personas = JSON.parse(readFileSync(PERSONAS_JSON, "utf8"));
+  } catch (e) {
+    record(NAME, "fail", `personas.json の parse に失敗しました: ${e.message}`);
+    return;
+  }
+  const personaNames = new Set(personas.map((p) => p.name));
+  const entries = data.modelUsage.entries || [];
+  const unknown = entries
+    .map((e, i) => ({ i, role: e.role }))
+    .filter((e) => !personaNames.has(e.role));
+
+  if (unknown.length === 0) {
+    record(
+      NAME,
+      "pass",
+      `${entries.length} 件の modelUsage エントリの role がすべて personas.json に存在`,
+    );
+  } else {
+    const detail = unknown
+      .map(
+        (e) =>
+          `modelUsage.entries[${e.i}].role: "${e.role}" は personas.json に存在しません`,
+      )
+      .join("\n");
+    record(NAME, "fail", detail);
+  }
+}
+
 async function main() {
   console.log(
     "=== dashboard 検証ハーネス（scripts/verify-dashboard.mjs） ===\n",
@@ -887,6 +941,7 @@ async function main() {
   checkFailedBuildResidue();
   checkNoNaNOrUndefined();
   checkRoleCatalogPersonaConsistency();
+  checkModelUsageRoleConsistency();
 
   console.log("\n=== 結果一覧 ===");
   for (const r of results) {

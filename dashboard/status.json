@@ -419,5 +419,44 @@
         "<b>デザインのトークンをアプリ本体に適用しました。</b>色・角丸・影・余白を <code>src/tokens.css</code> に集約し、ボタンの文字コントラストを AA に改善。テスト61件・型・ビルドはすべて合格を維持。"
       ]
     }
-  ]
+  ],
+  "modelUsage": {
+    "intro": "モデルは規定でなく実績として記録します（役割固定ではなくタスクの形状で選ぶ＝<code>.claude/playbooks/model-assignment.md</code>）。同じロールでも工程・回によってモデルが変わり得ます。",
+    "entries": [
+      {
+        "phase": "設計",
+        "role": "設計（アーキテクト）",
+        "model": "opus",
+        "effort": "high",
+        "note": "技術選定とアーキテクチャ判断（安全弁に触れる変更）"
+      },
+      {
+        "phase": "実装",
+        "role": "実装BE",
+        "model": "sonnet",
+        "effort": "xhigh",
+        "note": "trait シーム設計・TDD 実装"
+      },
+      {
+        "phase": "実装",
+        "role": "統括",
+        "model": "haiku",
+        "note": "ファイル探索・所在確認の委譲（判断不要な収集）"
+      },
+      {
+        "phase": "レビュー／受理",
+        "role": "EngRev",
+        "model": "opus",
+        "effort": "high",
+        "note": "独立レビュー・証拠再実行",
+        "updatedAt": "2026-08-16"
+      },
+      {
+        "phase": "レビュー／受理",
+        "role": "デザインRev",
+        "model": "sonnet",
+        "note": "コントラスト・状態網羅の視覚監査"
+      }
+    ]
+  }
 }

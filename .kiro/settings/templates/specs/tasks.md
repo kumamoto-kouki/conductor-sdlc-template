@@ -10,7 +10,9 @@ the minimum shape.
 Max 2 levels (major task "1.", sub-task "1.1"; no "1.1.1"). Major tasks
 increment 1, 2, 3...; sub-tasks reset per major task. Order implies
 dependency: task N depends on everything before it unless a task is marked
-`(P)` (parallel-safe) or declares `_Depends: X.X_` explicitly.
+`(P)` (parallel-safe) or declares `_Depends: X.X_` explicitly. `_Model:_` is
+optional -- add it only when the task calls for a model other than the
+implementer's default.
 -->
 
 - [ ] 1. <Foundation: environment / test infra / shared setup>
@@ -25,6 +27,7 @@ dependency: task N depends on everything before it unless a task is marked
   - <observable completion bullet>
   - _Requirements: 1.2, 1.3_
   - _Boundary: <ComponentName from design.md>_
+  - _Model: sonnet_
 
 - [ ] 2.2 (P) <Sub-task description>
   - <detail bullet>
