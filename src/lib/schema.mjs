@@ -146,6 +146,24 @@ const changelogEntrySchema = z.object({
   items: z.array(z.string()),
 });
 
+// モデル選定の実績記録（規定でなく実績。.claude/playbooks/model-assignment.md 参照）。
+// role は src/data/personas.json の name と一致させる（scripts/verify-dashboard.mjs
+// のチェック7で機械照合する）。派生プロジェクトの既存 status.json に無いキーのため
+// トップレベルで optional にし、未記入でもビルドが壊れないようにする。
+const modelUsageEntrySchema = z.object({
+  phase: z.string(),
+  role: z.string(),
+  model: z.enum(["haiku", "sonnet", "opus", "fable"]),
+  effort: z.enum(["low", "medium", "high", "xhigh", "max"]).optional(),
+  note: z.string().optional(),
+  updatedAt: updatedAtSchema,
+});
+
+const modelUsageSchema = z.object({
+  intro: z.string(),
+  entries: z.array(modelUsageEntrySchema),
+});
+
 export const statusSchema = z.object({
   branch: z.string(),
   milestones: z.array(milestoneSchema).min(1),
@@ -156,6 +174,7 @@ export const statusSchema = z.object({
   operations: operationsSchema,
   nextActions: nextActionsSchema,
   changelog: z.array(changelogEntrySchema).min(1),
+  modelUsage: modelUsageSchema.optional(),
 });
 
 /**

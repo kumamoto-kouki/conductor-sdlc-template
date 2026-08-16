@@ -18,6 +18,7 @@ import EstimateSummary from "../components/EstimateSummary.astro";
 import BoardColumn from "../components/BoardColumn.astro";
 import MilestoneCard from "../components/MilestoneCard.astro";
 import SpecsTable from "../components/SpecsTable.astro";
+import ModelUsageTable from "../components/ModelUsageTable.astro";
 import KpiStat from "../components/KpiStat.astro";
 import OperationsPanel from "../components/OperationsPanel.astro";
 import NextActionsPanel from "../components/NextActionsPanel.astro";
@@ -69,6 +70,7 @@ const sectionNavItems = [
   { href: "#layer-team", label: "🧑‍🤝‍🧑 チーム内" },
   { href: "#board", label: "作業ボード", indent: true },
   { href: "#operations", label: "運用の実行状況", indent: true },
+  ...(data.modelUsage ? [{ href: "#model-usage", label: "どのモデルを使ったか", indent: true }] : []),
   { href: "#next-actions", label: "次にやること", indent: true },
   { href: "#changelog", label: "🔵 この版の更新" },
 ];
@@ -292,6 +294,23 @@ const sectionNavItems = [
             <OperationsPanel operations={data.operations} />
           </div>
         </details>
+
+        <!-- ===== モデル選定の実績（規定でなく実績。.claude/playbooks/model-assignment.md 参照） =====
+             data.modelUsage が無い status.json（後方互換）では節ごと描画しない。 -->
+        {
+          data.modelUsage && (
+            <>
+              <h2 id="model-usage">
+                どのモデルを使ったか
+                <span class="note">工程・ロールごとの実績（役割固定ではない）</span>
+              </h2>
+              <div class="card">
+                <div class="mb-3 text-xs text-muted" set:html={data.modelUsage.intro} />
+                <ModelUsageTable entries={data.modelUsage.entries} />
+              </div>
+            </>
+          )
+        }
 
         <!-- ===== 次アクション ===== -->
         <h2 id="next-actions">次にやること</h2>

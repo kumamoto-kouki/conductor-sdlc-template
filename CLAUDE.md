@@ -76,7 +76,7 @@ Skills は `.claude/skills/kiro-*/SKILL.md` に配置されている
 ## トークン / コスト効率
 
 - モデル: 実装タスクは既定で Sonnet を使う。Opus は設計フェーズのレビュー（`kiro-spec-design` / `kiro-validate-design`）と複雑なアーキテクチャ判断に温存する
-- 委譲の階層: サブエージェントの作業は役割ではなくタスクの性質で切り分ける。機械的な読み取り・特定（grep、ファイル探索）→ Haiku（Explore 型委譲の既定）。判断を要する統合作業（実装、レビュー、アーキテクチャ）→ 上記モデル方針に従いフロンティア階層（根拠: [coordinator/worker パターン](https://github.com/anthropics/claude-cookbooks/blob/main/managed_agents/CMA_plan_big_execute_small.ipynb)）。
+- 委譲の階層: サブエージェントの作業は役割ではなくタスクの性質で切り分ける（根拠: [coordinator/worker パターン](https://github.com/anthropics/claude-cookbooks/blob/main/managed_agents/CMA_plan_big_execute_small.ipynb)）。価格表・`effort` 適合の詳細は `.claude/playbooks/model-assignment.md` を参照。
 - 微妙な判断を含む対象のレビューをコスト削減のために格下げしないこと。また自分で答えられることを委譲しないこと — サブエージェント呼び出しには固定の下限コストがあるため、過度に細分化せず、まとまりのある作業をバッチ化する
 - コンテキスト: 大きなファイルでは全文読み込みではなく、範囲を絞った `Read`（`offset` / `limit` 付き）や `Grep` を優先する。広範囲・不確実な探索は Explore サブエージェントに任せ、メインコンテキストを軽く保つ
 - 出力: 応答は簡潔に保つ。会話中に既出のファイル内容を再掲しない
