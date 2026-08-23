@@ -90,6 +90,8 @@ worktree: .claude/worktrees/<feature> / branch: feat/<feature>（起点＝<統�
 
 ## 3. 受理後の統括手順
 
+0. **レビュー結果を残す**（受理でも差し戻しでも）。レビュアーが返した Review Verdict のブロックを、そのまま `.kiro/specs/<feature>/reviews/<YYYY-MM-DD>-<phase または task-id>.md` へ書く。同名があれば `-2`・`-3` と重ねて、**何回目で通ったかが残る**ようにする。レビュアー自身は書かない（`kiro-review` に書き込みツールが無いのは、判定対象を書き換えられないようにするため）。`npm run status` がこの件数と直近の判定を `STATUS.md` に出す。**チャットにしか無い判定は、後から読む人にとっては存在しなかったのと同じ。**
+
 1. 独立レビューが `APPROVED` になったことを確認する（`REJECTED` なら (2) へ差し戻し、再委譲か `kiro-debug`）。
 2. メイン作業ディレクトリ（`<統合ブランチ>` をチェックアウト中）で `git merge feat/<feature>`。対象ファイルを明示 add（`git add -A` は使わない＝worktree ディレクトリの誤取り込み事故の反省）。
 3. `git worktree remove` ＋ merge 済みブランチを `git branch -d` で撤去する。テスト本数の二重カウントが無いことを確認する。

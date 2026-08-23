@@ -185,6 +185,14 @@ Escalate instead of papering over the issue when:
 | “The implementer said RED was done”       | RED must be evidenced, not asserted.                            |
 | “This gap is small enough to let through” | Real gaps must be rejected or escalated.                        |
 
+## Persist the Verdict
+
+The verdict must end up at `.kiro/specs/<feature>/reviews/<YYYY-MM-DD>-<phase-or-task>.md`. **You do not write it** — this skill has no write tool on purpose, so that a reviewer can never edit what it is judging. Return the block below; the controller persists it when it accepts or rejects (`.claude/playbooks/delegation.md` §3).
+
+Why this is part of the review and not bookkeeping: **a verdict that exists only in chat scrollback did not happen for anyone who reads the repository later.** In the 2026-08-24 run a design review produced four critical and seven important findings — the strongest signal the harness produced that day — and none of it survived the session. `npm run status` counts these files and shows the latest verdict per spec, so a spec that reached implementation with no review record is visible rather than assumed.
+
+Make the block self-contained enough to be read a year later without the conversation: name the artifact reviewed, the round, and what the acceptance threshold was.
+
 ## Output Format
 
 ```md

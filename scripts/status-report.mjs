@@ -174,6 +174,60 @@ function blockedReasons(featureDir) {
   return out;
 }
 
+/** .kiro/specs/<feature>/reviews/*.md から、レビューの回数と直近の判定を読む。
+ *  独立レビューの判定はこのハーネスが生む最も強い信号だが、チャットに流れるだけだと
+ *  後から読む人にとっては存在しなかったのと同じになる（実測: 致命4件・重要7件を出した
+ *  設計レビューがセッションと共に消えた）。ファイルとして残っていれば件数と判定は導出できる。 */
+function reviewRecords(featureDir) {
+  const dir = path.join(featureDir, "reviews");
+  if (!fs.existsSync(dir)) return null;
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith(".md"))
+    .sort();
+  if (files.length === 0) return null;
+  let latest = null;
+  for (const f of files) {
+    const m = /VERDICT:\s*([A-Z_]+)/.exec(
+      fs.readFileSync(path.join(dir, f), "utf8"),
+    );
+    if (m) latest = m[1];
+  }
+  return { count: files.length, latest };
+}
+
+/** requirements.md の未解決事項の表から、「PO が決める」行だけを拾う。
+ *  AI が調べても解けない——PO の業務・費用・リスクの判断であり、AI が抱え込むと
+ *  答えの出ない調査に時間を使ったうえで止まる（実測: PO 本人が数年前に下した経営判断を
+ *  「AI が調べる」に分類して行き詰まった）。PO の窓に出しておく。 */
+function poDecisions(featureDir) {
+  const file = path.join(featureDir, "requirements.md");
+  if (!fs.existsSync(file)) return [];
+  const lines = outsideFences(file).split("\n");
+  const out = [];
+  let inSection = false;
+  for (const line of lines) {
+    if (/^#{2,3}\s/.test(line)) {
+      inSection = /Open Questions|未解決/.test(line);
+      continue;
+    }
+    if (!inSection || !line.startsWith("|")) continue;
+    const cells = line
+      .split("|")
+      .slice(1, -1)
+      .map((c) => c.trim());
+    if (cells.length < 3) continue;
+    if (/^-+$/.test(cells[0].replace(/\s/g, ""))) continue;
+    const owner = cells[cells.length - 2];
+    const question = cells.length >= 4 ? cells[1] : cells[0];
+    if (!/PO/.test(owner)) continue;
+    if (/^(#|Open question|未解決)/.test(question)) continue;
+    if (/<question>/.test(question)) continue;
+    out.push(question);
+  }
+  return out;
+}
+
 /** tasks.md の `_Model: xxx_` を集計する。実際にどのモデルを割り当てる計画かを示す。 */
 function modelPlan(featureDir) {
   const counts = {};
@@ -291,6 +345,8 @@ function build() {
     progress.set(it.name, {
       tasks,
       blocked,
+      reviews: reviewRecords(it.dir),
+      decisions: poDecisions(it.dir),
       p: progressOf(it.spec, tasks, blocked, it.name),
     });
   }
@@ -354,17 +410,20 @@ function build() {
     out.push('まだ仕様がありません。`/kiro-discovery "やりたいこと"` から始めてください。');
     out.push("");
   } else {
-    out.push("| 仕様 | いまの工程 | 要件 | 設計 | タスク | 実装 |");
-    out.push("| --- | --- | --- | --- | --- | --- |");
+    out.push("| 仕様 | いまの工程 | 要件 | 設計 | タスク | 実装 | レビュー |");
+    out.push("| --- | --- | --- | --- | --- | --- | --- |");
     for (const it of specs) {
       const { spec } = it;
-      const { tasks, p } = progress.get(it.name);
+      const { tasks, p, reviews } = progress.get(it.name);
       const ap = spec.approvals || {};
       const impl = tasks
         ? `${progressBar(tasks.done, tasks.total)} ${tasks.done}/${tasks.total}`
         : "—";
+      const rev = reviews
+        ? `${reviews.latest === "APPROVED" ? "合格" : reviews.latest === "REJECTED" ? "差し戻し" : reviews.latest || "記録あり"}・${reviews.count}回`
+        : "—";
       out.push(
-        `| \`${cell(it.label)}\` | ${p.stage} | ${approvalMark(ap.requirements)} | ${approvalMark(ap.design)} | ${approvalMark(ap.tasks)} | ${impl} |`,
+        `| \`${cell(it.label)}\` | ${p.stage} | ${approvalMark(ap.requirements)} | ${approvalMark(ap.design)} | ${approvalMark(ap.tasks)} | ${impl} | ${rev} |`,
       );
     }
     out.push("");
@@ -378,6 +437,7 @@ function build() {
     out.push("| `██████░░░░ 6/10` | 作業10件のうち6件done |");
     out.push("| `⛔ 止まっています` | 人の判断が要る問題が出て、作業が止まった |");
     out.push("| `完了（公開待ち）` | 作業は全部終わった。公開してよいかの判断が残っている |");
+    out.push("| レビュー `差し戻し・2回` | 別の担当が点検した回数と、直近の結果。`—` は記録が無い |");
     out.push("");
     out.push("</details>");
     out.push("");
@@ -403,6 +463,24 @@ function build() {
   out.push("");
   out.push(...(devItems.length === 0 ? ["- 進行中の作業はありません。"] : devItems));
   out.push("");
+
+  // --- PO にしか決められないこと ---
+  const decisions = [];
+  for (const it of specs) {
+    for (const q of progress.get(it.name).decisions) {
+      decisions.push(`- \`${cell(it.label)}\` — ${cell(q)}`);
+    }
+  }
+  if (decisions.length > 0) {
+    out.push("## あなたにしか決められないこと");
+    out.push("");
+    out.push(
+      "調べても答えが出ない事柄です。決まらないと、その先が仮定の上に建ちます。",
+    );
+    out.push("");
+    out.push(...decisions);
+    out.push("");
+  }
 
   // --- 参画する役 ---
   const { rows: cast, problem: castProblem } = readCast();

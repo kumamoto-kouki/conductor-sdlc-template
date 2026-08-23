@@ -405,6 +405,56 @@ function checkContextBudget() {
   );
 }
 
+// ---- 8. 委譲プロンプトに権限境界のガードが入っているか ----
+// (`.kiro/steering/orchestration.md` は「push は人間だけ」「統合は統括だけ」と定めるが、
+//  正本に書いてあることは、実際に送られる文面に入っていなければ発火しない——これは
+//  `.claude/playbooks/delegation.md` §0 が 2026-07-02 の事故から得た教訓そのもので、
+//  そのときの原因は「正本に書いてあるが委譲プロンプトで毎回引用しなかった」だった。
+//  実測（2026-08-24）：kiro-impl が実際に送る3つのプロンプトのいずれにも `git push`
+//  の禁止が書かれていなかった。文章での約束は、機械で見ないと同じ形で抜ける。)
+const DISPATCHED_PROMPTS = [
+  ".claude/skills/kiro-impl/templates/implementer-prompt.md",
+  ".claude/skills/kiro-impl/templates/reviewer-prompt.md",
+  ".claude/skills/kiro-impl/templates/debugger-prompt.md",
+];
+const REQUIRED_GUARDS = [
+  { label: "push の禁止", re: /git push/ },
+  { label: "権限ファイルの変更禁止", re: /\.claude/ },
+];
+
+function checkDelegationGuards() {
+  const NAME = "8. 委譲プロンプトに権限境界のガードが入っている";
+  const missing = [];
+  let checked = 0;
+  for (const rel of DISPATCHED_PROMPTS) {
+    const f = join(ROOT, rel);
+    if (!existsSync(f)) {
+      missing.push(`${rel}: ファイルがありません`);
+      continue;
+    }
+    checked++;
+    const text = readFileSync(f, "utf8");
+    for (const g of REQUIRED_GUARDS) {
+      if (!g.re.test(text)) missing.push(`${rel}: ${g.label} が書かれていません`);
+    }
+  }
+  if (missing.length === 0) {
+    record(
+      NAME,
+      "pass",
+      `${checked} 本のプロンプトすべてに ${REQUIRED_GUARDS.length} 種のガードが入っています`,
+    );
+    return;
+  }
+  record(
+    NAME,
+    "fail",
+    missing.join("\n") +
+      "\n正本（orchestration.md の権限境界）に書いてあっても、送られる文面に無ければ発火しません。" +
+      "\n判断基準は .claude/playbooks/delegation.md §0・§2.5 を参照してください。",
+  );
+}
+
 function main() {
   console.log("=== テンプレート整合性検証ハーネス（scripts/verify.mjs） ===\n");
 
@@ -415,6 +465,7 @@ function main() {
   checkVersionConsistency();
   checkHooksEnabled();
   checkContextBudget();
+  checkDelegationGuards();
 
   console.log("=== 結果一覧 ===");
   for (const r of results) {
