@@ -40,7 +40,7 @@ npx github:kumamoto-kouki/conductor-sdlc-template ~/projects/my-app "マイア�
 
 1. **`.kiro/steering/` の `product.md` / `tech.md` / `structure.md` を記入**（`/kiro-steering` でも可）— AI に渡る前提知識
 2. **規模プリセット S/M/L を選ぶ** — `.kiro/steering/role-catalog.md`「配役表（現状）」冒頭の**採用中プリセット**行に記入し、配役表の 状態 列を合わせる（実装者(Maker)と検査者(Checker)を別人にする規律は規模に関わらず不変。PO技術検証の席はプリセットに依らず残す）
-3. **最初の機能を作る**: `/kiro-discovery "アイデア"` → `/kiro-spec-quick {機能名}` → `/kiro-impl {機能名}`（各段階を承認）
+3. **最初の機能を作る**: `/kiro-discovery "アイデア"` → `/kiro-spec-quick {機能名}` → 各段階を `/kiro-approve {機能名}` で承認 → `/kiro-impl {機能名}`
 4. **進捗を確認**: `npm run status` で `STATUS.md` を作り直して読む（`.kiro/specs/` や配役を変えてコミットすれば pre-commit フックが自動で作り直す）
 
 </details>
@@ -55,7 +55,7 @@ flowchart TD
     B --> B2["規模プリセットS/M/Lを選ぶ<br/>role-catalog.mdに記録（節目ごとに見直す）"]
     B2 --> C["アイデアを整理<br/>/kiro-discovery"]
     C --> D["仕様を作成<br/>/kiro-spec-quick<br/>要件 → 設計 → タスク"]
-    D --> E{{"人間(PO)が<br/>各フェーズを承認"}}
+    D --> E{{"人間(PO)が<br/>各フェーズを承認<br/>/kiro-approve"}}
     E -->|承認| F["実装<br/>/kiro-impl（worktreeで並行）"]
     F --> G[独立レビュアーが受理判定]
     G -->|FAIL| F
@@ -69,6 +69,8 @@ flowchart TD
 ```
 
 **worktree**（同じgitリポジトリを複数の作業ディレクトリへ同時展開し、並行実装時のファイル衝突を防ぐ仕組み）を使い、複数の実装が同時並行で進む。承認は人が行い、それ以外の受理判定（独立レビュー）は仕組みで回す。
+
+承認は `/kiro-approve {機能名}` で行う。成果物を平易な日本語で要約して見せ、懸念があれば先に出したうえで可否を聞き、**承認した1段だけ**を `spec.json` に記録する。`--auto`（`/kiro-spec-quick`）・`-y`（`/kiro-spec-design`・`/kiro-spec-tasks`）・`--auto-approve`（`/kiro-spec-batch`）は**読まずに承認を飛ばす**ファストトラックであり、承認の既定手段ではない。
 
 ## 体制（誰が何をするか）
 
@@ -127,7 +129,7 @@ flowchart LR
 flowchart TD
     ROOT["リポジトリ直下"]
     ROOT --> KIRO[".kiro/<br/>steering（常時参照のルール）<br/>specs/機能名/（機能ごとの仕様）"]
-    ROOT --> SKILLS[".claude/skills/<br/>SDLCの手順（19スキル）"]
+    ROOT --> SKILLS[".claude/skills/<br/>SDLCの手順（20スキル）"]
     ROOT --> RULESD[".claude/rules/<br/>パス連動の判断基準"]
     ROOT --> PLAYBOOKS[".claude/playbooks/<br/>委譲・還流の雛形"]
     ROOT --> REPORTSD[".claude/reports/<br/>実装後の振り返り"]
@@ -140,7 +142,7 @@ flowchart TD
 
 | 要素                   | 場所                                                   | 内容                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ---------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SDLC エンジン          | `.claude/skills/kiro-*`                                | Discovery→Requirements→Design→Tasks→Impl→Review→Verify の 19 スキル                                                                                                                                                                                                                                                                                                                                       |
+| SDLC エンジン          | `.claude/skills/kiro-*`                                | Discovery→Requirements→Design→Tasks→Approve→Impl→Review→Verify の 20 スキル                                                                                                                                                                                                                                                                                                                               |
 | 体制・運用（正本）     | `.kiro/steering/`                                      | `orchestration.md`（中核モデル）／`operations.md`（運用統治）／`role-catalog.md`（配役）／`review-checklists.md`（受理観点）／`writing-standards.md`（日本語技術文書の規範）／`README.md`（索引）                                                                                                                                                                                                         |
 | 判断基準（lazy）       | `.claude/rules/`                                       | パス連動で必要時だけ読む規約。同梱: `retrospective.md`／`steering-consistency.md`／`verification.md`。スタック依存の参考例は `_examples/`（先頭 `_` は glob に当たらずロードされない）                                                                                                                                                                                                                    |
 | プレイブック           | `.claude/playbooks/`                                   | `delegation.md`（委譲雛形）／`full-sdlc.md`（超上流〜保守運用マッピング）／`discovery-personas.md`（代弁ペルソナ・FDE charter）／`swarm-multiprocess.md`（真マルチプロセス swarm）／`testing-strategy.md`（テスト戦略）／`model-assignment.md`（モデル選定）／`tech-selection.md`（技術選定）／`po-communication.md`（PO への報告）／`knowledge-graph.md`（大規模化判断）／`template-feedback.md`（還流） |
@@ -149,7 +151,7 @@ flowchart TD
 | 並行開発の道具         | `scripts/`・`.githooks/`                               | `swarm-up.sh`／`swarm-down.sh`（worktree 群の起動・撤収）／`_wt-status.sh`（worktree 状況の内部ヘルパ）／`pre-commit`（`STATUS.md` の自動再生成）                                                                                                                                                                                                                                                         |
 | セットアップ・還流     | `bin/`・`scripts/`・`VERSION`                          | `bin/create.mjs`（`npx` 入口の薄いラッパ）／`init-project.sh`（複製・初期化の正本）／`package.scaffold.json`（複製先へ配る `package.json`）／`collect-template-feedback.sh`（派生プロジェクトからの知見収集。派生元は `TEMPLATE_VERSION` で追跡）                                                                                                                                                         |
 | 状況の可視化           | `STATUS.md`・`scripts/status-report.mjs`               | 仕様・タスク・配役から導出する状況レポート（`npm run status` が生成。手編集しない）                                                                                                                                                                                                                                                                                                                       |
-| 解説ドキュメント       | `docs/`                                                | `team-structure.md`（チームの読み方）／`glossary.md`（用語集）／`pdca-practice.md`（PDCA の回し方）／`autonomy-tiers.md`（自律度の段階）／`external-services.md`（外部サービスとの関係）／`design-brief.md`（デザインブリーフの記入例）                                                                                                                                                                                                                  |
+| 解説ドキュメント       | `docs/`                                                | `team-structure.md`（チームの読み方）／`glossary.md`（用語集）／`pdca-practice.md`（PDCA の回し方）／`autonomy-tiers.md`（自律度の段階）／`external-services.md`（外部サービスとの関係）／`design-brief.md`（デザインブリーフの記入例）                                                                                                                                                                   |
 | プロダクト記憶（雛形） | `.kiro/steering/product.md`・`tech.md`・`structure.md` | 空テンプレ（記入して使う）                                                                                                                                                                                                                                                                                                                                                                                |
 
 npm スクリプトは `status`（`STATUS.md` の生成）と `verify`（整合性検証＝文書の相対参照の実在・`.gitignore` と `template.gitignore` の一致・`STATUS.md` が実態と一致・`spec.json` が導出元として読める・`VERSION` と `package.json` の版が一致）の2つだけで、どちらも node 標準機能だけで動く（テンプレート本体に依存パッケージは無い）。

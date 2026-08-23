@@ -91,7 +91,7 @@ function progressOf(spec, tasks, blocked, dirName) {
       return {
         stage: `${st.label}の確認`,
         owner: "po",
-        next: `${st.label}を読んで承認する（${mdLink(path.posix.join(".kiro/specs", f, st.key + ".md"))}）`,
+        next: `${st.label}を読んで承認する — ${mdLink(path.posix.join(".kiro/specs", f, st.key + ".md"))} を読み、\`/kiro-approve ${f} ${st.key}\` で承認する`,
       };
     }
   }

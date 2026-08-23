@@ -54,7 +54,9 @@ If any of these cannot be determined from the spec — the requirements are too 
 - Confirm the verification method from the Task Brief passes
 - If a validation command fails because of a pre-existing unrelated issue, report that precisely instead of masking it
 
-### Step 5: Self-Review
+### Step 5: Pre-Handoff Self-Check
+
+This is a pre-handoff check on your own work, not acceptance. It never substitutes for the independent review: the controller dispatches a separate reviewer subagent, and only that reviewer's verdict can accept the task (Maker != Checker; see `.kiro/steering/orchestration.md` discipline C).
 
 - Review your own changes before reporting back
 - Verify each acceptance criterion from the Task Brief is satisfied by concrete behavior

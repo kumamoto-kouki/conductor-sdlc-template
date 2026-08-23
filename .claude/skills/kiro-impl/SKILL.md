@@ -13,7 +13,9 @@ argument-hint: <feature-name> [task-numbers]
 You operate in two modes:
 
 - **Autonomous mode** (no task numbers): Dispatch a fresh subagent per task, with independent review after each
-- **Manual mode** (task numbers provided): Execute selected tasks directly in the main context
+- **Manual mode** (task numbers provided): Execute selected tasks directly in the main context, but delegate the review of every task to a fresh, independent reviewer subagent
+
+In both modes the reviewer is a different entity from whoever wrote the code. This never relaxes for small tasks, single-task runs, or manual mode (Maker != Checker; see `.kiro/steering/orchestration.md` discipline C).
 
 ## Core Mission
 
@@ -127,6 +129,7 @@ For each task (one at a time):
 
 - Parse reviewer verdict only from the exact `## Review Verdict` block and `- VERDICT:` field.
 - If `VERDICT` is missing, ambiguous, or replaced with prose, re-dispatch the reviewer once requesting the exact structured verdict only. Do NOT mark the task complete, commit, or continue to the next task without a parseable `APPROVED | REJECTED` value.
+- If the second dispatch still returns no parseable verdict, or the reviewer returns `REVIEW_BLOCKED: PROTOCOL_UNAVAILABLE`, the task is **unreviewed**. Append `_Blocked: independent review unavailable_` to tasks.md, stop the feature run, and hand off to a human. Never substitute your own review in this context -- you dispatched the implementer, so reviewing here would be self-review.
 - **APPROVED** → before marking the task `[x]` or making any success claim, apply `kiro-verify-completion` using fresh evidence from the current code state; then mark task `[x]` in tasks.md and perform selective git commit
 - **REJECTED (round 1-2)** → re-dispatch implementer with review feedback
 - **REJECTED (round 3)** → dispatch debug subagent (see section below)
@@ -172,7 +175,7 @@ The debug subagent runs in a **fresh context** — it receives only the error in
 
 **Completion check**: If all remaining tasks are BLOCKED, stop and report blocked tasks with reasons to the user.
 
-#### Manual Mode (main context)
+#### Manual Mode (implementation in main context, review delegated)
 
 For each selected task:
 
@@ -190,7 +193,8 @@ Before writing any code, read the relevant sections of requirements.md and desig
 - **GREEN**: Implement simplest solution to make test pass, following the design constraints.
 - **REFACTOR**: Improve code structure, remove duplication. All tests must still pass.
 - **VERIFY**: All tests pass (new and existing), no regressions. Confirm verification method passes.
-- **REVIEW**: Apply `kiro-review` before marking the task complete. If the host supports fresh subagents in manual mode, use a fresh reviewer; otherwise perform the review in the main context using the `kiro-review` protocol. Do NOT continue until the verdict is parseably `APPROVED`.
+- **REVIEW**: Dispatch a fresh reviewer subagent via the **Agent tool**, building the prompt exactly as in autonomous mode step (c), and parse the verdict exactly as in step (d) -- only the `- VERDICT:` field counts. On `REJECTED`, fix the named findings here and re-dispatch a fresh reviewer (max 2 remediation rounds, then apply the debug subagent path from step (g)). Do NOT continue until a verdict is parseably `APPROVED`.
+  - The code was written in this context, so reviewing it here would be self-review. If no fresh reviewer subagent can be dispatched, or step (d)'s unreviewed path is reached, **stop**: leave the checkbox `- [ ]`, report the task as implemented but unreviewed, and hand off to a human. Do not claim a review happened.
 - **MARK COMPLETE**: Only after review returns `APPROVED`, apply `kiro-verify-completion`, then update the checkbox from `- [ ]` to `- [x]` in tasks.md.
 
 ### Step 4: Final Validation
@@ -221,6 +225,7 @@ For tasks that add or change behavior, enforce RED → GREEN with a feature flag
 
 ## Critical Constraints
 
+- **No Self-Review**: The reviewer is always a fresh subagent, in both modes. If no independent reviewer can be obtained, stop and hand off to a human -- never review your own work and never report a task as reviewed
 - **Strict Handoff Parsing**: Never infer implementer `STATUS` or reviewer `VERDICT` from surrounding prose; only the exact structured fields count
 - **No Destructive Reset**: Never use `git checkout .`, `git reset --hard`, or similar destructive rollback inside the implementation loop
 - **Selective Staging**: NEVER use `git add -A` or `git add .`; always stage explicit file paths
@@ -238,8 +243,8 @@ For tasks that add or change behavior, enforce RED → GREEN with a feature flag
 
 **Manual mode**:
 
-1. Tasks executed: task numbers and test results
-2. Status: completed tasks marked in tasks.md, remaining tasks count
+1. Tasks executed: task numbers, test results, and reviewer verdict per task
+2. Status: completed tasks marked in tasks.md, remaining tasks count, and any task left implemented-but-unreviewed
 
 **Format**: Concise, in the language specified in spec.json.
 
@@ -256,6 +261,11 @@ For tasks that add or change behavior, enforce RED → GREEN with a feature flag
 
 - **Stop Implementation**: Fix failing tests before continuing
 - **Action**: Debug and fix, then re-run
+
+**Independent Reviewer Unavailable**:
+
+- **Stop Execution**: A task that could not be independently reviewed is not complete. Leave it `- [ ]`, do not commit it as done, and report it as implemented-but-unreviewed
+- **Suggested Action**: "Re-run once subagent dispatch is available, or have a human perform the `kiro-review` protocol on this task"
 
 **All Tasks Blocked**:
 

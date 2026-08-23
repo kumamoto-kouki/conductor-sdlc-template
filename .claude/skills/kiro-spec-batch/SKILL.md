@@ -2,6 +2,7 @@
 name: kiro-spec-batch
 description: Create complete specs (requirements, design, tasks) for all features in roadmap.md using parallel subagent dispatch by dependency wave.
 allowed-tools: Read, Glob, Grep, Agent
+argument-hint: "[--auto-approve]"
 ---
 
 # kiro-spec-batch Skill
@@ -15,6 +16,16 @@ allowed-tools: Read, Glob, Grep, Agent
   - Cross-spec consistency verified (data models, interfaces, naming)
   - Mixed roadmap context understood without breaking `## Specs (dependency order)` parsing
   - Controller context stays lightweight (subagents do the heavy work)
+  - Specs are **generated, not approved** — the PO's three approval gates survive batch generation
+
+## Approval Policy
+
+Batch generation produces specs; it does not decide they are correct.
+
+- **Default (no flag)**: every generated phase ends at `approvals.<phase>.generated: true, approved: false`. Nothing is auto-approved. Step 5 lists what is pending and points the PO at `/kiro-approve`.
+- **`--auto-approve`**: only when this flag is explicitly present in `$ARGUMENTS`, subagents set all three phases to `approved: true` for every spec (the old unconditional behavior). This means no human reads any requirements, design, or task plan before implementation starts. When the flag is used, say so plainly in the final summary — do not let it pass silently.
+
+Parse `$ARGUMENTS` for `--auto-approve` in Step 1 and carry the resulting mode into the Step 3 subagent prompts.
 
 ## Execution Steps
 
@@ -85,10 +96,20 @@ Create a complete specification for feature "{feature-name}".
    a. Initialize: Read .claude/skills/kiro-spec-init/SKILL.md, then create spec.json and requirements.md
    b. Generate requirements: Read .claude/skills/kiro-spec-requirements/SKILL.md, then follow its steps
    c. Generate design: Read .claude/skills/kiro-spec-design/SKILL.md, then follow its steps
+      with the bulk-generation flag (--bulk) set: upstream phases are generated but not yet
+      approved, which is the expected state here. Do not write any approval flag.
    d. Generate tasks: Read .claude/skills/kiro-spec-tasks/SKILL.md, then follow its steps
-4. Set all approvals to true in spec.json (auto-approve mode, equivalent of -y flag)
-5. Report completion with file list and task count
+      with the bulk-generation flag (--bulk) set, for the same reason.
+4. {APPROVAL_INSTRUCTION}
+5. Report completion with file list, task count, and the approval state of each phase
 ```
+
+Substitute `{APPROVAL_INSTRUCTION}` according to the mode resolved in Step 1:
+
+- **Default**: "Leave every phase at `approvals.<phase>.generated: true, approved: false` in spec.json. Do NOT set any `approved` flag and do NOT pass `-y` to any phase skill — the human PO approves these separately."
+- **`--auto-approve`**: "Set all three phases to `approved: true` in spec.json (auto-approve mode, equivalent of the -y flag)."
+
+The `--bulk` flag in steps c/d is what lets generation proceed while every phase stays at `approved: false`. Without it, `kiro-spec-design` Step 1 and `kiro-spec-tasks` Step 1 stop on an unapproved upstream phase, and the subagent has no legitimate way forward (writing approval flags and passing `-y` are both forbidden in default mode). `--bulk` skips the *gate* only — it never writes an approval. `--auto-approve` mode also passes `--bulk` for the same reason, and additionally records the approvals in step 4.
 
 **After all subagents in the wave complete**:
 
@@ -148,7 +169,7 @@ Output format:
 ### Step 5: Finalize
 
 1. Glob `.kiro/specs/*/tasks.md` to verify all specs exist
-2. For each completed spec, read spec.json to confirm phase and approvals
+2. For each completed spec, read spec.json to confirm phase and approvals, and build the pending-approval list (every phase with `generated: true, approved: false`)
 3. Update roadmap.md: mark completed specs as `[x]`
 4. If roadmap.md includes `Existing Spec Updates` or `Direct Implementation Candidates`, leave them untouched and mention them as remaining follow-up items unless already explicitly completed elsewhere
 
@@ -165,7 +186,19 @@ Spec Batch Complete:
   Existing spec updates pending: <count or none>
   Direct implementation candidates pending: <count or none>
 
-Next: Review generated specs, then start implementation with /kiro-impl <feature>
+承認待ち（PO が読んで承認する工程）:
+  - <feature-a>: 要件 / 設計 / タスク
+  - <feature-b>: 要件 / 設計 / タスク
+  → `/kiro-approve <feature>` で1工程ずつ承認する
+
+Next: Approve the pending phases with /kiro-approve <feature>, then start implementation with /kiro-impl <feature>
+```
+
+If `--auto-approve` was used, replace the pending list with an explicit disclosure instead:
+
+```
+⚠ --auto-approve が指定されたため、全 <N> spec の要件・設計・タスクを誰も読まないまま承認済みとして記録しました。
+   内容の確認は実装前に別途行ってください。
 ```
 
 ## Critical Constraints
@@ -176,6 +209,8 @@ Next: Review generated specs, then start implementation with /kiro-impl <feature
 - **No partial waves**: If a feature in a wave fails, still complete the other features in that wave before reporting.
 - **Skip completed specs**: Features with `[x]` in roadmap.md or existing tasks.md are skipped.
 - **`## Specs (dependency order)` remains authoritative for batch execution**: Other roadmap sections are context, not wave inputs.
+- **Never auto-approve without the flag**: `--auto-approve` must appear in `$ARGUMENTS`. Convenience, subagent failure, or a long pending list are not reasons to set `approved: true` on the PO's behalf.
+- **Do not change the approval schema**: `approvals.<phase>.generated` / `.approved` are read by `scripts/status-report.mjs`; keep the key shape as it is.
 
 ## Safety & Fallback
 

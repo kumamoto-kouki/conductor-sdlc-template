@@ -143,8 +143,8 @@ Provide output in the language specified in spec.json with:
 - **Optional Gap Analysis** (for existing codebases):
   - Run `/kiro-validate-gap {feature}` to analyze implementation gap
   - Recommended for brownfield projects; skip for greenfield
-- Run `/kiro-spec-design {feature}` to proceed to design phase
-- Or `/kiro-spec-design {feature} -y` to auto-approve requirements and proceed directly
+- Run `/kiro-approve {feature} requirements` to read the requirements and record approval, then `/kiro-spec-design {feature}`
+- Or `/kiro-spec-design {feature} -y` to skip reading them and auto-approve (deliberate fast-track only)
 
 **If Modifications Needed**:
 

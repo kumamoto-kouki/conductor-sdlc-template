@@ -35,7 +35,8 @@ Otherwise, load all necessary context:
 
 **Validate requirements approval**:
 
-- If auto-approve flag is true: Auto-approve requirements in spec.json
+- If auto-approve flag (`-y`) is true: Auto-approve **`requirements` only** — the immediately preceding phase — in spec.json. Never write `approvals.design.approved` or `approvals.tasks.approved` here.
+- If bulk-generation flag (`--bulk`) is true: require `approvals.requirements.generated: true` and proceed **without writing any approval flag**. This is the formal intermediate state described in `kiro-spec-init` (`generated: true, approved: false`), produced when a delegated agent generates several phases in one run. The human PO approves afterwards via `/kiro-approve`. Never combine `--bulk` with writing `approved`.
 - Otherwise: Verify approval status (stop if unapproved, see Safety & Fallback)
 
 ### Step 2: Discovery & Analysis
@@ -134,8 +135,8 @@ After all findings return, synthesize in main context before proceeding.
 
    - Set `phase: "design-generated"`
    - Set `approvals.design.generated: true, approved: false`
-   - Set `approvals.requirements.approved: true`
    - Update `updated_at` timestamp
+   - Do not write `approvals.requirements.approved` here. Requirements are either already approved (the non-`-y` path verified it in Step 1) or were approved by `-y` in Step 1.
 
 ## Critical Constraints
 
@@ -172,7 +173,9 @@ Provide brief summary in the language specified in spec.json:
 
 - **Stop Execution**: Cannot proceed without approved requirements
 - **User Message**: "Requirements not yet approved. Approval required before design generation."
-- **Suggested Action**: "Run `/kiro-spec-design {feature} -y` to auto-approve requirements and proceed"
+- **Suggested Action** (offer both, in this order):
+  1. Read and approve: "Run `/kiro-approve {feature} requirements` to read `requirements.md` and record approval, then re-run `/kiro-spec-design {feature}`"
+  2. Deliberate fast-track: "Run `/kiro-spec-design {feature} -y` to auto-approve requirements without reading them and proceed"
 
 **Missing Requirements**:
 
@@ -203,11 +206,15 @@ Provide brief summary in the language specified in spec.json:
 
 ### Next Phase: Task Generation
 
+**Approving this design**:
+
+- Run `/kiro-approve {feature} design` to read the design and record approval
+- Or run `/kiro-validate-design {feature}` for an interactive quality review, which can record the approval on a GO decision
+
 **If Design Approved**:
 
-- **Optional**: Run `/kiro-validate-design {feature}` for interactive quality review
 - Run `/kiro-spec-tasks {feature}` to generate implementation tasks
-- Or `/kiro-spec-tasks {feature} -y` to auto-approve and proceed directly
+- Or `/kiro-spec-tasks {feature} -y` to fast-track: auto-approves the design (this phase) and the generated tasks without reading them
 
 **If Modifications Needed**:
 

@@ -103,7 +103,7 @@ Provide output in the language specified in spec.json with:
 ### Error Scenarios
 
 - **Missing Requirements**: If requirements.md doesn't exist, stop with message: "Run `/kiro-spec-requirements {feature}` first to generate requirements"
-- **Requirements Not Approved**: If requirements not approved, warn user but proceed (gap analysis can inform requirement revisions)
+- **Requirements Not Approved**: If requirements not approved, warn user but proceed (gap analysis can inform requirement revisions). In the warning, offer both paths: read and approve with `/kiro-approve {feature} requirements`, or deliberately fast-track later with `/kiro-spec-design {feature} -y`
 - **Empty Steering Directory**: Warn user that project context is missing and may affect analysis quality
 - **Complex Integration Unclear**: Flag for comprehensive research in design phase rather than blocking
 - **Language Undefined**: Default to English (`en`) if spec.json doesn't specify language
@@ -113,7 +113,8 @@ Provide output in the language specified in spec.json with:
 **If Gap Analysis Complete**:
 
 - Review gap analysis insights
+- If requirements are not yet approved, run `/kiro-approve {feature} requirements` to read them and record approval
 - Run `/kiro-spec-design {feature}` to create technical design document
-- Or `/kiro-spec-design {feature} -y` to auto-approve requirements and proceed directly
+- Or `/kiro-spec-design {feature} -y` to fast-track: auto-approves requirements without reading them and proceeds directly
 
 **Note**: Gap analysis is optional but recommended for brownfield projects to inform design decisions.

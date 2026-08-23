@@ -36,7 +36,8 @@
     - `/kiro-spec-design {feature} [-y]`
     - `/kiro-validate-design {feature}`（任意: 設計レビュー）
     - `/kiro-spec-tasks {feature} [-y]`
-  - 複数スペック: `/kiro-spec-batch` — roadmap.md をもとに、依存関係の波（wave）ごとに全スペックを並列作成する
+  - 複数スペック: `/kiro-spec-batch` — roadmap.md をもとに、依存関係の波（wave）ごとに全スペックを並列作成する（既定では承認しない。`--auto-approve` 指定時のみ全承認）
+- 承認: `/kiro-approve {feature} [phase]` — PO が成果物を読んで承認を記録する。1回につき1段のみ。`-y` は読まずに飛ばすファストトラックであり、承認の既定手段ではない
 - フェーズ 2（実装）: `/kiro-impl {feature} [tasks]`
   - タスク番号なし: 自律モード（タスクごとのサブエージェント + 独立レビュー + 最終検証）
   - タスク番号あり: 手動モード（選択したタスクをメインコンテキストで実行。完了前のレビュアーゲートは同様に適用）

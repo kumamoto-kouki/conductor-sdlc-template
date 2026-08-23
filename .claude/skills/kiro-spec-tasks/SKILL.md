@@ -35,7 +35,10 @@ Otherwise, load all necessary context:
 
 **Validate approvals**:
 
-- If auto-approve flag (`-y`) is true: Auto-approve requirements and design in spec.json. Tasks approval is also handled automatically in Step 4.
+- If auto-approve flag (`-y`) is true: Auto-approve **`design` only** — the immediately preceding phase — in spec.json. Tasks approval is also handled automatically in Step 4.
+  - Do **not** touch `approvals.requirements`. Requirements are two phases upstream; they were already resolved when the design was generated. A PO who read only `tasks.md` must never end up having "approved" requirements they never saw.
+  - If `approvals.requirements.approved` is still `false`, stop even under `-y` and send the user to `/kiro-approve {feature} requirements` (see Safety & Fallback).
+- If bulk-generation flag (`--bulk`) is true: require `approvals.requirements.generated: true` and `approvals.design.generated: true`, then proceed **without writing any approval flag** (see `kiro-spec-design`'s note on the same flag). The human PO approves afterwards via `/kiro-approve`.
 - Otherwise: Verify both approved (stop if not, see Safety & Fallback)
 
 ### Step 2: Generate Implementation Tasks
@@ -111,9 +114,8 @@ Before writing `tasks.md`, run one lightweight independent sanity review of the 
 - Update spec.json metadata:
   - Set `phase: "tasks-generated"`
   - Set `approvals.tasks.generated: true, approved: false`
-  - Set `approvals.requirements.approved: true`
-  - Set `approvals.design.approved: true`
   - Update `updated_at` timestamp
+  - Do **not** write `approvals.requirements.approved` or `approvals.design.approved` here. Those phases are either already approved (the non-`-y` path verified it in Step 1) or were approved by `-y` for `design` alone. Recording upstream approvals from this step is what previously made one `-y` approve three phases at once.
 
 **Approval**:
 
@@ -168,7 +170,9 @@ Provide brief summary in the language specified in spec.json:
 
 - **Stop Execution**: Cannot proceed without approved requirements and design
 - **User Message**: "Requirements and design must be approved before task generation"
-- **Suggested Action**: "Run `/kiro-spec-tasks {feature} -y` to auto-approve all (requirements, design, and tasks) and proceed"
+- **Suggested Action** (offer both, in this order):
+  1. Read and approve: "Run `/kiro-approve {feature}` to read the pending document and record approval" (repeat until no phase is pending)
+  2. Deliberate fast-track: "Run `/kiro-spec-tasks {feature} -y` to auto-approve the design (the immediately preceding phase) and the generated tasks, without reading them. This does not approve requirements — if requirements are still unapproved, `/kiro-approve {feature} requirements` is required first."
 
 **Missing Requirements or Design**:
 
@@ -197,7 +201,7 @@ Provide brief summary in the language specified in spec.json:
 
 ### Next Phase: Implementation
 
-Tasks are approved in Step 4 via user confirmation. Once approved:
+Tasks are approved in Step 4 via user confirmation (or later with `/kiro-approve {feature} tasks`). Once approved:
 
 - Autonomous implementation: `/kiro-impl {feature}`
 - Specific tasks only: `/kiro-impl {feature} 1.1,1.2`

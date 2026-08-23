@@ -26,11 +26,16 @@ In Automatic Mode:
 
 Execute 4 spec phases sequentially. In automatic mode, execute all phases without stopping. In interactive mode, prompt user for approval between phases.
 
-Before claiming quick generation is complete, run one lightweight sanity review over the generated requirements, design, and tasks. If the host supports fresh subagents, use one. Otherwise run the sanity review inline.
+Before claiming quick generation is complete, run one lightweight sanity review over the generated requirements, design, and tasks. **Dispatch a fresh subagent for it** — this context generated those documents, so reviewing them here would be self-review (discipline C, `.kiro/steering/orchestration.md`). If no fresh subagent can be dispatched, do not run the review here and do not report it as passed: say plainly that the sanity review was not performed independently, and leave it to the PO to decide whether to proceed.
 
-**spec.json approval state in Automatic Mode**: each phase you complete sets that phase's `approvals.<phase>.generated: true` in `spec.json`, with `approved: false` as a brief transitional state until that phase's approval is resolved — not a failure by itself. In Automatic Mode this resolution happens immediately as part of the `-y` chain: Phase 3 invokes `/kiro-spec-design {feature} -y`, which auto-approves `requirements`; Phase 4 invokes `/kiro-spec-tasks {feature} -y`, which auto-approves `requirements`, `design`, and `tasks` itself. So once automatic mode completes Phase 4, all three phases must show `approved: true` — that is the correct end state of a full run. If `approved: false` is still present on any phase after automatic mode finishes, do not treat it as expected; treat it as a signal that a phase did not actually run to completion (skipped, errored, or `-y` not honored) and investigate before proceeding.
+**spec.json approval state — the two modes differ, and that difference is intentional**:
 
-The transitional state persists longer only when a phase was run standalone without `-y` (e.g. an individually delegated bulk-generation run, as described in `kiro-spec-init`'s approval-state section) — there, `approved` correctly stays `false` until a human or the orchestrator records approval afterward.
+Each phase you complete sets that phase's `approvals.<phase>.generated: true` in `spec.json`. Whether `approved` follows depends on the mode.
+
+- **Automatic Mode** (`--auto`): the `-y` chain resolves every approval without a human reading anything. Phase 3 invokes `/kiro-spec-design {feature} -y`, which auto-approves `requirements` (the phase immediately before it). Phase 4 invokes `/kiro-spec-tasks {feature} -y`, which auto-approves `design` and its own `tasks`. So once Automatic Mode completes Phase 4, all three phases show `approved: true` — that is the correct end state of a full automatic run. If `approved: false` is still present on any phase afterwards, do not treat it as expected; treat it as a signal that a phase did not run to completion (skipped, errored, or `-y` not honored) and investigate before proceeding.
+- **Interactive Mode**: `-y` is never passed. Each phase ends at `generated: true, approved: false` until the PO approves it via `/kiro-approve {feature}`. Seeing `approved: false` here is the normal, correct state — Interactive Mode exists precisely so that a human, not a flag, records the approval.
+
+The same transitional state also persists when a phase is run standalone without `-y` (e.g. an individually delegated bulk-generation run, as described in `kiro-spec-init`'s approval-state section) — there too, `approved` correctly stays `false` until a human records approval afterward.
 
 ## Execution Steps
 
@@ -124,8 +129,9 @@ Wait for completion. IGNORE any "Next Step" message (it is for standalone usage)
 
 **Automatic Mode**: IMMEDIATELY continue to Phase 3.
 
-**Interactive Mode**: Prompt "Continue to design generation? (yes/no)"
+**Interactive Mode**: Run `/kiro-approve {feature-name} requirements` so the PO reads the requirements and records approval, then prompt "Continue to design generation? (yes/no)"
 
+- If the PO does not approve the requirements: Stop, show current state, report what they asked to change
 - If "no": Stop, show current state
 - If "yes": Continue to Phase 3
 
@@ -133,7 +139,9 @@ Wait for completion. IGNORE any "Next Step" message (it is for standalone usage)
 
 #### Phase 3: Generate Design
 
-Invoke `/kiro-spec-design {feature-name} -y` via the Skill tool. The `-y` flag auto-approves requirements.
+**Automatic Mode**: Invoke `/kiro-spec-design {feature-name} -y` via the Skill tool. The `-y` flag auto-approves requirements without the PO reading them.
+
+**Interactive Mode**: Invoke `/kiro-spec-design {feature-name}` via the Skill tool — **without `-y`**. Requirements must already be approved; if they are not, run `/kiro-approve {feature-name} requirements` first (this is the Phase 2 approval the PO was prompted for) and then invoke design generation.
 
 Wait for completion. IGNORE any "Next Step" message.
 
@@ -141,8 +149,9 @@ Wait for completion. IGNORE any "Next Step" message.
 
 **Automatic Mode**: IMMEDIATELY continue to Phase 4.
 
-**Interactive Mode**: Prompt "Continue to tasks generation? (yes/no)"
+**Interactive Mode**: Run `/kiro-approve {feature-name} design` so the PO reads the design and records approval, then prompt "Continue to tasks generation? (yes/no)"
 
+- If the PO does not approve the design: Stop, show current state, report what they asked to change
 - If "no": Stop, show current state
 - If "yes": Continue to Phase 4
 
@@ -150,9 +159,9 @@ Wait for completion. IGNORE any "Next Step" message.
 
 #### Phase 4: Generate Tasks
 
-Invoke `/kiro-spec-tasks {feature-name} -y` via the Skill tool.
+**Automatic Mode**: Invoke `/kiro-spec-tasks {feature-name} -y` via the Skill tool. Note: `-y` auto-approves the design (the phase immediately before) and the generated tasks. It does not approve requirements — Phase 3's `-y` already did that.
 
-Note: `-y` flag auto-approves requirements, design, and tasks.
+**Interactive Mode**: Invoke `/kiro-spec-tasks {feature-name}` via the Skill tool — **without `-y`**. Requirements and design are already approved by the PO at this point. After generation, run `/kiro-approve {feature-name} tasks` so the PO reads the task plan and records approval.
 
 Wait for completion.
 
@@ -163,7 +172,7 @@ Wait for completion.
 After Phase 4, run a lightweight sanity review before claiming completion.
 
 - Review `requirements.md`, `design.md`, and `tasks.md` directly from disk. If `brief.md` exists, use it only as supporting context.
-- Prefer a fresh review subagent when the host supports it. Pass only file paths and the review objective; the reviewer should read the generated files itself.
+- The reviewer is always a fresh subagent (see the Core Mission note on discipline C). Pass only file paths and the review objective; the reviewer should read the generated files itself.
 - Review focus:
   - Do requirements, design, and tasks tell a coherent story?
   - Are there obvious contradictions, missing prerequisites, or missing task coverage for required design work?
@@ -196,7 +205,7 @@ Output final completion summary (see Output Description section) and exit.
 ```
 Quick Spec Generation (Interactive Mode)
 
-You will be prompted at each phase.
+You will be prompted at each phase, and each phase is approved by you via /kiro-approve (no auto-approval).
 Note: Skips gap analysis and design validation.
 ```
 
@@ -206,7 +215,7 @@ Note: Skips gap analysis and design validation.
 Quick Spec Generation (Automatic Mode)
 
 All phases execute automatically without prompts.
-Note: Skips optional validations (gap analysis, design review) and user approval prompts. Internal review gates still run.
+Note: Skips optional validations (gap analysis, design review) and ALL human approval — requirements, design, and tasks are auto-approved unread via -y. Internal review gates still run.
 Final sanity review still runs.
 ```
 
@@ -237,10 +246,13 @@ Skipped: /kiro-validate-gap, /kiro-validate-design
 
 Sanity review: PASSED | FOLLOW-UP REQUIRED
 
+Approval state: {Automatic Mode: 全3工程を -y で自動承認済み（PO は未読）／Interactive Mode: PO が承認した工程と、未承認で残っている工程}
+
 Next Steps:
 1. Review generated specs (especially design.md)
 2. Optional: `/kiro-validate-gap {feature}`, `/kiro-validate-design {feature}`
-3. Start implementation: `/kiro-impl {feature}`
+3. Approve any phase still pending: `/kiro-approve {feature}`
+4. Start implementation: `/kiro-impl {feature}`
 ```
 
 ## Safety & Fallback

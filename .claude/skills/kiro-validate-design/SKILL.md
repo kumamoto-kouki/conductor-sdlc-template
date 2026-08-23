@@ -1,7 +1,7 @@
 ---
 name: kiro-validate-design
 description: Interactive technical design quality review and validation. Use when reviewing design before implementation.
-allowed-tools: Read, Grep, Glob, AskUserQuestion
+allowed-tools: Read, Edit, Grep, Glob, Bash, AskUserQuestion
 argument-hint: <feature-name>
 metadata:
   shared-rules: "design-review.md"
@@ -21,6 +21,7 @@ You are a specialized skill for conducting interactive quality review of technic
   - Balanced assessment with strengths recognized
   - Clear GO/NO-GO decision with rationale
   - Actionable feedback for improvements if needed
+  - On GO, the PO's approval can be recorded in `spec.json` without leaving this skill — but only after the PO explicitly says so
 
 ## Execution Steps
 
@@ -58,8 +59,29 @@ After all parallel research completes, synthesize findings for review.
 - Clear GO/NO-GO decision with rationale
 - Provide specific actionable next steps (see Next Phase below)
 
+### Step 4: Record Approval (GO only)
+
+A GO verdict is this skill's opinion, not the PO's approval. Turn it into a recorded approval only through an explicit human decision.
+
+**On GO**:
+
+1. Present the review result to the PO, disclosing the concerns raised above **before** asking anything (`.claude/playbooks/po-communication.md` §5). If the GO is conditional, say what the condition is.
+2. Use `AskUserQuestion` to ask whether to record the design approval now (e.g. 「この設計を承認として記録しますか？」 / 承認する / まだ承認しない).
+3. Only if the PO approves:
+   - Get a timestamp with Bash: `date -u +"%Y-%m-%dT%H:%M:%SZ"`
+   - Edit `.kiro/specs/{feature}/spec.json`: set `approvals.design.approved: true` and `updated_at`
+   - Touch nothing else — no other phase's flags, no `generated` flags, no `phase` field
+   - Run `npm run status` so `STATUS.md` matches
+4. If the PO declines, write nothing and report what they want changed.
+
+**On NO-GO**: never record an approval, regardless of what the review found worth praising.
+
+If the PO would rather approve separately, `/kiro-approve {feature} design` does the same recording as a standalone step.
+
 ## Important Constraints
 
+- **Approval is the PO's act, not the reviewer's**: never write `approvals.design.approved: true` without an explicit human answer in Step 4, and never on NO-GO
+- **One phase only**: this skill may record `design` and nothing else. Do not change the `approvals.<phase>.generated` / `.approved` key shape — `scripts/status-report.mjs` derives the workflow stage from it
 - **Quality assurance, not perfection seeking**: Accept acceptable risk
 - **Critical focus only**: Maximum 3 issues, only those significantly impacting success
 - **Conversation-aware**: Leverage discussion history for requirements context and user intent
@@ -73,6 +95,7 @@ After all parallel research completes, synthesize findings for review.
 - **Read first**: Load spec, core steering, relevant local playbooks/agent skills, and rules before review
 - **Grep if needed**: Search codebase for pattern validation or integration checks
 - **Interactive**: Engage with user throughout the review process
+- **Edit last, and only once**: the only permitted write is the Step 4 approval in `spec.json`
 
 ## Output Description
 
@@ -82,6 +105,7 @@ Provide output in the language specified in spec.json with:
 2. **Critical Issues**: Maximum 3, following design-review.md format
 3. **Design Strengths**: 1-2 positive aspects
 4. **Final Assessment**: GO/NO-GO decision with rationale and next steps
+5. **Approval Record**: whether `approvals.design.approved` was written, or that nothing was written
 
 **Format Requirements**:
 
@@ -94,6 +118,8 @@ Provide output in the language specified in spec.json with:
 ### Error Scenarios
 
 - **Missing Design**: If design.md doesn't exist, stop with message: "Run `/kiro-spec-design {feature}` first to generate design document"
+- **Design Already Approved**: If `approvals.design.approved` is already `true`, review normally but skip Step 4 — report the existing approval instead of rewriting it
+- **`npm run status` Fails After Recording**: do not roll back the approval; report that `STATUS.md` could not be regenerated and that `spec.json` is authoritative
 - **Design Not Generated**: If design phase not marked as generated in spec.json, warn but proceed with review
 - **Empty Steering Directory**: Warn user that project context is missing and may affect review quality
 - **Language Undefined**: Default to English (`en`) if spec.json doesn't specify language
@@ -103,8 +129,9 @@ Provide output in the language specified in spec.json with:
 **If Design Passes Validation (GO Decision)**:
 
 - Apply any suggested improvements if agreed
+- Record the approval in Step 4 (or later with `/kiro-approve {feature} design`)
 - Run `/kiro-spec-tasks {feature}` to generate implementation tasks
-- Or `/kiro-spec-tasks {feature} -y` to auto-approve and proceed directly
+- Or `/kiro-spec-tasks {feature} -y` to fast-track: auto-approves the design (this phase) and the generated tasks without reading them
 
 **If Design Needs Revision (NO-GO Decision)**:
 
