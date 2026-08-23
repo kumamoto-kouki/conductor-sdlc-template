@@ -1,6 +1,6 @@
 ---
 name: kiro-onboard
-description: Guide a brand-new project scaffolded from conductor-sdlc-template through first-time setup end to end — verify Node/npm, install and build the dashboard, interview the PO in plain non-engineer language, write product.md/tech.md/structure.md and the scale preset in role-catalog.md, then hand off to /kiro-discovery. Use when the user says things like "let's get started", "how do I begin", "set this up", or asks what to do right after cloning/npx-ing this template.
+description: Guide a brand-new project scaffolded from conductor-sdlc-template through first-time setup end to end — verify Node/npm, install and build the dashboard, interview the PO in plain non-engineer language, write product.md and tech.md, deliberately leave structure.md for later, record the scale preset in role-catalog.md, then hand off to /kiro-discovery. Use when the user says things like "let's get started", "how do I begin", "set this up", or asks what to do right after cloning/npx-ing this template.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
 ---
 
@@ -37,9 +37,9 @@ Before asking anything, check whether onboarding already happened:
 
 Read the two signals together:
 
-- **Both signals say "not onboarded"** (preset is `未選択` *and* `product.md` is still placeholder text) → continue to Step 1.
+- **Both signals say "not onboarded"** (preset is `未選択` _and_ `product.md` is still placeholder text) → continue to Step 1.
 - **Both say "already onboarded"** → tell the user in plain language that setup already looks complete, point them to `/kiro-discovery "idea"`, and stop. Do not re-run the interview or overwrite existing answers.
-- **They disagree** — decide by *which* signal is the stale one; do not apply one rule to both directions:
+- **They disagree** — decide by _which_ signal is the stale one; do not apply one rule to both directions:
   - `product.md` is filled but the preset reads `未選択` → onboarding did run; the preset was reset on purpose (`role-catalog.md` says it is revisited at wave and milestone boundaries). **Do not re-run the interview.** Say what you observed, ask whether they want to re-pick the scale preset, and if so run **Step 4 only**, leaving every other file untouched.
   - The preset is chosen but `product.md` is still placeholder text → the interview never completed (or its answers were lost). **Run Steps 1–3 normally**, then skip Step 4 unless the PO asks to change the preset. Never treat a chosen preset as evidence that the interview happened.
 
