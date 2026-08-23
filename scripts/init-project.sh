@@ -3,17 +3,14 @@
 #   使い方: scripts/init-project.sh <target-dir> [project-name]
 #
 # 除外（ローカル専用・再生成される中間物のみコピーしない）:
-#   .git / node_modules / .orchestration / .claude/worktrees /
-#   .claude/settings.local.json / .astro / public/vendor /
-#   dashboard/*.html・dashboard/_astro/・dashboard/reports/・dashboard/steering/
+#   .git / node_modules / .orchestration / .claude/worktrees / .claude/settings.local.json
 # 加えて CLI 固有物も除外する: ルート /package.json（複製元のCLIマニフェスト）・/bin/（npx入口）・
 #   /package-lock.json・/package.scaffold.json。複製先の package.json には package.scaffold.json
-#   （ダッシュボード用マニフェストの正本）を配置する（詳細は下記の複製処理のコメント参照）。
-# 注意: v0.4.0 で dashboard/ のビルド生成物を Git 管理外にした（.gitignore 参照）ため、
-# 複製元にこれらが存在しても中間生成物でしかない。複製先では npm install + npm run build
-# で作り直す前提に変わった（旧: 独立レビュー指摘 F1 により複製直後の file:// 表示のため
-# 複製していたが、正式閲覧が npm run preview 経由に変わったこと・生成物がGit管理外に
-# なったことでこの特例は不要になった）。
+#   （生成プロジェクト用マニフェストの正本）を配置する（詳細は下記の複製処理のコメント参照）。
+# 注意: v0.12.0 でダッシュボード（Astro）を撤去したため、複製時のビルド生成物の扱いは無くなった。
+# テンプレート由来の依存パッケージはゼロで、複製直後に npm install は要らない（node があれば
+# npm run status / npm run verify が動く）。複製先が自身のアプリ依存を追加した時点で、その
+# プロジェクトが自分で npm install する。
 #
 # [project-name] を指定すると、複製先ツリー全体を対象に「（プロジェクト名）」プレースホルダを
 # 置換する。対象ファイルは固定せず複製後に grep で検出するため、ページ追加に追随する。
@@ -24,12 +21,12 @@
 # 加えて .kiro/steering/role-catalog.md の「採用中プリセット」行を「未選択」へ戻す（テンプレ本体の
 # 値を複製先が暗黙に引き継がないようにするため）。この置換は行頭の **採用中プリセット** という表記に
 # 依存するので、role-catalog.md 側の文言を変えるときは下記 sed パターンも同時に直す。
-# 複製先の dashboard/status.json は dashboard/status.init.json（汎用の初期状態）へ入れ替える。
-# テンプレ本体側の status.json は見本用サンプルデータのまま変更しない。
+# 複製先の STATUS.md は複製後に scripts/status-report.mjs で作り直す（複製元の STATUS.md は
+# 複製元の spec と配役から導出された内容であり、複製先の実態ではないため）。
 # 複製先の .gitignore は template.gitignore（テンプレ本体の .gitignore と同一内容の双子）を
 # リネームして作る。npm はパッキング時に .gitignore を tarball から常時除外するため、npx 経由の
-# 複製では素の .gitignore を直接運べない（node_modules・.astro・dashboard/ 生成物が複製先で
-# 未追跡ファイルとして現れる不具合の原因だった）。git 初期化より前に配置すること。
+# 複製では素の .gitignore を直接運べない（当時は node_modules・.astro・dashboard/ 生成物が
+# 複製先で未追跡ファイルとして現れる不具合の原因だった）。git 初期化より前に配置すること。
 set -euo pipefail
 
 usage() {
@@ -87,16 +84,17 @@ echo "テンプレートを複製中: $ROOT -> $TARGET"
 # CLI 固有物（複製元を npx スキャフォルダとして機能させるための入口・ロック）は複製先へ運ばない。
 # これらは複製元にしか無い or 複製先で作り直せるため、存在しなくても除外は無害な no-op。
 #   /bin/              … npx スキャフォルダ入口（bin/create.mjs）。複製先には不要。
-#   /package-lock.json … 複製元のロックファイル。複製先は自身の npm install で作り直す。
+#   /package-lock.json … 複製元のロックファイル。テンプレート由来の依存はゼロなので運ぶ意味が無く、
+#                         複製先が自身のアプリ依存を入れた時点で自分で作り直す。
 #   /package.scaffold.json … 複製先 package.json の中身（テンプレ本体のみ保持）。cp で明示配置する。
 # 先頭 '/' 付き exclude は転送ルート直下のみに効く（配下の同名は対象外）。
 #
 # package.json の扱いは複製元の種別で分岐する:
 #   - テンプレ本体（$ROOT/package.scaffold.json あり）: 複製元 root の package.json は CLI マニフェスト
-#     （bin/devDependencies 入り）で複製先に不適切なため除外し、代わりに package.scaffold.json を
+#     （bin 入り）で複製先に不適切なため除外し、代わりに package.scaffold.json を
 #     複製先の package.json として配置する。
-#   - 派生プロジェクト（package.scaffold.json 無し・孫派生時）: root の package.json は既にダッシュボード用
-#     マニフェストなので、そのまま複製する（除外も cp もしない）。これにより孫派生でも成立する。
+#   - 派生プロジェクト（package.scaffold.json 無し・孫派生時）: root の package.json は既に生成
+#     プロジェクト用マニフェストなので、そのまま複製する（除外も cp もしない）。これにより孫派生でも成立する。
 pkg_excludes=( --exclude='/bin/' --exclude='/package-lock.json' --exclude='/package.scaffold.json' )
 if [ -f "$ROOT/package.scaffold.json" ]; then
   pkg_excludes+=( --exclude='/package.json' )
@@ -107,16 +105,10 @@ rsync -a \
   --exclude='.orchestration/' \
   --exclude='.claude/worktrees/' \
   --exclude='.claude/settings.local.json' \
-  --exclude='.astro/' \
-  --exclude='public/vendor/' \
-  --exclude='dashboard/*.html' \
-  --exclude='dashboard/_astro/' \
-  --exclude='dashboard/reports/' \
-  --exclude='dashboard/steering/' \
   "${pkg_excludes[@]}" \
   "$ROOT"/ "$TARGET"/
 
-# テンプレ本体の場合のみ、ダッシュボード用マニフェストの正本 package.scaffold.json を
+# テンプレ本体の場合のみ、生成プロジェクト用マニフェストの正本 package.scaffold.json を
 # 複製先の package.json として配置する。プレースホルダ置換の前に置くことで、万一 name 等に
 # （プロジェクト名）が含まれても後続の置換対象に入る。
 if [ -f "$ROOT/package.scaffold.json" ]; then
@@ -138,9 +130,8 @@ fi
 
 # プレースホルダ置換（対象ファイルを決め打ちしない: ページ数はテンプレの発展で増減するため、
 # 複製済みの $TARGET を対象に grep でプレースホルダを含むテキストファイルを都度検出する。
-# dashboard/*.html・_astro/・reports/・steering/ はビルド生成物であり複製自体をrsyncの
-# 除外対象にしたため、ここでの置換対象にも自然と現れない。scripts/init-project.sh 自身は
-# この置換パターンをコードとして保持する必要があるため、検出対象から明示的に除外する）
+# scripts/init-project.sh 自身はこの置換パターンをコードとして保持する必要があるため、
+# 検出対象から明示的に除外する）
 if [ -n "$PROJECT_NAME" ]; then
   echo "プレースホルダ（プロジェクト名）を置換中: $PROJECT_NAME"
   # sed の置換文字列として安全になるよう / と & をエスケープする
@@ -162,16 +153,19 @@ else
   echo "warn: $role_catalog に「採用中プリセット」行が見つかりません。手動で確認してください" >&2
 fi
 
-# 初期状態の status.json へ入れ替える（PO指示: 派生プロジェクトはテンプレの例データ入り
-# status.json をそのまま受け取らず、初期状態から始める）。テンプレ本体の dashboard/status.json
-# はテンプレの見本用サンプルデータのまま残し、複製先には dashboard/status.init.json（節目
-# M0のみ・specs空の汎用初期状態）を status.json として配置する。mv で置換するため .init は
-# 複製先に残らない。status.init.json 内の「（プロジェクト名）」も置換対象になるよう、
-# プレースホルダ置換の後・git初期化の前でこの入れ替えを行う。
-if [ -f "$TARGET/dashboard/status.init.json" ]; then
-  mv -f "$TARGET/dashboard/status.init.json" "$TARGET/dashboard/status.json"
-else
-  echo "warn: $TARGET/dashboard/status.init.json が見つかりません。status.json は複製元のサンプルのまま残ります" >&2
+# STATUS.md を複製先の実態から作り直す（旧: 例データ入り status.json を status.init.json へ
+# 入れ替えていた処理の後継）。STATUS.md は .kiro/specs/ と .kiro/steering/role-catalog.md からの
+# 導出結果であり、複製してきたものは複製元の spec と採用プリセットを映しているため、そのまま
+# 残すと複製先の実態と食い違う。プレースホルダ置換とプリセット「未選択」への差し戻しの後・
+# git 初期化の前に実行すること（導出元が確定した状態で作る必要があるため）。
+# 生成器は依存パッケージを持たないので npm install は不要。node が無い環境では警告のみ出して
+# 続行する（複製自体は成立し、複製先で `npm run status` を一度実行すれば直る）。
+if [ ! -f "$TARGET/scripts/status-report.mjs" ]; then
+  echo "warn: $TARGET/scripts/status-report.mjs が見つかりません。STATUS.md は複製元の内容のまま残ります" >&2
+elif ! command -v node >/dev/null 2>&1; then
+  echo "warn: node が見つかりません。STATUS.md は複製元の内容のまま残ります（複製先で 'npm run status' を実行してください）" >&2
+elif ! (cd "$TARGET" && node scripts/status-report.mjs >/dev/null); then
+  echo "warn: STATUS.md の生成に失敗しました。複製先で 'npm run status' を実行してください" >&2
 fi
 
 # template.gitignore を .gitignore として配置する（npm パッキング対策）。npm は tarball 作成時に
@@ -188,15 +182,14 @@ fi
 (
   cd "$TARGET"
   git init -q -b main
-  # dashboard/ の生成物とビルド入力の整合を機械化するpre-commitフックを有効化する
+  # STATUS.md を導出元の変更に追随させる pre-commit フックを有効化する
   # （.githooks/pre-commit 本体はテンプレに同梱。詳細は同ファイルのコメント参照）。
   git config core.hooksPath .githooks
   git add -A
   base_version="$(cat "$TARGET/TEMPLATE_VERSION" 2>/dev/null || echo unknown)"
-  # 初回コミットは --no-verify で行う: v0.4.0 の pre-commit フックは node_modules が
-  # 無ければ検証をスキップして警告するだけでブロックはしないが、npm install 前の
-  # この時点では status.json のスキーマ検証自体が意味を持たない（検証ロジックが
-  # node_modules 配下の zod に依存する）ため、確実に速く完了させる目的で明示的に迂回する。
+  # 初回コミットは --no-verify で行う: pre-commit フックの仕事（STATUS.md の再生成）は
+  # 直前に明示的に済ませてあるため走らせる必要が無い。初期化を決定的かつ速く終わらせる
+  # ため、ここだけ明示的に迂回する（フック自体は上の core.hooksPath 設定で有効なまま）。
   git -c user.name="$(git config user.name 2>/dev/null || echo project-init)" \
     -c user.email="$(git config user.email 2>/dev/null || echo project-init@local)" \
     commit -q --no-verify -m "chore: initialize project from conductor-sdlc-template (base VERSION ${base_version})"

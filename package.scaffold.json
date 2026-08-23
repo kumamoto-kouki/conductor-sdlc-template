@@ -1,25 +1,15 @@
 {
-  "name": "conductor-sdlc-template-dashboard",
+  "name": "conductor-sdlc-project",
   "private": true,
   "type": "module",
   "version": "0.1.0",
-  "description": "Astro ベースの開発ダッシュボード（dashboard/status.json を唯一の真実としてビルド時に静的HTML化する）",
+  "description": "conductor-sdlc-template から生成したプロジェクト。`npm run status` が STATUS.md（工程・承認・タスク消化・配役の導出結果）を再生成し、`npm run verify` が文書とテンプレート構成の整合を検証する。テンプレート由来の依存パッケージは無い（このプロジェクト自身の依存は必要になった時点で追加する）。",
   "engines": {
     "node": ">=22.12"
   },
   "scripts": {
-    "dev": "astro dev",
-    "build": "node scripts/preclean-astro-output.mjs && astro build && node scripts/relativize-asset-paths.mjs; s=$?; node scripts/clean-astro-ssr-artifacts.mjs; exit $s",
-    "preview": "astro preview",
-    "serve": "bash scripts/serve-dashboard.sh",
-    "verify": "node scripts/verify-dashboard.mjs"
+    "status": "node scripts/status-report.mjs",
+    "verify": "node scripts/verify.mjs"
   },
-  "dependencies": {
-    "@astrojs/mdx": "^7.0.0",
-    "@tailwindcss/vite": "^4.0.0",
-    "astro": "^7.0.0",
-    "mermaid": "^11.4.0",
-    "tailwindcss": "^4.0.0",
-    "zod": "^3.23.0"
-  }
+  "devDependencies": {}
 }

@@ -1,6 +1,6 @@
 # conductor-sdlc-template
 
-**AIエージェント主体の開発**を、コンダクター・オーケストレーション（メインのAIセッションが指揮役となり、複数のワーカーへ実装を割り振り独立レビューで受け取る体制）＋Kiro Spec-Driven Development（要件→設計→タスクの3段階承認で仕様化してから実装する進め方）＋可視化ダッシュボードで回すためのプロジェクト・テンプレート。実プロジェクト（Tauri デスクトップアプリ）で確立した手法・体制・ノウハウ・ダッシュボードの骨格を、次のプロジェクトの起点として切り出したもの（経緯は [`CHANGELOG.md`](CHANGELOG.md) の「成り立ち」を参照）。
+**AIエージェント主体の開発**を、コンダクター・オーケストレーション（メインのAIセッションが指揮役となり、複数のワーカーへ実装を割り振り独立レビューで受け取る体制）＋Kiro Spec-Driven Development（要件→設計→タスクの3段階承認で仕様化してから実装する進め方）で回すためのプロジェクト・テンプレート。いまの状況は `STATUS.md`（仕様と配役の実データから `npm run status` が生成する状況レポート）1枚で読む。実プロジェクト（Tauri デスクトップアプリ）で確立した手法・体制・ノウハウを、次のプロジェクトの起点として切り出したもの（経緯は [`CHANGELOG.md`](CHANGELOG.md) の「成り立ち」を参照）。
 
 ## すぐに始める
 
@@ -18,7 +18,7 @@ npx github:kumamoto-kouki/conductor-sdlc-template ~/projects/my-app "マイア�
 - VS Code の場合: 「ファイル > フォルダーを開く」で新しいフォルダを選ぶ
 - ターミナルの場合: `cd ~/projects/my-app` してから `claude` と入力する
 
-開いたら `/kiro-onboard` と入力する。あとは AI が対話で質問しながら、依存関係のインストール・ビルド・`product.md` 等の記入・規模プリセットの選定までを順に進め、最後にダッシュボードを開いて見せる。
+開いたら `/kiro-onboard` と入力する。あとは Claude Code が対話で質問しながら `product.md` 等の記入と規模プリセットの選定を順に進め、最後に `STATUS.md` を見せる。テンプレート本体のスクリプトは node 標準機能だけで動くため、`npm install` は要らない。
 
 <details><summary>うまくいかないとき</summary>
 
@@ -30,7 +30,7 @@ npx github:kumamoto-kouki/conductor-sdlc-template ~/projects/my-app "マイア�
 
 ## インストール後にすること
 
-対象プロジェクトのフォルダで Claude Code を開き、`/kiro-onboard` と入力する。Node/npm の確認、依存関係のインストールとビルド、`product.md`（と技術が決まっていれば `tech.md`）の記入、規模プリセット S/M/L の選定まで、AI が対話で質問しながら代行する。`structure.md` はコードができてから `/kiro-steering` で埋めるため、この時点では意図的に空のまま残す。詳細は `.claude/skills/kiro-onboard/SKILL.md`。
+対象プロジェクトのフォルダで Claude Code を開き、`/kiro-onboard` と入力する。Node/npm の確認、`product.md`（と技術が決まっていれば `tech.md`）の記入、規模プリセット S/M/L の選定まで、Claude Code が対話で質問しながら代行する。テンプレート本体に `npm install` は要らない（生成プロジェクトが自分のスタックの依存を入れるかどうかは、そのプロジェクトの `package.json` 次第）。`structure.md` はコードができてから `/kiro-steering` で埋めるため、この時点では意図的に空のまま残す。詳細は `.claude/skills/kiro-onboard/SKILL.md`。
 
 状況確認はいつでも `/kiro-spec-status {機能名}`。
 
@@ -41,13 +41,13 @@ npx github:kumamoto-kouki/conductor-sdlc-template ~/projects/my-app "マイア�
 1. **`.kiro/steering/` の `product.md` / `tech.md` / `structure.md` を記入**（`/kiro-steering` でも可）— AI に渡る前提知識
 2. **規模プリセット S/M/L を選ぶ** — `.kiro/steering/role-catalog.md`「配役表（現状）」冒頭の**採用中プリセット**行に記入し、配役表の 状態 列を合わせる（実装者(Maker)と検査者(Checker)を別人にする規律は規模に関わらず不変。PO技術検証の席はプリセットに依らず残す）
 3. **最初の機能を作る**: `/kiro-discovery "アイデア"` → `/kiro-spec-quick {機能名}` → `/kiro-impl {機能名}`（各段階を承認）
-4. **進捗を反映**: `dashboard/status.json` を更新して `npm run build`
+4. **進捗を確認**: `npm run status` で `STATUS.md` を作り直して読む（`.kiro/specs/` や配役を変えてコミットすれば pre-commit フックが自動で作り直す）
 
 </details>
 
 ## 全体の流れ（1周）
 
-複製してから機能が1つ育ってダッシュボードに反映されるまでの1周は次のとおり。人間（PO＝プロダクトオーナー）が承認するポイントを色つきで示す。
+複製してから機能が1つ育って `STATUS.md` に反映されるまでの1周は次のとおり。人間（PO＝プロダクトオーナー）が承認するポイントを色つきで示す。
 
 ```mermaid
 flowchart TD
@@ -60,7 +60,7 @@ flowchart TD
     F --> G[独立レビュアーが受理判定]
     G -->|FAIL| F
     G -->|PASS| H[統合ブランチへ統合]
-    H --> I["dashboard/status.jsonを更新して<br/>npm run buildで反映"]
+    H --> I["STATUS.mdが実データから<br/>作り直される（pre-commitが自動）"]
     I --> J{{"mainへのpush・公開は<br/>人間(PO)が判断"}}
     J -.次の機能へ.-> C
 
@@ -103,20 +103,23 @@ flowchart TD
 
 図は **M（標準）プリセット**の体制。S/M/L でどの役を置くかは `.kiro/steering/role-catalog.md`「規模別プリセット（S/M/L）」を参照する。破線の 🧑🏼‍🏫 PO技術検証は統括を介さずPOへ裏書きする常設の席で、既定は空席（詳細は `.kiro/steering/role-catalog.md`「PO技術検証の charter と境界」）。
 
-## 画面で進捗を見る
+## いまの状況を見る
 
-進捗の唯一の真実は `dashboard/status.json` で、これを Astro（静的サイト生成ツール）がビルド時にHTMLへ変換する。**`dashboard/status-dashboard.html` はビルド生成物であり手編集しない**。
+進捗はリポジトリ直下の `STATUS.md` を開けば分かる。**手で書く欄は無く、`npm run status` が実データから毎回作り直す生成物**である。「いまどの工程にいて、次に PO が何を承認するのか、誰が参画しているのか」がこの1枚に載る。導出元（`spec.json`）が壊れていて読み取れなかった仕様は、黙って消さずに冒頭へ「⚠ 読み取れなかった仕様」として出す。
 
 ```mermaid
 flowchart LR
-    A["dashboard/status.jsonを編集"] --> B["コミット<br/>（pre-commitがスキーマ検証）"]
-    B --> C["npm run build<br/>（HTMLを生成）"]
-    C --> D["npm run preview<br/>（ブラウザで確認）"]
+    A[".kiro/specs/*/spec.json<br/>工程と承認状態"] --> S["npm run status<br/>scripts/status-report.mjs"]
+    B[".kiro/specs/*/tasks.md<br/>タスク消化と担当モデル"] --> S
+    C[".kiro/steering/role-catalog.md<br/>配役"] --> S
+    S --> D["STATUS.md<br/>いまの工程／次の承認／参画する役"]
+    G["git commit<br/>（pre-commitが自動実行）"] -.-> S
 ```
 
-- 状態を変えたら（着手・進行中・レビュー中・完了）その都度 `status.json` を編集してコミットする。コミット時に pre-commit フックが `src/lib/schema.mjs` のスキーマで検証し、必須フィールドの欠落など明らかな入力ミスをその場でブロックする。
-- 見るときは `npm run build` → `npm run preview` を実行し、表示された URL に **`/status-dashboard`** を付けて開く（＝ダッシュボード本体。**正式な閲覧方式**）。root `/` にトップページは無いので必ずパスを付ける。他ページ（`/overview`・`/reports`・`/steering`）へは画面内のナビから移動できる。`npm run preview` は既にある生成物を配信するだけで自動ビルドしないため、生成物が無い・古い場合は先に `npm run build` を行う。
-- パス無しで手早く見たいときは、生成ファイル `dashboard/status-dashboard.html` を `file://` で直接開いてもよい（その場合は Mermaid 図が実描画されない（進捗・ボード・KPI 等のテキスト情報は読める）**フォールバック表示**になる）。
+- 読むだけならビルドもサーバも要らない。エディタでも GitHub 上でも `STATUS.md` をそのまま開く。
+- `.kiro/specs/` か `.kiro/steering/role-catalog.md` を変更したコミットでは、`.githooks/pre-commit` が `STATUS.md` を作り直してコミットに含める（`git config core.hooksPath .githooks` が前提。`scripts/init-project.sh` が複製時に設定する）。更新を人の記憶に頼らせないための仕掛けである。
+- 生成器は同じリポジトリ状態から常に同じ出力を返すため、`npm run verify` は「作り直して差分が出るか」で陳腐化を検知できる。
+- 体制図と配役の詳細は `STATUS.md` ではなく正本を読む（体制＝`.kiro/steering/orchestration.md`、配役とフェーズ別投入計画＝`.kiro/steering/role-catalog.md`）。前提知識なしの読み方は `docs/team-structure.md`、用語は `docs/glossary.md` にある。
 
 ## 中身の地図
 
@@ -124,31 +127,32 @@ flowchart LR
 flowchart TD
     ROOT["リポジトリ直下"]
     ROOT --> KIRO[".kiro/<br/>steering（常時参照のルール）<br/>specs/機能名/（機能ごとの仕様）"]
-    ROOT --> SKILLS[".claude/skills/<br/>SDLCの手順（17スキル）"]
+    ROOT --> SKILLS[".claude/skills/<br/>SDLCの手順（19スキル）"]
     ROOT --> RULESD[".claude/rules/<br/>パス連動の判断基準"]
     ROOT --> PLAYBOOKS[".claude/playbooks/<br/>委譲・還流の雛形"]
     ROOT --> REPORTSD[".claude/reports/<br/>実装後の振り返り"]
     ROOT --> SETTINGSD[".claude/settings.json<br/>権限ガードレール"]
-    ROOT --> SCRIPTSD["scripts/<br/>複製・並行開発・ビルド・検証ツール"]
+    ROOT --> SCRIPTSD["scripts/<br/>複製・並行開発・状況生成・整合検証"]
     ROOT --> BIND["bin/<br/>npx スキャフォルダ入口"]
-    ROOT --> DASHBOARDD["dashboard/ + src/<br/>進捗ダッシュボード（Astro）"]
-    ROOT --> DOCSD["docs/<br/>ドキュメント専用"]
+    ROOT --> STATUSF["STATUS.md<br/>状況レポート（npm run status が生成）"]
+    ROOT --> DOCSD["docs/<br/>前提知識なしで読む解説"]
 ```
 
-| 要素                   | 場所                                                   | 内容                                                                                                                                                                                                                                                                                          |
-| ---------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SDLC エンジン          | `.claude/skills/kiro-*`                                | Discovery→Requirements→Design→Tasks→Impl→Review→Verify の 17 スキル                                                                                                                                                                                                                           |
-| 体制・運用（正本）     | `.kiro/steering/`                                      | `orchestration.md`（中核モデル）／`operations.md`（運用統治）／`role-catalog.md`（配役）／`review-checklists.md`（受理観点）／`writing-standards.md`（日本語技術文書の規範）／`README.md`（索引）                                                                                             |
-| 判断基準（lazy）       | `.claude/rules/`                                       | パス連動で必要時だけ読む規約。同梱: `dashboard-verification.md`／`lib-unit-testing.md`／`retrospective.md`／`steering-consistency.md`。スタック依存の参考例は `_examples/`（先頭 `_` は glob に当たらずロードされない）                                                                       |
-| プレイブック           | `.claude/playbooks/`                                   | `delegation.md`（委譲雛形）／`full-sdlc.md`（超上流〜保守運用マッピング）／`discovery-personas.md`（代弁ペルソナ・FDE charter）／`swarm-multiprocess.md`（真マルチプロセス swarm）／`testing-strategy.md`（テスト戦略）／`knowledge-graph.md`（大規模化判断）／`template-feedback.md`（還流） |
-| セッション報告         | `.claude/reports/`                                     | 作業メモ・中間レポート。恒久内容は書いた時点で `CHANGELOG.md`／正本へ直接記録し、レポート自体は随時削除できる                                                                                                                                                                                 |
-| ガードレール           | `.claude/settings.json`・`.claude/hooks/`              | 破壊的操作の deny・作業系の allow／`format-on-edit.mjs`（編集後の自動整形）                                                                                                                                                                                                                   |
-| 並行開発の道具         | `scripts/`・`.githooks/`                               | `swarm-up.sh`／`swarm-down.sh`／`dev-dashboard.sh`（tmux 観測画面）／`_wt-status.sh`（worktree 状況の内部ヘルパ）／`pre-commit`（`status.json` スキーマ検証）                                                                                                                                 |
-| セットアップ・還流     | `bin/`・`scripts/`・`VERSION`                          | `bin/create.mjs`（`npx` 入口の薄いラッパ）／`init-project.sh`（複製・初期化の正本）／`package.scaffold.json`（複製先へ配る `package.json`）／`collect-template-feedback.sh`（派生プロジェクトからの知見収集。派生元は `TEMPLATE_VERSION` で追跡）                                             |
-| 可視化                 | `dashboard/`＋`src/`（Astro）                          | `status.json`（唯一の真実）＋Astro（`npm install`＋`npm run build`）でHTML生成。ページは `status-dashboard`／`overview`／`reports`／`steering`。生成物自体はGit管理外（後述）。`docs/` はドキュメント専用に分離                                                                               |
-| プロダクト記憶（雛形） | `.kiro/steering/product.md`・`tech.md`・`structure.md` | 空テンプレ（記入して使う）                                                                                                                                                                                                                                                                    |
+| 要素                   | 場所                                                   | 内容                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ---------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SDLC エンジン          | `.claude/skills/kiro-*`                                | Discovery→Requirements→Design→Tasks→Impl→Review→Verify の 19 スキル                                                                                                                                                                                                                                                                                                                                       |
+| 体制・運用（正本）     | `.kiro/steering/`                                      | `orchestration.md`（中核モデル）／`operations.md`（運用統治）／`role-catalog.md`（配役）／`review-checklists.md`（受理観点）／`writing-standards.md`（日本語技術文書の規範）／`README.md`（索引）                                                                                                                                                                                                         |
+| 判断基準（lazy）       | `.claude/rules/`                                       | パス連動で必要時だけ読む規約。同梱: `retrospective.md`／`steering-consistency.md`／`verification.md`。スタック依存の参考例は `_examples/`（先頭 `_` は glob に当たらずロードされない）                                                                                                                                                                                                                    |
+| プレイブック           | `.claude/playbooks/`                                   | `delegation.md`（委譲雛形）／`full-sdlc.md`（超上流〜保守運用マッピング）／`discovery-personas.md`（代弁ペルソナ・FDE charter）／`swarm-multiprocess.md`（真マルチプロセス swarm）／`testing-strategy.md`（テスト戦略）／`model-assignment.md`（モデル選定）／`tech-selection.md`（技術選定）／`po-communication.md`（PO への報告）／`knowledge-graph.md`（大規模化判断）／`template-feedback.md`（還流） |
+| セッション報告         | `.claude/reports/`                                     | 作業メモ・中間レポート。恒久内容は書いた時点で `CHANGELOG.md`／正本へ直接記録し、レポート自体は随時削除できる                                                                                                                                                                                                                                                                                             |
+| ガードレール           | `.claude/settings.json`・`.claude/hooks/`              | 破壊的操作の deny・作業系の allow／`format-on-edit.mjs`（編集後の自動整形）                                                                                                                                                                                                                                                                                                                               |
+| 並行開発の道具         | `scripts/`・`.githooks/`                               | `swarm-up.sh`／`swarm-down.sh`（worktree 群の起動・撤収）／`_wt-status.sh`（worktree 状況の内部ヘルパ）／`pre-commit`（`STATUS.md` の自動再生成）                                                                                                                                                                                                                                                         |
+| セットアップ・還流     | `bin/`・`scripts/`・`VERSION`                          | `bin/create.mjs`（`npx` 入口の薄いラッパ）／`init-project.sh`（複製・初期化の正本）／`package.scaffold.json`（複製先へ配る `package.json`）／`collect-template-feedback.sh`（派生プロジェクトからの知見収集。派生元は `TEMPLATE_VERSION` で追跡）                                                                                                                                                         |
+| 状況の可視化           | `STATUS.md`・`scripts/status-report.mjs`               | 仕様・タスク・配役から導出する状況レポート（`npm run status` が生成。手編集しない）                                                                                                                                                                                                                                                                                                                       |
+| 解説ドキュメント       | `docs/`                                                | `team-structure.md`（チームの読み方）／`glossary.md`（用語集）／`pdca-practice.md`（PDCA の回し方）／`autonomy-tiers.md`（自律度の段階）／`external-services.md`（外部サービスとの関係）／`design-brief.md`（デザインブリーフの記入例）                                                                                                                                                                                                                  |
+| プロダクト記憶（雛形） | `.kiro/steering/product.md`・`tech.md`・`structure.md` | 空テンプレ（記入して使う）                                                                                                                                                                                                                                                                                                                                                                                |
 
-npm スクリプトは `dev`（開発サーバ）／`build`（HTML生成）／`preview`（生成物の配信）／`serve`（簡易配信）／`verify`（ダッシュボードと正本の整合検証）。
+npm スクリプトは `status`（`STATUS.md` の生成）と `verify`（整合性検証＝文書の相対参照の実在・`.gitignore` と `template.gitignore` の一致・`STATUS.md` が実態と一致）の2つだけで、どちらも node 標準機能だけで動く（テンプレート本体に依存パッケージは無い）。
 
 ## この進め方のルール
 
@@ -170,24 +174,24 @@ npm スクリプトは `dev`（開発サーバ）／`build`（HTML生成）／`p
 
 ## 困ったとき・FAQ
 
-- **Q. `npm install` が失敗する／Astroが動かない**
-  A. Node.js のバージョンを確認する（`node -v`）。Astro 7 は **Node.js 22.12 以上**を要求する。バージョンマネージャ（nvm 等）で切り替えてから再実行する。
-- **Q. ダッシュボードを開いても古い内容のまま**
-  A. `dashboard/status-dashboard.html` はビルド生成物であり、`status.json` を編集しただけでは自動更新されない。`npm run build` を実行してから `npm run preview` で開き直す。
-- **Q. コミットしようとしたら pre-commit フックに止められた**
-  A. `dashboard/status.json`（または `status.init.json`）のスキーマ検証に失敗している。フックが出すエラーメッセージ（欠落フィールド名等）を読んで修正する。緊急時のみ `git commit --no-verify` で迂回できるが非推奨（検証をすり抜けたまま壊れた状態がコミットされる）。
+- **Q. `npm install` はしなくてよいのか**
+  A. テンプレート本体では不要（`status`・`verify` は node 標準機能だけで動く）。ただし `npx` での複製と各スクリプトの実行に **Node.js 22.12 以上**が要るので、`node -v` が古ければバージョンマネージャ（nvm 等）で切り替える。生成プロジェクトが自分のスタックの依存を入れるかどうかは、そのプロジェクトの `package.json` 次第。
+- **Q. `STATUS.md` の内容が実態と違う**
+  A. `npm run status` を実行して作り直す。それでも違うなら、ずれているのは導出元（`.kiro/specs/*/spec.json`・`tasks.md`・`.kiro/steering/role-catalog.md`）なので、そちらを直してから作り直す。`STATUS.md` を手で直しても次の生成で消える。
+- **Q. コミットしたら `STATUS.md` が勝手に変更に加わった**
+  A. `.githooks/pre-commit` が仕様・配役の変更を検知して `STATUS.md` を作り直し、ステージに加えている（意図した動作）。導出元に変更が無いコミットでは何もしない。
 - **Q. Mermaid 図が表示されない**
-  A. GitHub・VSCode 上で見ている場合は自動描画される。ダッシュボードを `file://` で直接開いた場合は Mermaid の実描画をフォールバック表示に格下げしている仕様（正式な閲覧は `npm run preview`）。正式閲覧に切り替えれば描画される。
+  A. GitHub・VSCode 上で見ている場合は自動描画される。素のテキストエディタではコードブロックのまま表示されるので、GitHub か VSCode のプレビューで開く。
 - **Q. `scripts/init-project.sh` が「複製先が既に存在します」で失敗する**
   A. 複製先ディレクトリが既に存在すると上書きを避けるため停止する。別のパスを指定するか、既存ディレクトリを退避してから再実行する。
 
 ## 経緯・注意
 
-現在のバージョンは `VERSION`（**v0.10.0**）。このテンプレートの**成り立ち・設計判断・バージョンごとの変更**は [`CHANGELOG.md`](CHANGELOG.md) に記録。このディレクトリで作業を続けるときは、まずそれを読む。とくに次の2つは日々の手順に直結する。
+現在のバージョンは `VERSION` に書かれている。このテンプレートの**成り立ち・設計判断・バージョンごとの変更**は [`CHANGELOG.md`](CHANGELOG.md) に記録。このディレクトリで作業を続けるときは、まずそれを読む。とくに次の2つは日々の手順に直結する。
 
-- **v0.4.0**：ダッシュボードのビルド生成物（`dashboard/*.html`・`_astro/`・`reports/`・`steering/`）を Git 管理外にした。生成物を都度コミットする運用は「入力（`status.json`）とビルド出力が食い違う」事故の温床になっており、生成物を管理外にして毎回ビルドし直す運用へ変更した（トレードオフ＝クローン直後に `file://` で即閲覧できていた利便性を失う。「すぐに始める」の `npm install`＋`npm run build` を必須の初手として受け入れる）。
+- **v0.12.0**：Astro 製ダッシュボードを撤去し、状況の正本を手書きの `status.json` から導出生成の `STATUS.md` へ反転させた。手書きの正本は日常のループで誰も更新せず、実態と食い違ったまま検知もされなかった。`STATUS.md` は仕様と配役から毎回作り直すため書き手が要らず、作り直していない状態は `npm run verify` が検知する。テンプレート本体の npm 依存はゼロになり、閲覧のためのビルドとサーバ起動も不要になった。
 - **v0.10.0**：`npx` からの一発インストール導線を追加した。複製ロジックの正本は従来どおり `scripts/init-project.sh` で、`bin/create.mjs` はそれを呼ぶだけの薄いラッパ（ロジックの二重管理を避けるため）。対象は Unix 系 / WSL（bash 前提）。リポジトリを clone して使う場合は `scripts/init-project.sh <target> [name]` を直接実行してもよい。
 
-- ダッシュボードや steering 内の**固有名・数値・事故記号（A2/K1 等）は「例」**。教訓（なぜ）だけ受け取り、自分の実例に読み替える（各所に注記あり）。
+- steering・playbooks 内の**固有名・数値・事故記号（A2/K1 等）は「例」**。教訓（なぜ）だけ受け取り、自分の実例に読み替える（各所に注記あり）。
 - スタック依存の `.claude/rules/` は**実装が先・ルール化は後**で自分のスタック向けに作る（例は `_examples/`）。
 - 外部ツール（agent-skills 等）の併用は「背骨を1つに絞る」（二重ツール＝理解負債を避ける）。

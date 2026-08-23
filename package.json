@@ -2,8 +2,8 @@
   "name": "conductor-sdlc-template",
   "private": true,
   "type": "module",
-  "version": "0.11.0",
-  "description": "conductor-sdlc-template のスキャフォルダ CLI 兼 Astro 開発ダッシュボード。`npx github:kumamoto-kouki/conductor-sdlc-template <target> [name]` で新規プロジェクトを複製生成する。ダッシュボード開発用スクリプト（dev/build/preview/serve/verify）も保持する。",
+  "version": "0.12.0",
+  "description": "conductor-sdlc-template のスキャフォルダ CLI。`npx github:kumamoto-kouki/conductor-sdlc-template <target> [name]` で新規プロジェクトを複製生成する。状況報告（status）と整合性検証（verify）のスクリプトを持つ。依存パッケージなし。",
   "engines": {
     "node": ">=22.12"
   },
@@ -11,18 +11,7 @@
     "conductor-sdlc-template": "./bin/create.mjs"
   },
   "scripts": {
-    "dev": "astro dev",
-    "build": "node scripts/preclean-astro-output.mjs && astro build && node scripts/relativize-asset-paths.mjs; s=$?; node scripts/clean-astro-ssr-artifacts.mjs; exit $s",
-    "preview": "astro preview",
-    "serve": "bash scripts/serve-dashboard.sh",
-    "verify": "node scripts/verify-dashboard.mjs"
-  },
-  "devDependencies": {
-    "@astrojs/mdx": "^7.0.0",
-    "@tailwindcss/vite": "^4.0.0",
-    "astro": "^7.0.0",
-    "mermaid": "^11.4.0",
-    "tailwindcss": "^4.0.0",
-    "zod": "^3.23.0"
+    "status": "node scripts/status-report.mjs",
+    "verify": "node scripts/verify.mjs"
   }
 }

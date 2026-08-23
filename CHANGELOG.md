@@ -19,6 +19,43 @@
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-08-23
+
+### 変更（互換性を壊す構造変更）
+
+- **可視化ダッシュボード（Astro）を撤去し、状況報告を「導出のみ」の `STATUS.md` へ置き換えた。** 撤去したのは `src/`（37ファイル・3,209行）・`dashboard/`・`astro.config.mjs`・`tailwind.config.mjs`・ビルド補助スクリプト5本・検証ハーネス `scripts/verify-dashboard.mjs`（1,262行）。npm 依存は6件（astro／@astrojs/mdx／tailwindcss／@tailwindcss/vite／mermaid／zod）から**0件**になり、`package-lock.json` も不要になった。npm scripts は `dev`／`build`／`preview`／`serve`／`verify` の5本から `status`／`verify` の2本へ。
+  - **撤去の理由**：ダッシュボードの正本 `dashboard/status.json` は手書きで、日常のループで誰も更新しなかった（19スキル中17本が `status.json` に言及しない）。結果、テンプレート本体では実在しない spec を 4 件、生成プロジェクトでは実在する spec を 0 件と表示したまま、**両方向に不正確なのに検知機構が無かった**。問題は描画方式ではなく「誰も書かない」ことだったため、正本を手書きから導出へ反転させた。
+- **`STATUS.md` を新設**（`npm run status` ＝ `scripts/status-report.mjs` が生成）。工程と承認状態は `.kiro/specs/*/spec.json`（spec スキル群が自動更新する）、タスク消化と割り当てモデルは `tasks.md`、参画する役は `.kiro/steering/role-catalog.md` から導出する。**手で書く欄を1つも持たない**ため「書き忘れ」による陳腐化は起きず、出力にタイムスタンプや git log を含めないため決定性がある（「いつの情報か」は最後に更新したコミットが答える）。導出元そのものが壊れている場合は別問題であり、読み取れなかった仕様は黙って落とさず本文の冒頭に出す。
+- **`src/data/personas.json` を撤去**し、配役の正本を `role-catalog.md` 単独にした。両者の役割名整合を機械照合していた旧チェック6は、双子そのものが解消されたため不要になった（チェックを持つより双子を作らない方が良い）。
+- **`.githooks/pre-commit` の役目を差し替えた**：手書き `status.json` のスキーマ検証（zod）→ ①ステージされた `spec.json` の妥当性検証（壊れていればコミットをブロック＝旧フックが持っていた「壊れた正本はコミットさせない」ゲートの後継）②`.kiro/specs/` または `role-catalog.md` が変わったコミットでの `STATUS.md` 自動再生成。更新を人の記憶に頼らない。
+  - 再生成は**インデックスの内容から**行い、作業ツリーの `STATUS.md` は書き換えない。作業ツリーから生成すると、パス限定の部分コミット（`.claude/playbooks/delegation.md` が統合手順として推奨している）のときに、そのコミットに存在しない仕様を載せた `STATUS.md` がコミットされ、クローン直後や CI の `npm run verify` が落ちる。旧フックも同じ理由でインデックスを読んでいた。
+- **`scripts/verify.mjs` を新設**（旧 `verify-dashboard.mjs` の後継、1,262行→279行）。9チェックのうち生成 HTML を対象にしていた6つと、撤去したデータとの整合2つは対象が消滅。残る2つ（文書の相対参照の実在／`.gitignore`⇔`template.gitignore` 双子drift）に、新設の「`STATUS.md` が実態と一致（再生成しても差分が出ないこと）」と「`.kiro/specs/*/spec.json` が状況の導出元として読める」を加えた4チェック構成。
+- **`src/content/*.mdx` を `docs/*.md` へ移行**：`team-structure.md`・`glossary.md`・`pdca-practice.md`・`autonomy-tiers.md`・`external-services.md`。旧ファイルは Tailwind クラス付きの生 HTML だったため書き直した。`team-structure.mdx` が持っていた体制図1枚とフェーズ別ツリー7枚は、`orchestration.md` の体制図と `role-catalog.md` のフェーズ別投入計画表を drift チェック無しで複製したものだったため移していない（図は v0.11.0 タグに残る）。
+
+### 追加
+
+- `.claude/rules/verification.md`（`paths: scripts/**`）— 検証ハーネスを書く・変えるときの規律。負のテストでの実証、「情報量を減らさない」の機械カウント、生成物を正本にするなら再生成で差分が出ないことをチェックにする、テンプレート本体で通ることは生成プロジェクトで通ることを意味しない、の4点。
+- `.claude/rules/_examples/ui-visual-acceptance.md` — 実描画＋スクリーンショットでの受理と WCAG AA の受理基準。UI を持つプロジェクトが `paths:` を合わせて `.claude/rules/` 直下へ移して使う。
+- `.prettierignore` — `STATUS.md` を整形対象から除外する（整形すると生成器の出力と食い違い、チェック3が落ちる）。
+
+### 削除
+
+- `.kiro/steering/operations.md` から、手書き `status.json` のフィールド構造に依存していた運用規約を削除した：移動時の整合チェックリスト6項目（①ボード②節目③spec表④KPI⑤見積もり⑥更新履歴）／見積もりの派生値規約／検証状態モデル（`evidence`）／「status.json＝エンティティ、整合チェックリスト＝制約」というオントロジー的構造の記述。**`evidence` の一般形（裏付け種別を明示し、実証ログが無ければ「無い」と正直に書く）は削除していない**——`.claude/skills/kiro-verify-completion`・`.claude/skills/kiro-review`・`orchestration.md`（実装完了 ≠ 受理）が正本として持っている。書き込み先のフィールドが消えただけである。
+- `.claude/rules/dashboard-verification.md`・`.claude/rules/lib-unit-testing.md` — 対象（`dashboard/`・`src/lib/`）が消滅したため、`.claude/rules/README.md` の手入れ規約に従って削除。横断的に生き残る原則は上記2ファイルへ移した。
+
+### 修正
+
+- `docs/glossary.md` への移行時に、匿名化で語が消えた空エントリ（`（技術）（タウリ）`）と、撤去により事実でなくなる「Tailwind CSS はこのダッシュボードで採用」の項を除いた。
+- `.claude/playbooks/delegation.md` が実在しない `docs/status.json` を参照していた（旧チェックは `docs/` を走査対象に含めておらず見逃していた）。チェック1の走査対象に `README.md` と `docs/` を追加したことで検出し、是正した。
+- `scripts/verify.mjs` のチェック1が、git の index にあってディスクに無いファイルで未捕捉例外により停止し、他のチェックの結果も見えなくなる欠陥を修正（失敗として記録し続行するようにした）。負のテストで実証済み。
+
+### 既知の課題
+
+- **`docs/` に移した5本は、機械的な整合チェックを持たない。** `role-catalog.md` や `orchestration.md` の正本を変えたとき、`docs/team-structure.md` の説明が古くなっても検知できない。今回は図の複製をやめて参照に寄せたことで二重化そのものを減らしたが、散文の説明は残っている。
+- **チェック1はバックティックで囲まれたリポジトリ相対参照しか見ない。** 裸のファイル名参照や散文中の記述（「ダッシュボードを開く」等）が実態とずれても検知しない。今回の撤去では約130箇所の散文を人手で掃討した。
+- **`/design-sync` は実在しないスラッシュコマンドである。** `.kiro/steering/orchestration.md` と `.claude/rules/_examples/design-review.md` に以前から書かれており、今回 `docs/team-structure.md`・`docs/external-services.md` へ移した記述でも同じ名前を使っている（正本と表現を揃えるため）。撤去とは独立した既存の欠陥だが、記述箇所が増えたので記録しておく。
+- **タスクの分母は子タスク（`N.M`）がある場合それだけを数える。** テンプレート（`.kiro/settings/templates/specs/tasks.md`）は親（`- [ ] 1.`）と子（`- [ ] 1.1`）の両方をチェックボックスにするため、両方数えると分母が実作業単位より膨らむ（実測：親7＋子31＝38 に対し実作業は31）。子が1つも無い `tasks.md` では親を数える。この規則は生成器のコメントにのみ書かれており、`tasks.md` のテンプレート側には書かれていない。
+
 ## [0.11.0] - 2026-08-23
 
 Astro ベースのダッシュボードを含む最後のリリース。次版でダッシュボードは Markdown 生成へ簡素化する。

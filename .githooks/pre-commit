@@ -1,80 +1,107 @@
 #!/usr/bin/env bash
-# dashboard/status.json（および dashboard/status.init.json）の手編集ミスを、
-# コミット前にスキーマ検証で水際チェックするpre-commitフック。
+# コミット前に (1) ステージされた spec.json の妥当性を検証し (2) STATUS.md を
+# 「インデックスの内容から」再生成してコミットに含めるフック。
 #
-# なぜ必要か: v0.4.0 で dashboard/ のビルド生成物（*.html・_astro/・reports/・
-# steering/）を Git 管理外にした（.gitignore 参照）ため、これまでこのフックが
-# 担っていた「生成物の再ビルド漏れ防止（コミット整合）」という役目は消えた。
-# 一方、status.json は唯一の真実として引き続き手編集する運用（.kiro/steering/
-# operations.md 参照）であり、必須フィールド欠落や範囲外の値をコミットしてから
-# npm run build 時に初めて気づく事故は防ぎたい。src/lib/schema.mjs の
-# parseStatus（zod検証）をコミット前に直接呼び、失敗ならブロックする。
+# なぜ必要か: v0.11.0 まで、状況の正本は手書きの dashboard/status.json だった。
+# 手書きは日常のループで誰も更新せず、テンプレート本体では実在しない spec を 4 件、
+# 生成プロジェクトでは実在する spec を 0 件と表示したまま、誰も気づかなかった。
+# STATUS.md は scripts/status-report.mjs が .kiro/specs/*/spec.json・tasks.md・
+# .kiro/steering/role-catalog.md から導出するため書き手が要らないが、更新を人の
+# 記憶に頼らないようにここで自動再生成する。
 #
-# 有効化: `git config core.hooksPath .githooks` が必要（scripts/init-project.sh の
-# 初期化処理で自動設定される。既存リポジトリでは README.md の起動チェックリスト参照）。
+# なぜ「インデックスから」生成するか: 作業ツリーから生成すると、パス限定の部分
+# コミット（.claude/playbooks/delegation.md が統合手順として明示的に推奨している）
+# のときに、そのコミットに存在しない spec を載せた STATUS.md がコミットされる。
+# するとクローン直後や CI での `npm run verify` がチェック3で落ち、しかも
+# 「再生成し忘れ」ではなく「フックが再生成した結果」が原因なので、エラーメッセージ
+# の示す対処が的外れになる。旧フックも同じ理由でインデックス（git show :path）を
+# 読んでいた。作業ツリーの STATUS.md は書き換えない（手元の未ステージ変更を
+# 反映したい場合は `npm run status` を明示的に実行する）。
 #
-# 挙動:
-#   - ステージに dashboard/status.json・dashboard/status.init.json のいずれかが
-#     含まれる場合のみ検証する。それ以外のコミットは何もしない（高速）。
-#   - node_modules が無い場合は検証をスキップして警告する（ブロックしない）。
-#     init-project.sh の初回コミット時点では npm install がまだで node_modules が
-#     無いため、ここでブロックすると初回コミットが必ず失敗する回帰を再発させる。
-#   - 検証対象はステージ内容（work treeでなく `git show :path` で読む）。
+# なぜ spec.json を検証するか: 旧フックは手書き status.json をスキーマ検証し、
+# 壊れていればコミットをブロックしていた。導出化で「正本が壊れる」経路は
+# .kiro/specs/*/spec.json へ移ったので、ゲートも同じ場所へ移す。壊れた spec.json は
+# STATUS.md から当該 spec が消える形で現れ、これは撤去理由に挙げた失敗モードそのもの。
+#
+# 有効化: `git config core.hooksPath .githooks` が必要
+# （scripts/init-project.sh の初期化処理で自動設定される）。
+#
+# 迂回（緊急時のみ・非推奨）: git commit --no-verify
 set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
-TARGET_FILES=()
-while IFS= read -r f; do
-  [ -n "$f" ] && TARGET_FILES+=("$f")
-done < <(git diff --cached --name-only --diff-filter=ACM -- dashboard/status.json dashboard/status.init.json)
-
-if [ "${#TARGET_FILES[@]}" -eq 0 ]; then
-  # status.json/status.init.json 以外の変更のみのコミット。何もしない。
-  exit 0
-fi
-
-echo "pre-commit: dashboard/status(.init).json の変更を検知。スキーマ検証を実行します..."
-
-if [ ! -d "$ROOT/node_modules" ]; then
-  echo "" >&2
-  echo "pre-commit: node_modules が見つからないため、スキーマ検証をスキップします。" >&2
-  echo "npm install 後は次回コミットから検証が有効になります。" >&2
-  exit 0
-fi
-
-status=0
-for f in "${TARGET_FILES[@]}"; do
-  if ! git show ":${f}" | node -e "
-    import('./src/lib/schema.mjs').then(({ parseStatus }) => {
-      let raw = '';
-      process.stdin.setEncoding('utf8');
-      process.stdin.on('data', (chunk) => { raw += chunk; });
-      process.stdin.on('end', () => {
+# ---- (1) ステージされた spec.json の妥当性 ----
+staged_specs=$(git diff --cached --name-only --diff-filter=ACM -- '.kiro/specs/*/spec.json' || true)
+if [ -n "$staged_specs" ]; then
+  bad=0
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    if ! git show ":$f" | node -e '
+      let raw = "";
+      process.stdin.setEncoding("utf8");
+      process.stdin.on("data", (c) => { raw += c; });
+      process.stdin.on("end", () => {
         try {
-          parseStatus(JSON.parse(raw));
-          console.log('  OK: ${f}');
+          const j = JSON.parse(raw);
+          if (!j || typeof j !== "object") throw new Error("オブジェクトではありません");
+          if (!j.approvals || typeof j.approvals !== "object") {
+            throw new Error("approvals フィールドがありません");
+          }
         } catch (e) {
-          console.error(e.message);
+          console.error("    " + e.message);
           process.exit(1);
         }
       });
-    });
-  " 2>&1; then
-    status=1
+    ' 2>&1; then
+      echo "pre-commit: $f を状況の導出元として読めません。" >&2
+      bad=1
+    fi
+  done <<< "$staged_specs"
+  if [ "$bad" -ne 0 ]; then
+    echo "" >&2
+    echo "pre-commit: 壊れた spec.json をコミットすると、その仕様が STATUS.md から" >&2
+    echo "静かに消えます。上記を直してから再度コミットしてください。" >&2
+    exit 1
   fi
-done
-
-if [ "$status" -ne 0 ]; then
-  echo "" >&2
-  echo "pre-commit: スキーマ検証に失敗しました。上記のエラーを解消してから" >&2
-  echo "再度コミットしてください。" >&2
-  echo "" >&2
-  echo "どうしてもこのフックを迂回してコミットする場合（緊急時のみ・非推奨）:" >&2
-  echo "  git commit --no-verify" >&2
-  exit 1
 fi
 
-echo "pre-commit: スキーマ検証に合格しました。"
+# ---- (2) STATUS.md をインデックスの内容から再生成 ----
+# 導出元に変更が無いコミットでは何もしない（高速化）。
+if ! git diff --cached --name-only --diff-filter=ACMRD \
+  -- .kiro/specs .kiro/steering/role-catalog.md | grep -q .; then
+  exit 0
+fi
+
+TMP="$(mktemp -d)"
+cleanup() { find "$TMP" -mindepth 1 -delete 2>/dev/null || true; rmdir "$TMP" 2>/dev/null || true; }
+trap cleanup EXIT
+
+if ! git checkout-index -a --prefix="$TMP/" 2>/dev/null; then
+  echo "pre-commit: インデックスを展開できないため STATUS.md の再生成をスキップします。" >&2
+  exit 0
+fi
+
+if [ ! -f "$TMP/scripts/status-report.mjs" ]; then
+  # 生成器そのものがインデックスに無い（撤去中など）。止めない。
+  exit 0
+fi
+
+if ! (cd "$TMP" && node scripts/status-report.mjs >/dev/null 2>&1); then
+  echo "pre-commit: STATUS.md を再生成できませんでした。コミットは続行します" >&2
+  echo "（あとで npm run status を実行してください）。" >&2
+  exit 0
+fi
+
+new_blob="$(git hash-object -w "$TMP/STATUS.md")"
+cur_blob="$(git rev-parse ":STATUS.md" 2>/dev/null || echo "")"
+
+if [ "$new_blob" != "$cur_blob" ]; then
+  git update-index --add --cacheinfo "100644,$new_blob,STATUS.md"
+  echo "pre-commit: 状況が変わったため STATUS.md を再生成してコミットに含めました。"
+  echo "            （作業ツリーの STATUS.md は変更していません。手元の未ステージ変更を"
+  echo "              反映するには npm run status を実行してください。）"
+fi
+
 exit 0

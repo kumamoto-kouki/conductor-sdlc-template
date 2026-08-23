@@ -19,7 +19,7 @@
 - E2E: `（例 npm run e2e / playwright test）`
 
 > 受理は**このコマンドの実出力（新鮮な証拠）**で行う（`kiro-verify-completion`）。
-> このテンプレ本体リポジトリ自身（`.kiro/steering/` 等ドキュメントの検証）は `npm run verify` / `npm run build` で行う。
+> このテンプレ本体リポジトリ自身は依存パッケージを持たない（`devDependencies` は空）。文書の整合検証は `npm run verify`、状況の生成は `npm run status` で、どちらも Node 標準のみで動く。
 
 ## 制約・方針
 

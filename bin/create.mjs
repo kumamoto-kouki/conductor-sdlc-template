@@ -3,7 +3,7 @@
 //
 //   npx github:kumamoto-kouki/conductor-sdlc-template <target-dir> [project-name]
 //
-// 本体ロジック（複製・プレースホルダ置換・status.json 入替・git 初期化）の正本は
+// 本体ロジック（複製・プレースホルダ置換・STATUS.md の生成・git 初期化）の正本は
 // bash の scripts/init-project.sh に置く。この Node ラッパーは「パッケージマネージャー
 // (npx) から起動できる薄い入口」を提供するだけで、ロジックは持たない（2言語での二重管理を避ける）。
 // npx github: 経由では npm がリポジトリを一時領域へ clone し、その clone がここでの

@@ -44,7 +44,7 @@ allowed-tools: Read, Glob, Grep, Agent
    - [ ] feature-a -- ...
    ```
 
-   If a roadmap author records effort estimates near `## Waves` (or anywhere in roadmap.md), the source of truth for estimates is `dashboard/status.json`'s `milestones[].estimateH`. Transcribe those values rather than inventing independent figures, and state that the per-feature sum matches the corresponding `status.json` total.
+   If a roadmap author records effort estimates near `## Waves` (or anywhere in roadmap.md), roadmap.md itself is the source of truth for them — v0.12.0 removed `dashboard/status.json`, which used to hold `milestones[].estimateH`, and nothing replaced it (`STATUS.md` is derived from specs/tasks/casting and carries no estimates). Transcribe the roadmap's figures rather than inventing independent ones, and state that the per-feature sum matches the wave or total figure recorded alongside them.
 
 5. For each pending feature in `## Specs (dependency order)`, verify `.kiro/specs/<feature>/brief.md` exists
 6. If any brief.md is missing, stop and report: "Missing brief.md for: [list]. Run `/kiro-discovery` to generate briefs first."

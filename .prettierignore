@@ -1,0 +1,3 @@
+# scripts/status-report.mjs が生成する。整形すると生成器の出力と食い違い、
+# scripts/verify.mjs のチェック3（再生成しても差分が出ないこと）が落ちる。
+STATUS.md

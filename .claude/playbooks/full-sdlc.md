@@ -92,32 +92,31 @@ brief.md のセクションに厳密に一致しない場合（例：ステー�
 同じ「起きたイベントに紐づける」思想を踏襲。定常運用でも「気分でなく状態遷移トリガー」の判断
 基準は変わらない）：
 
-- **`status.json` 整合**：`operations.md` の移動時整合チェックリスト6項目（①ボード②節目③spec
-  表④KPI⑤見積もり⑥更新履歴）を、チケット移動が無い節目でも定期的に流す（ドリフトの早期検出）。
-- **依存更新の棚卸し（四半期ごと）**：`npm outdated` で `package.json` の依存（Astro／
-  Mermaid／Tailwind／zod 等）が古くなっていないか確認する。メジャーバージョンの更改が
-  あれば、`scripts/verify-dashboard.mjs`（`npm run verify`）をゲートに追随作業を行う
-  （決定性・実描画・失敗ビルド残留等の受理基準を通してから更新を確定させる。破壊的変更を
-  伴う更新は spec 化して `/kiro-spec-quick` で扱う。定常運用の直接パッチは軽微修正に限る＝
-  委譲規律 A の「軽微は例外」と同じ線引き）。あわせて、生成プロジェクト側でも
-  `npm run verify` が通ることを確認する。`scripts/init-project.sh` は複製時に
-  `package-lock.json` を除外するため、テンプレート本体で一度も実行されていない
-  バージョンの組み合わせが、利用者の手元で初回実行される（2026-08-23、Astro
-  7.2系の `astro preview` デーモン化で検証ハーネスが失敗した欠陥が実例）。
-  本来は各生成プロジェクトのCIで `npm run verify` を機械的に強制する方が本筋だが、
-  生成プロジェクトのCI設定はテンプレート本体の管理外にあり、テンプレート側からは
-  強制できない。現時点では定期棚卸しでの手動確認に留め、生成プロジェクト側でCI
-  導入が定着した段階で機械化を検討する。
+- **状況報告の確認**：`npm run status` で `STATUS.md` を再生成し、工程・承認状態・タスク消化が
+  実態と合っているかを PO と確認する。`STATUS.md` は `.kiro/specs/*/spec.json`・`tasks.md`・
+  `role-catalog.md` からの導出のみで作られるため、手作業の整合チェックは要らない（v0.11.0 まで
+  存在した手書き `status.json` の6項目チェックリストは、正本を導出へ替えたことで不要になった）。
+- **実行環境の棚卸し（四半期ごと）**：テンプレート本体は npm 依存を持たない（`package.json` の
+  `devDependencies` は空）ため、追随が要るのは Node 本体（`engines.node`）と、各プロジェクトが
+  自分で導入した依存だけである。生成プロジェクト側では `npm outdated` を流し、メジャー更改が
+  あれば `npm run verify` をゲートに追随作業を行う（破壊的変更を伴う更新は spec 化して
+  `/kiro-spec-quick` で扱う。定常運用の直接パッチは軽微修正に限る＝委譲規律 A の「軽微は例外」と
+  同じ線引き）。**テンプレート本体で通ることは生成プロジェクトで通ることを意味しない**——
+  `scripts/init-project.sh` は複製時に `package-lock.json` を除外するため、テンプレート本体で
+  一度も実行されていない組み合わせが利用者の手元で初回実行される（2026-08-23、生成側でのみ
+  落ちる欠陥が2件見つかった実例がある）。判断基準は `.claude/rules/verification.md` を参照。
+
 - **`.claude/rules/` の GC**：`.claude/rules/README.md` の手入れ規約どおり、対応するコード/
   パターンが消えたルールを削除する。
 - **steering の陳腐化点検**：`.kiro/steering/*.md` が実態と乖離していないか（例：配役表に載って
   いない役が実際に動いている、`role-catalog.md`「配役表（現状）」冒頭の**採用中プリセット**行が
   実態と合わなくなった等）を確認し、乖離があれば正本を更新する。
-- **検証ハーネス／pre-commitフックは整合チェックリストの機械化**：`scripts/verify-dashboard.mjs`
-  （`.claude/rules/dashboard-verification.md` の検証基準を1コマンドで実行）と
-  `.githooks/pre-commit`（ビルド入力変更時の再ビルド漏れ防止）は、上記「`status.json` 整合」
-  および `operations.md` の整合規約を毎回手作業で確認する代わりに機械で担保するもの。人手の
-  定期チェックを置き換えるのではなく、ドリフトを早期に検知する下地として併用する。
+- **検証ハーネス／pre-commit フックは人手の点検の機械化**：`scripts/verify.mjs`（`npm run verify`）は
+  文書の参照が実在するか・`.gitignore` の双子がずれていないか・`STATUS.md` が実態と一致するかを
+  1コマンドで確認する。`.githooks/pre-commit` は `.kiro/specs/` や `role-catalog.md` が変わった
+  コミットで `STATUS.md` を自動再生成する。いずれも人手の定期チェックを置き換えるものではなく、
+  ドリフトを早期に検知する下地として併用する。ハーネス自身を変えるときの規律は
+  `.claude/rules/verification.md`（負のテストで実証してから受理する）に従う。
 - **AI向けドキュメントのモデル世代適合点検**：`CLAUDE.md`・`.claude/skills/`・
   `.claude/playbooks/`・`.claude/rules/`・`.kiro/steering/` を対象に `/claude-api prompt-audit`
   で旧モデル向けの記述（過剰な強調・不要になったワークアラウンド・API機能で置き換わった

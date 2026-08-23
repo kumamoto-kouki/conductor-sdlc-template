@@ -1,6 +1,6 @@
 # writing-standards.md — 日本語技術文書の文章規範
 
-このプロジェクトで書くすべての日本語文書（steering・reports・specs・ダッシュボード文言・コミットメッセージの本文）に適用する。
+このプロジェクトで書くすべての日本語文書（steering・docs・reports・specs・コミットメッセージの本文）に適用する。
 出典: [k16shikano 氏の文章規範](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d) を本プロジェクト向けに要約・再構成した（PO 指示 2026-07-05）。
 既存文書の一括書き換えは行わない。新規に書く文章と、変更のために触れた文章から適用する。
 

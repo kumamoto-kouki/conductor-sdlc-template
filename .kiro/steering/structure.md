@@ -8,7 +8,8 @@
 （例）
 src/            アプリコード
   ...
-docs/           ドキュメント（status-dashboard.html＝進行の唯一のソース）
+docs/           ドキュメント（体制・用語・実践の解説）
+STATUS.md       進行状況（`npm run status` の生成物・手編集しない）
 .kiro/
   steering/     プロジェクト記憶（本ディレクトリ）
   specs/        機能ごとの仕様（requirements/design/tasks）
@@ -16,7 +17,7 @@ docs/           ドキュメント（status-dashboard.html＝進行の唯一の�
   skills/       kiro-* SDLC スキル
   rules/        パス連動の判断基準（lazy）
   reports/      振り返り
-scripts/        並行開発の道具（swarm / dev-board）
+scripts/        並行開発の道具（swarm）と検証ハーネス（status / verify）
 ```
 
 ## 命名・配置の規約

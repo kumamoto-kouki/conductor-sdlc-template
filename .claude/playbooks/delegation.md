@@ -4,7 +4,7 @@
 
 ## 0. 非 worktree 委譲（データ更新・ドキュメント作業等）は commit/push 禁止を毎回明記する
 
-**事故（2026-07-02）**：`isolation:"worktree"` を指定しない非隔離の実装委譲（`docs/status.json` 生成基盤の実装）で、委譲プロンプト内に「コミットはまだしないでください」と自然文で2回明記したにもかかわらず、エージェントが `git add -A && git commit` を実行し、さらに**push まで実行**した（`origin/main` に到達済みで確認）。コミットは実行環境の ambient な git identity（人間の名前）で記録され、統括が直接書いた無関係な未コミット差分（README.md 等）まで一緒に巻き込まれた。
+**事故（2026-07-02）**：`isolation:"worktree"` を指定しない非隔離の実装委譲（ダッシュボードの状況データ生成基盤の実装）で、委譲プロンプト内に「コミットはまだしないでください」と自然文で2回明記したにもかかわらず、エージェントが `git add -A && git commit` を実行し、さらに**push まで実行**した（`origin/main` に到達済みで確認）。コミットは実行環境の ambient な git identity（人間の名前）で記録され、統括が直接書いた無関係な未コミット差分（README.md 等）まで一緒に巻き込まれた。
 
 **原因**：`orchestration.md` の「非 worktree の subagent は git add/commit/push しない」は正本に**書いてある**が、委譲プロンプト側でこれを**毎回明示的に引用しなかった**（自然文の「まだしないで」は禁止の強度が弱く、エージェントが「タスク完了＝コミットして仕上げる」という既定動作に倒れた）。
 
@@ -77,7 +77,7 @@ worktree: .claude/worktrees/<feature> / branch: feat/<feature>（起点＝<統�
 1. 独立レビューが `APPROVED` になったことを確認する（`REJECTED` なら (2) へ差し戻し、再委譲か `kiro-debug`）。
 2. メイン作業ディレクトリ（`<統合ブランチ>` をチェックアウト中）で `git merge feat/<feature>`。対象ファイルを明示 add（`git add -A` は使わない＝worktree ディレクトリの誤取り込み事故の反省）。
 3. `git worktree remove` ＋ merge 済みブランチを `git branch -d` で撤去する。テスト本数の二重カウントが無いことを確認する。
-4. ダッシュボード整合：`dashboard/status.json` を編集し `npm run build`（Astroビルド）で再生成する（**`dashboard/status-dashboard.html` を直接手編集しない**）。移動時の整合チェックリスト6項目（①ボード②節目③spec表④KPI⑤見積もり⑥更新履歴）を突き合わせる（`operations.md`）。
+4. 状況の更新：進捗の表示は導出物なので、直すのは**導出元**である（v0.12.0 で手書き正本 `dashboard/status.json` を廃止した。手書きの正本は日常のループで誰も更新せず陳腐化したため）。`.kiro/specs/<feature>/tasks.md` のチェックボックスと `spec.json` の承認状態を実態に合わせ、`npm run status` で `STATUS.md` を再生成する（**`STATUS.md` を直接手編集しない**——手で書く欄は無く、次の再生成で上書きされる）。`npm run verify` のチェック3が「再生成しても差分が出ないこと」を見るため、更新漏れはコミット前に機械検知できる。
 5. **見た目に関わる変更は、独立レビューが APPROVED でも統括が自分の目でスクリーンショットを確認してから受理する**（マージ前後の両方。判断基準は `orchestration.md` 規律(B)を参照）。
 6. **`git status` で `.claude/settings.json` の汚染を確認する**（判断基準は `orchestration.md` 規律(B)を参照）。セッション由来の差分は `git checkout -- .claude/settings.json` で捨てる。恒久化したい許可は PO 承認を経て意図的にコミットする。
 7. `.orchestration/progress.log` に1行追記（委譲／受理／統合を開示。規律E）。
