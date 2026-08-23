@@ -35,11 +35,14 @@ Provide:
 - Relevant requirement section numbers
 - Relevant design section numbers
 - Spec file paths (`requirements.md`, `design.md`, optionally `tasks.md`)
+- For a re-review after a rejected round: the prior round's reviewed artifact (a file snapshot) or an explicit diff against it, supplied by the controller
 - The implementer's status report
 - The task `_Boundary:_` scope constraints
 - Validation commands discovered by the controller
 - Relevant steering excerpts when applicable
 - Relevant `## Implementation Notes` entries when applicable
+
+Spec artifacts under `.kiro/specs/` are often git-untracked, so `git diff` cannot produce the prior-round comparison. If the controller does not supply a snapshot or diff for a re-review, do not treat the implementer's change report as verified fact — record in FINDINGS that prior-round comparison was unavailable and that the reported diff is unverified.
 
 ## Outputs
 
@@ -68,7 +71,7 @@ The main review question is not just "does it work?" but "does it stay inside th
 
 ## Mechanical Checks
 
-Run these checks and use the result as primary signal.
+Run these checks and use the result as primary signal. When the review target is a document only (`requirements.md`, `design.md`, `tasks.md`, a steering file, a playbook, or a skill file) with no code diff, checks 1, 5, and 6 read as N/A — see `rules/document-review-checks.md` in this skill's directory for the read-as-N/A rule and the substitute checks to run in their place. Checks 2-4 still apply as written.
 
 ### 1. Regression Safety
 
@@ -156,6 +159,12 @@ Use:
 - `Suggestion` for non-blocking improvements
 - `FYI` for informational notes
 
+## Acceptance Threshold
+
+- Mechanical Checks 1-6 already reject on any concrete failure per their own rules above; this section governs the overall verdict for Judgment Checks 7-13 and accumulated Severity Model findings.
+- The requester must state which severities force `REJECTED` (e.g. any `Critical`, or an accumulation of `Important` findings). If unstated, define it yourself — default: any `Critical` finding is `REJECTED`; `Important` findings alone are not, unless their accumulation crosses a threshold you name — and write the definition used into the output.
+- Stating a threshold pulls judgment toward `APPROVED` once findings fall short of it. Counter this by holding review depth constant regardless of where the threshold sits: complete Judgment Checks 7-13 before applying the threshold, and list findings that fall short of `REJECTED` rather than omitting them.
+
 ## Stop / Escalate
 
 Escalate instead of papering over the issue when:
@@ -183,6 +192,7 @@ Escalate instead of papering over the issue when:
 
 - VERDICT: APPROVED | REJECTED
 - TASK: <task-id>
+- ACCEPTANCE_THRESHOLD: <criterion used for REJECTED; note whether it was stated by the requester or self-defined>
 - MECHANICAL_RESULTS:
   - Tests: PASS | FAIL (command and exit code)
   - TBD/TODO grep: CLEAN | <count> matches
