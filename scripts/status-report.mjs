@@ -23,6 +23,11 @@ const SPECS_DIR = path.join(ROOT, ".kiro", "specs");
 const ROLE_CATALOG = path.join(ROOT, ".kiro", "steering", "role-catalog.md");
 const OUT = path.join(ROOT, "STATUS.md");
 
+/** リポジトリ相対パスを、GitHub でもエディタでも押せる Markdown リンクにする。 */
+function mdLink(rel) {
+  return `[\`${rel}\`](${rel})`;
+}
+
 /** 承認の3段から「いまどの工程か」と「次に誰が何をするか」を決める。
  *  phase フィールドではなく approvals を根拠にする理由: approvals は3段すべての
  *  生成・承認を独立に持つため、phase 文字列の表記ゆれや書き漏れに影響されない。 */
@@ -53,9 +58,18 @@ function approvalMark(a) {
 
 /** 仕様1件の現在地。戻り値の owner は「次に動くのが誰か」。
  *  owner が null なら終端（次にやることが無い）。 */
-function progressOf(spec, tasks) {
+function progressOf(spec, tasks, blocked) {
   const f = spec.feature_name;
   const ap = spec.approvals || {};
+  // 止まっていることは他の何より先に出す。工程がどこであっても、人の判断を待って
+  // いる状態が最優先の情報である。
+  if (blocked && blocked.length > 0) {
+    return {
+      stage: "⛔ 止まっています",
+      owner: "po",
+      next: `止まっている理由を確認して判断する（${mdLink(path.posix.join(".kiro/specs", f, "tasks.md"))}）`,
+    };
+  }
   for (const st of STAGES) {
     const a = ap[st.key] || {};
     if (!a.generated) {
@@ -69,14 +83,21 @@ function progressOf(spec, tasks) {
       return {
         stage: `${st.label}の確認`,
         owner: "po",
-        next: `${st.label}を読んで承認する（${path.posix.join(".kiro/specs", f, st.key + ".md")}）`,
+        next: `${st.label}を読んで承認する（${mdLink(path.posix.join(".kiro/specs", f, st.key + ".md"))}）`,
       };
     }
   }
   // タスクを数え切れていて全件done なら終端。ここを持たないと、出し終えた機能が
   // 永久に「実装」「/kiro-impl を実行する」と表示され続ける。
   if (tasks && tasks.total > 0 && tasks.done === tasks.total) {
-    return { stage: "完了", owner: null, next: null };
+    // 実装が終わっても終端ではない。公開してよいかの判断は PO だけができる
+    // （README の流れ図でも push・公開が最終ゲート）。ここを終端にすると、
+    // PO にしかできない最後の仕事が STATUS.md から消える。
+    return {
+      stage: "完了（公開待ち）",
+      owner: "po",
+      next: "できあがったものを確かめて、公開してよいか判断する",
+    };
   }
   return { stage: "実装", owner: "dev", next: `/kiro-impl ${f} を実行する` };
 }
@@ -109,6 +130,24 @@ function taskProgress(featureDir) {
   const items = children.length > 0 ? children : parents;
   if (items.length === 0) return null;
   return { done: items.filter(Boolean).length, total: items.length };
+}
+
+/** tasks.md の `_Blocked: <理由>_` を集める。
+ *  kiro-impl は実装が詰まると tasks.md にこのマーカーを書いて止まる。これを読まないと、
+ *  人の判断を待って止まっている機能が、順調に進行中の機能と同じ見た目になる。
+ *  PO が最も知りたいのは「止まっているかどうか」なので、チェックボックスと同格で扱う。 */
+function blockedReasons(featureDir) {
+  const file = path.join(featureDir, "tasks.md");
+  if (!fs.existsSync(file)) return [];
+  const out = [];
+  const re = /_Blocked:\s*([^_]+)_/g;
+  let m;
+  const text = fs.readFileSync(file, "utf8");
+  while ((m = re.exec(text)) !== null) {
+    const reason = m[1].trim();
+    if (reason && !out.includes(reason)) out.push(reason);
+  }
+  return out;
 }
 
 /** tasks.md の `_Model: xxx_` を集計する。実際にどのモデルを割り当てる計画かを示す。 */
@@ -207,7 +246,12 @@ function build() {
   const progress = new Map();
   for (const { dir, spec } of specs) {
     const tasks = taskProgress(dir);
-    progress.set(spec.feature_name, { tasks, p: progressOf(spec, tasks) });
+    const blocked = blockedReasons(dir);
+    progress.set(spec.feature_name, {
+      tasks,
+      blocked,
+      p: progressOf(spec, tasks, blocked),
+    });
   }
 
   out.push("# プロジェクト状況");
@@ -236,6 +280,23 @@ function build() {
     out.push("");
   }
 
+  // --- 止まっている機能（あれば最優先で出す） ---
+  const stuck = specs.filter(
+    ({ spec }) => progress.get(spec.feature_name).blocked.length > 0,
+  );
+  if (stuck.length > 0) {
+    out.push("## ⛔ 止まっている機能");
+    out.push("");
+    out.push("人の判断を待って止まっています。");
+    out.push("");
+    for (const { spec } of stuck) {
+      const { blocked } = progress.get(spec.feature_name);
+      out.push(`- \`${cell(spec.feature_name)}\``);
+      for (const b of blocked) out.push(`  - ${cell(b)}`);
+    }
+    out.push("");
+  }
+
   // --- 仕様の進み具合 ---
   out.push("## 仕様の進み具合");
   out.push("");
@@ -255,6 +316,19 @@ function build() {
         `| \`${cell(spec.feature_name)}\` | ${p.stage} | ${approvalMark(ap.requirements)} | ${approvalMark(ap.design)} | ${approvalMark(ap.tasks)} | ${impl} |`,
       );
     }
+    out.push("");
+    out.push("<details><summary>表の読み方</summary>");
+    out.push("");
+    out.push("| 書き方 | 意味 |");
+    out.push("| --- | --- |");
+    out.push("| `—` | まだ作られていない |");
+    out.push("| `確認待ち` | できあがっていて、あなたが読んで承認するのを待っている |");
+    out.push("| `承認済` | あなたが承認した |");
+    out.push("| `██████░░░░ 6/10` | 作業10件のうち6件done |");
+    out.push("| `⛔ 止まっています` | 人の判断が要る問題が出て、作業が止まった |");
+    out.push("| `完了（公開待ち）` | 作業は全部終わった。公開してよいかの判断が残っている |");
+    out.push("");
+    out.push("</details>");
     out.push("");
   }
 

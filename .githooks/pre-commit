@@ -100,8 +100,20 @@ cur_blob="$(git rev-parse ":STATUS.md" 2>/dev/null || echo "")"
 if [ "$new_blob" != "$cur_blob" ]; then
   git update-index --add --cacheinfo "100644,$new_blob,STATUS.md"
   echo "pre-commit: 状況が変わったため STATUS.md を再生成してコミットに含めました。"
-  echo "            （作業ツリーの STATUS.md は変更していません。手元の未ステージ変更を"
-  echo "              反映するには npm run status を実行してください。）"
+fi
+
+# 作業ツリーの STATUS.md も、作業ツリーの内容から作り直しておく。
+# インデックス版だけを更新して作業ツリーを置き去りにすると、コミット直後に
+# git status が STATUS.md を modified と表示し続ける。これは2つの下流を壊す:
+#   - kiro-impl の独立レビュアーは git diff を一次情報として「境界外のファイルが
+#     変更されていたら REJECTED」と判定するため、毎タスク誤 REJECT が起きる
+#   - npm run verify のチェック3（作業ツリーとの一致）がコミット直後に失敗する
+# 未ステージの変更が無ければインデックス版と同一内容になり、git status はクリーンに
+# 戻る。未ステージの変更がある場合は作業ツリーの実態を映した内容になる（こちらが
+# 作業者にとって正しい）。
+if ! node scripts/status-report.mjs >/dev/null 2>&1; then
+  echo "pre-commit: 作業ツリーの STATUS.md を更新できませんでした" >&2
+  echo "            （あとで npm run status を実行してください）。" >&2
 fi
 
 exit 0
