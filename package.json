@@ -2,7 +2,7 @@
   "name": "conductor-sdlc-template",
   "private": true,
   "type": "module",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "conductor-sdlc-template のスキャフォルダ CLI 兼 Astro 開発ダッシュボード。`npx github:kumamoto-kouki/conductor-sdlc-template <target> [name]` で新規プロジェクトを複製生成する。ダッシュボード開発用スクリプト（dev/build/preview/serve/verify）も保持する。",
   "engines": {
     "node": ">=22.12"
