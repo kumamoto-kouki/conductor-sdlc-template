@@ -6,16 +6,17 @@
 
 ## フェーズマップ
 
-| フェーズ           | 使う既存スキル／文書                                                               | 成果物                                                                              |
-| ------------------ | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| 超上流（要求定義） | `/kiro-discovery`                                                                  | `.kiro/specs/<feature>/brief.md`（単一spec）／`.kiro/steering/roadmap.md`（多spec） |
-| 要件定義           | `/kiro-spec-requirements`（EARS 形式）                                             | `.kiro/specs/<feature>/requirements.md`                                             |
-| 設計               | `/kiro-spec-design`（`/kiro-validate-design` で任意レビュー）                      | `.kiro/specs/<feature>/design.md`                                                   |
-| 実装               | `/kiro-impl`                                                                       | 実装コード・commit（worktree 隔離）                                                 |
-| 検証               | `/kiro-validate-impl`（feature 横断整合）＋ `kiro-verify-completion`（証拠ゲート） | 検証レポート・独立レビュー判定（APPROVED/REJECTED）                                 |
-| リリース           | 通常の統合手順（`delegation.md` 3節）＋セキュリティ監査（着手前投入）              | 統合ブランチへの merge・push 判断                                                   |
-| 保守運用           | 本ファイル「保守運用フェーズ」節                                                   | 定期健全性チェック結果・障害是正記録・恒久対策の CHANGELOG/正本への反映             |
-| 引き継ぎ           | handoff ドキュメント＋`.claude/reports/`                                           | 引き継ぎメモ・セッション報告                                                        |
+| フェーズ           | 使う既存スキル／文書                                                               | 成果物                                                                                             |
+| ------------------ | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 超上流（要求定義） | `/kiro-discovery`                                                                  | `.kiro/specs/<feature>/brief.md`（単一spec）／`.kiro/steering/roadmap.md`（多spec）                |
+| 要件定義           | `/kiro-spec-requirements`（EARS 形式）                                             | `.kiro/specs/<feature>/requirements.md`                                                            |
+| 設計               | `/kiro-spec-design`（`/kiro-validate-design` で任意レビュー）                      | `.kiro/specs/<feature>/design.md`                                                                  |
+| 実装               | `/kiro-impl`                                                                       | 実装コード・commit（worktree 隔離）                                                                |
+| 検証               | `/kiro-validate-impl`（feature 横断整合）＋ `kiro-verify-completion`（証拠ゲート） | 検証レポート・独立レビュー判定（APPROVED/REJECTED）                                                |
+| リリース           | 通常の統合手順（`delegation.md` 3節）＋セキュリティ監査（着手前投入）              | 統合ブランチへの merge・push 判断                                                                  |
+| 保守運用           | 本ファイル「保守運用フェーズ」節                                                   | 定期健全性チェック結果・障害是正記録・恒久対策の CHANGELOG/正本への反映                            |
+| 引き継ぎ           | handoff ドキュメント＋`.claude/reports/`                                           | 引き継ぎメモ・セッション報告                                                                       |
+| 終了               | `/kiro-offboard`                                                                   | クロージング記録（`.claude/reports/YYYY-MM-DD-closing-<mode>.md`）・テンプレへの還流マーカーの保全 |
 
 役割配置は `role-catalog.md` のフェーズ別投入計画表を正本とする（本表では重複させない）。
 
@@ -147,3 +148,9 @@ brief.md のセクションに厳密に一致しない場合（例：ステー�
 YYYY-MM-DD-handoff-<topic>.md` として既存の reports 規約（`.claude/reports/README.md`）に
   従って書く（ファイル形式を増やさない＝理解負債を増やさない）。
 - 引き継ぎ後、後任は `/kiro-spec-status` で現状を復元してから着手する。
+
+### 引き継ぎと終了は別物
+
+引き継ぎ（本節）は**後任が同じプロジェクトを続ける**ケースを扱う。プロジェクト自体を終える
+（完遂／保留／中止のいずれか）場合は `/kiro-offboard` を使う。手順の本体はスキル側
+（`.claude/skills/kiro-offboard/SKILL.md`）にあるためここでは再掲しない。

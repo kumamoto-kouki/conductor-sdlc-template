@@ -1,0 +1,124 @@
+---
+name: kiro-offboard
+description: Guide a project scaffolded from conductor-sdlc-template through closing it down — ask whether it's finishing complete, pausing, or being abandoned; inventory uncommitted work, unmerged branches, leftover worktrees, and running preview servers without deleting anything; sweep .claude/reports/ for content that still needs to move to its permanent home; preserve any TEMPLATE-FEEDBACK: markers and hand the PO the exact command to run on the template side; update dashboard/status.json to the closing state and build it; and write a closing record. Use when the PO says things like "we're done with this project", "let's wrap this up", "put this on hold", or "we've decided not to build this after all".
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
+---
+
+# kiro-offboard Skill
+
+## Role
+
+You are the closing-down guide for a project built on `conductor-sdlc-template`. Where the rest of the `kiro-*` skills assume forward motion — another spec, another task, another wave — this skill assumes the opposite: the project (or this phase of it) is ending, and someone needs to leave it in a state that is honest about what's finished, what's open, and what must not be lost.
+
+## Core Mission
+
+**Mission**: Take a project from "we're stopping here" to a state where nothing left running is forgotten, nothing recoverable is thrown away without the PO's say-so, any learning worth feeding back into the template survives the cleanup, and the next person (the PO, a successor, or nobody) can tell exactly what happened from a single closing record.
+
+**Success Criteria**:
+
+- The PO has named the closing mode — completed, paused, or abandoned — and every later step is scoped to it
+- Uncommitted changes, unmerged branches, leftover worktrees, and running preview servers are all reported; none are deleted or killed without explicit PO approval
+- `.claude/reports/` has been checked for content that belongs in a permanent home, using the existing destination table rather than a new one
+- Every `TEMPLATE-FEEDBACK:` marker under `.claude/reports/` is accounted for and explicitly protected from deletion, with the exact reflux command handed to the PO
+- `dashboard/status.json` reflects the real closing state and `npm run build` has been run by this skill, not left for the PO
+- A single closing record exists at `.claude/reports/YYYY-MM-DD-closing-<mode>.md`, reusing the existing handoff item list for the paused case rather than inventing a second one
+- The PO has been told plainly what remains, what is lost, and that `git push` is their call to make
+
+## Relationship to full-sdlc.md's Handoff Section (§3)
+
+`.claude/playbooks/full-sdlc.md`'s "### 3. 引き継ぎ" section covers a **successor continuing the same project** — its handoff document lists spec status, open concerns, the latest retrospective, and casting, so a new person (or agent) can resume. `kiro-offboard` covers a broader and different moment: **the project itself ending**, whether or not anyone continues it. The two overlap in exactly one case — the paused mode below — where this skill's closing record reuses that same handoff item list rather than defining a second one (see Step 5). The completed and abandoned modes have no successor to hand off to, so that overlap doesn't apply there.
+
+## Execution Steps
+
+### Step 0: Ask the Closing Mode (AskUserQuestion)
+
+Before anything else, ask the PO which of three modes applies, since it changes what the rest of this skill emphasizes:
+
+1. **Completed** (完遂) — the goal was reached; the project is finishing on purpose.
+2. **Paused** (保留) — work is stopping for now but may resume later. This is the template's own origin story (see `CHANGELOG.md`'s "成り立ち" section): the source project was paused, and the resulting need to carry its know-how forward is why this template exists.
+3. **Abandoned** (中止) — a decision was made not to build this (or not to continue building it).
+
+Carry the chosen mode through every later step; do not ask again mid-skill.
+
+### Step 1: Inventory Working State (report only — never delete on your own)
+
+Check, via Bash, and report as a plain list:
+
+1. Uncommitted changes (`git status`) across the repo and any worktrees.
+2. Branches not yet merged into the integration branch (`git branch --no-merged <integration-branch>`).
+3. Leftover worktrees (`git worktree list`).
+4. Any preview/dev server left running (e.g. processes bound to the dashboard's preview port).
+
+**Report the findings; do not delete branches, worktrees, or uncommitted work, and do not kill running servers, without the PO's explicit approval for each.** This follows `.kiro/steering/orchestration.md`'s permission boundary: destructive/irreversible operations (history rewrites, bulk deletion, `git reset --hard`, and by the same logic, discarding uncommitted work or removing worktrees) always require human approval. If the PO approves cleanup, execute it item by item — don't batch an approval for one item into license for the rest.
+
+### Step 2: Harvest Permanent Content
+
+Read through `.claude/reports/` and check whether anything in it still needs to move to a permanent home before the project closes and nobody comes back to do this. Use the destination table in `.claude/reports/README.md` as-is — do not re-derive or restate its criteria here:
+
+- version-history facts → `CHANGELOG.md`
+- cross-cutting learnings → `.kiro/steering/`
+- path-scoped learnings → `.claude/rules/`
+- delegation/playbook improvements → `.claude/playbooks/`
+
+Move anything that qualifies now, while the context for it is still fresh. This step is about the project's _own_ permanent records — Step 3 below handles the separate, narrower case of feedback aimed at the template itself.
+
+### Step 3: Preserve the Reflux to the Template (the core of this skill)
+
+1. Search for the marker: `grep -rn "TEMPLATE-FEEDBACK:" .claude/reports/`
+2. Report the count and the exact files it appears in.
+3. **If any are found, warn clearly and explicitly: do not delete the reports that contain them.** `.claude/reports/README.md`'s garbage-collection rule says reports may be deleted once their permanent content has already been written to its proper home — but a `TEMPLATE-FEEDBACK:` marker's proper home is the _template repository_, not this project, and only the template side can collect it (see the asymmetry below). Deleting a report with a live marker before that collection runs destroys the learning permanently.
+4. Explain the asymmetry plainly: `scripts/collect-template-feedback.sh` is run **from the template side**, taking a derived project's path as its argument — this project cannot run its own reflux. State that this project's job is only to **preserve the markers until the template side collects them**, and give the PO the exact command to hand to (or run from) the template repository, with this project's absolute path filled in:
+   ```
+   scripts/collect-template-feedback.sh <absolute path to this project>
+   ```
+   Get `<absolute path to this project>` via `pwd` — do not guess or leave it as a placeholder for the PO to fill in themselves.
+5. **If zero markers are found**, don't treat that as automatically fine — prompt the PO to look back over this project's retrospectives once more for anything that was actually a flaw or improvement in the template itself (as opposed to something specific to this project). Point to the judgment criteria in `.claude/playbooks/template-feedback.md` rather than re-deriving them here.
+
+### Step 4: Write the Final State to the Dashboard
+
+1. Update `dashboard/status.json` to reflect the closing state, shaped by Step 0's mode:
+   - **Completed**: mark the relevant milestones as done.
+   - **Paused**: record the interruption point and what remains outstanding.
+   - **Abandoned**: record the reason it isn't being built.
+2. Run `npm run build` yourself via Bash — this is the AI's job, not the PO's, matching the rest of this skill's "the AI does the file-writing and command-running" stance.
+
+### Step 5: Write the Closing Record
+
+Write `.claude/reports/YYYY-MM-DD-closing-<mode>.md`, following `.claude/reports/README.md`'s existing naming convention. **Do not invent a new document format or location for this** — a new file shape here would add understanding debt for exactly one project event.
+
+Include, regardless of mode:
+
+- What was built during the project's life.
+- Final state (what Step 4 recorded).
+- Open concerns that remain unresolved.
+- Where any `TEMPLATE-FEEDBACK:` markers live (from Step 3), so a reader doesn't have to re-search for them.
+
+Mode-specific content:
+
+- **Paused**: resumption steps. Reuse `full-sdlc.md`'s "### 3. 引き継ぎ" handoff items directly (spec status via `/kiro-spec-status`, open concerns, the latest retrospective, and casting) rather than defining a second, competing list here.
+- **Abandoned**: why the decision was made not to build this — this is the single most valuable piece of information for whoever makes the next related decision, so state it plainly rather than burying it in the "what was built" narrative.
+
+### Step 6: Hand Off
+
+Tell the PO plainly, in the same closing conversation:
+
+1. What remains (branches, worktrees, uncommitted work left per Step 1's PO decisions; the closing record's location).
+2. What is lost or will be lost if no further action is taken (e.g. unmerged work on a branch nobody plans to continue).
+3. That `git push` — and any other external publication — is the PO's decision to make, per `orchestration.md`'s permission boundary; this skill does not push on its own.
+
+## Output Description
+
+Plain language throughout, mirroring `kiro-onboard`'s audience assumption — avoid dumping raw tool output or file contents at the PO; summarize what was found and what was done. At the end of Step 6, state clearly: the closing mode, what remains, what would be lost without further action, and where the closing record lives.
+
+## Safety & Fallback
+
+- **Step 1 inventory finds something to clean up**: report it, propose the cleanup, and wait for explicit per-item PO approval before executing — never batch-approve.
+- **`TEMPLATE-FEEDBACK:` markers exist but the PO wants to delete their containing reports anyway**: state the consequence (the learning is lost before the template side can collect it) and let the PO decide with that information; do not silently comply or silently refuse.
+- **Ambiguous closing mode, or the PO's answer doesn't cleanly fit one of the three**: ask a clarifying follow-up rather than guessing which mode's emphasis to apply.
+- **`npm run build` fails**: do not paper over it; report the failure and stop before writing the closing record, since the record should describe a real final state, not an aspirational one.
+- **No project to close (nothing built yet)**: still run Step 0 and Step 5 — even an early abandonment benefits from a one-line record of why, for the same reason the abandoned-mode content matters generally.
+
+## Notes
+
+- This skill is the closing counterpart to `/kiro-onboard`: onboarding takes a project from scaffold to first work, offboarding takes it from last work to closed.
+- `npm run verify`'s check 8 verifies that this file's own repository-relative references stay real; keep any path added here accurate when editing this skill.

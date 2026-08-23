@@ -42,6 +42,7 @@
   - タスク番号あり: 手動モード（選択したタスクをメインコンテキストで実行。完了前のレビュアーゲートは同様に適用）
   - `/kiro-validate-impl {feature}`（単独での再検証）
 - 進捗確認: `/kiro-spec-status {feature}`（いつでも使用可）
+- プロジェクト終了: `/kiro-offboard`（AI が対話で誘導）
 
 ## Skills の構成
 
