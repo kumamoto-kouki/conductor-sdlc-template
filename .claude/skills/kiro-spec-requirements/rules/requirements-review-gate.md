@@ -21,6 +21,10 @@ Requirements should clarify the feature boundary in user- or operator-observable
 - If coverage is missing because the draft is incomplete, repair the draft and review again.
 - If coverage cannot be completed cleanly because the project description or steering context is ambiguous, contradictory, or underspecified, stop and ask the user to clarify instead of guessing.
 
+## PO Answer vs. Steering Conflict
+
+If a PO answer collected during requirements gathering cannot be satisfied under an existing steering constraint, this is not scope ambiguity to guess through: stop drafting that requirement immediately, present the conflict and the available options to the user, and let the user decide before writing `requirements.md`. The underlying prohibition and its rationale live in `.kiro/steering/orchestration.md`, "承認済み事項の切り下げ禁止（PO 差し戻し）".
+
 ## EARS and Testability Review
 
 - Every acceptance criterion must follow the EARS rules defined in `ears-format.md`.

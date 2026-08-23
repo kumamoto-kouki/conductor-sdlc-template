@@ -26,14 +26,16 @@ import {
   writeFileSync,
   existsSync,
   readdirSync,
+  statSync,
   mkdtempSync,
   rmSync,
   cpSync,
 } from "node:fs";
 import { createHash } from "node:crypto";
+import http from "node:http";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
-import { dirname, join, relative, sep } from "node:path";
+import { dirname, extname, join, normalize, relative, sep } from "node:path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -44,6 +46,10 @@ const ROLE_CATALOG_MD = join(ROOT, ".kiro", "steering", "role-catalog.md");
 const PERSONAS_JSON = join(ROOT, "src", "data", "personas.json");
 const GITIGNORE = join(ROOT, ".gitignore");
 const TEMPLATE_GITIGNORE = join(ROOT, "template.gitignore");
+// scripts/init-project.sh:101 がテンプレート本体／生成プロジェクトの判別に使うのと
+// 同じ指標（テンプレ本体のみ存在。複製時に除外されるため生成プロジェクトには無い）。
+// 9.のスキップ条件に使う。
+const PACKAGE_SCAFFOLD_JSON = join(ROOT, "package.scaffold.json");
 
 // ポータル化（Wave3 #3）で dashboard/reports/**・dashboard/steering/** の
 // ネストしたページが増えたため、レンダースモーク・NaN漏れチェックは
@@ -187,14 +193,200 @@ function checkDeterminism() {
 //  コア表示のフォールバック」「実描画検証は2段構え。①http検証（正式閲覧相当）
 //  ②file://検証（フォールバック確認）」)
 //
-// 2a. http検証: astro preview を子プロセスで起動し、実際のURLを headless chromium で
-//     開いてMermaidの実描画（正式閲覧での見え方）を確認する。
+// 2a. http検証: dashboard/ を配信する使い捨ての静的サーバーを検証ハーネス自身が
+//     起動し、実際のURLを headless chromium で開いてMermaidの実描画（正式閲覧での
+//     見え方）を確認する。
 // 2b. file://検証: file:// で開いた際に CSS が適用されていること、および
 //     Mermaidモジュールが実行できない環境向けのプレースホルダーが生コードの露出を
 //     防いでいることを確認する（Mermaid実描画自体は要求しない）。
 //
 // 構文チェック（mermaid.parse() 等）やDOM存在確認だけでは「表示されるが壊れている」を
 // 2回すり抜けた実績があるため、どちらも実際にブラウザで開いて確認する。
+//
+// 2aはastro previewに依存しない。理由の正本は
+// .claude/rules/dashboard-verification.md「実描画検証は2段構え」（astro previewは
+// プロジェクトあたりデーモンを1つしか許さず、検証が起動するpreviewが統括・利用者
+// （npm run serve）の共有デーモンを奪いかねないため、と実測に基づき記載）。ここでは
+// 重複を避け、実装判断のみを記す。
+//
+// 検証ハーネス自身がプロセス内で完結する静的サーバーを立てれば、他プロセスの
+// デーモンを一切共有しない（起動時に誰も奪わない・終了時に誰にも影響しない）。
+// ポートはOSに採番させる（listen(0)）ため、待ち受け先と実際のポートが定義上
+// 一致する。astroのバージョンにも依存しない。
+//
+// URL→ファイルの対応規則は astro.config.mjs（output: "static"・build.format:
+// "file"）と dashboard/ 配下の実ファイルを確認して決めた: 全ページ（例:
+// dashboard/steering/operations.html）・全アセット（dashboard/_astro/*.css・*.js）
+// への参照はすべて相対パス（例: href="_astro/....css"・steering配下からは
+// href="../_astro/....css"）で埋め込まれており、拡張子省略のクリーンURLにも
+// dashboard/index.htmlのようなディレクトリindexにも依存していない
+// （dashboard/直下に index.html は存在しない）。したがって「リクエストパスを
+// dashboard/ 配下の相対パスとしてそのまま解決する」だけで astro preview と
+// 同じ応答が得られる。
+//
+// 忠実性は、旧実装（astro preview経由）と本実装を同一ビルドに対して両方走らせ、
+// 対象15ページ全件で判定（OK/NG・svg数・data-processed数）が一致することを実測して
+// 確認した（統括への報告に実出力を記載）。
+//
+// 既知の限界（対応不要・独立レビュー指摘）: 2aはMermaidのsvg数・data-processed数
+// だけを見るため、CSSが読めなくなった場合（例: _astro/*.cssの404）は検知しない
+// （CSS確認は2bのfile://側のみ）。旧実装（astro preview経由）でも同じ限界があり、
+// 今回の変更による退行ではない。
+const MIME_TYPES = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".gif": "image/gif",
+  ".webp": "image/webp",
+  ".ico": "image/x-icon",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
+  ".txt": "text/plain; charset=utf-8",
+  ".map": "application/json; charset=utf-8",
+};
+
+// dashboard/ を配信する使い捨ての静的サーバー（詳細は上のコメント参照）。
+// リクエストパスは dashboard/ 配下の相対パスとしてそのまま解決する。
+// ディレクトリトラバーサル（例: ../../etc/passwd）は正規化後に dashboard/ 配下で
+// あることを確認して防ぐ。ポート0でOSに空きポートを採番させ、実際に使われた
+// ポートを呼び出し側へ返す。
+// 既知の限界（独立レビュー指摘）: realpath は取らないため、dashboard/ 配下に
+// シンボリックリンクが置かれた場合はリンク先が外部でもそのまま配信しうる。
+// 現状 dashboard/ は Astro のビルド生成物のみで、127.0.0.1バインド・検証中だけ
+// 生きる使い捨てサーバーのため実害はない。dashboard/ に外部リンクを置く設計が
+// 入るときは realpath チェックの追加を検討すること。
+function startStaticDashboardServer(rootDir) {
+  return new Promise((resolve, reject) => {
+    const rootWithSep = rootDir.endsWith(sep) ? rootDir : rootDir + sep;
+    const server = http.createServer((req, res) => {
+      try {
+        const parsedUrl = new URL(req.url, "http://localhost");
+        const pathname = decodeURIComponent(parsedUrl.pathname);
+        const resolved = normalize(join(rootDir, pathname));
+        if (resolved !== rootDir && !resolved.startsWith(rootWithSep)) {
+          res.writeHead(403);
+          res.end();
+          return;
+        }
+        if (!existsSync(resolved) || !statSync(resolved).isFile()) {
+          res.writeHead(404);
+          res.end();
+          return;
+        }
+        const contentType =
+          MIME_TYPES[extname(resolved).toLowerCase()] ||
+          "application/octet-stream";
+        res.writeHead(200, { "Content-Type": contentType });
+        res.end(readFileSync(resolved));
+      } catch (e) {
+        res.writeHead(500);
+        res.end(String(e && e.message ? e.message : e));
+      }
+    });
+    server.on("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      resolve({ server, baseUrl: `http://127.0.0.1:${address.port}` });
+    });
+  });
+}
+
+// 静的サーバーを確実に閉じる（例外・タイムアウト経路を含むfinallyから呼ぶ）。
+// keep-alive中のソケットが残っているとclose()のコールバックがすぐ返らないことが
+// あるため、closeAllConnectionsで能動的に切ってから閉じる。
+function closeStaticDashboardServer(server) {
+  return new Promise((resolve) => {
+    if (!server) {
+      resolve();
+      return;
+    }
+    server.closeAllConnections?.();
+    server.close(() => resolve());
+  });
+}
+
+// 指定URLへ素のHTTPリクエストを送り、ステータスコードだけを見る。chromiumの
+// --dump-domはHTTPステータスを見ずにDOMを返してしまう（例えば404ページの本文も
+// そのままDOMとして返る）ため、実描画チェックの前段でステータスを明示的に
+// 確認する（独立レビュー指摘: 200以外を成功と判定しないこと）。
+function fetchStatusCode(url, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const req = http.get(url, (res) => {
+      res.resume();
+      resolve(res.statusCode);
+    });
+    req.on("error", reject);
+    req.setTimeout(timeoutMs, () =>
+      req.destroy(new Error(`status確認がタイムアウトしました: ${url}`)),
+    );
+  });
+}
+
+// chromiumの --dump-dom を非同期(spawn)で実行する。checkRenderSmokeHttp が
+// 同一プロセス内の静的サーバー（startStaticDashboardServer）を検証対象にしている
+// ため、ここを spawnSync（同期・Node のイベントループを完全に止める）にすると、
+// chromium が発行するHTTPリクエストに自分自身の静的サーバーが一切応答できなく
+// なり、chromium 側が実時間で待ちきれずタイムアウトし、そのタイムアウト時の
+// 強制終了（TCP RST）が次ページの素のHTTPリクエストに ECONNRESET として波及する
+// ことを実測で確認した（file://を直接開く 2b は自プロセスのサーバーを経由しない
+// ため spawnSync のままで問題ない）。
+function runChromiumDumpDom(chromiumBin, url, timeoutMs) {
+  return new Promise((resolve) => {
+    const proc = spawn(
+      chromiumBin,
+      [
+        "--headless",
+        "--disable-gpu",
+        "--no-sandbox",
+        "--virtual-time-budget=8000",
+        "--dump-dom",
+        url,
+      ],
+      { stdio: ["ignore", "pipe", "pipe"] },
+    );
+    let stdout = "";
+    let stderr = "";
+    let settled = false;
+    let timedOut = false;
+    proc.stdout.on("data", (c) => (stdout += c.toString()));
+    proc.stderr.on("data", (c) => (stderr += c.toString()));
+    const timer = setTimeout(() => {
+      if (settled) return;
+      timedOut = true;
+      proc.kill("SIGKILL");
+    }, timeoutMs);
+    proc.on("error", (e) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve({
+        status: null,
+        signal: null,
+        timedOut,
+        stdout,
+        stderr,
+        error: e,
+      });
+    });
+    // 'exit'ではなく'close'で確定させる。'exit'は子プロセス終了の時点で発火し、
+    // stdio ストリームがまだ開いている（＝--dump-dom出力を取りこぼしうる）場合が
+    // ある。'close'は全stdioが閉じた後にのみ発火するため、DOM末尾の取りこぼしを
+    // 構造的に防げる（独立レビュー指摘）。
+    proc.on("close", (code, signal) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve({ status: code, signal, timedOut, stdout, stderr, error: null });
+    });
+  });
+}
+
 function findChromium() {
   const candidates = [
     "chromium",
@@ -207,52 +399,6 @@ function findChromium() {
     if (!r.error && r.status === 0) return c;
   }
   return null;
-}
-
-// astro preview の起動完了（"Local  http://localhost:PORT/" のログ行）を待つ。
-// 既定ポートが使用中の場合 astro 自身が別ポートへ自動フォールバックするため、
-// 実際に採番されたURLをログから読み取る（固定ポートを仮定しない）。
-function waitForPreviewReady(proc, timeoutMs) {
-  return new Promise((resolve, reject) => {
-    let buf = "";
-    let settled = false;
-    const timer = setTimeout(() => {
-      if (settled) return;
-      settled = true;
-      reject(
-        new Error(
-          `astro preview の起動待ちがタイムアウトしました\n出力:\n${buf}`,
-        ),
-      );
-    }, timeoutMs);
-    function onData(chunk) {
-      buf += chunk.toString();
-      const m = buf.match(/Local\s+(http:\/\/\S+)/);
-      if (m && !settled) {
-        settled = true;
-        clearTimeout(timer);
-        resolve(m[1]);
-      }
-    }
-    proc.stdout.on("data", onData);
-    proc.stderr.on("data", onData);
-    proc.on("error", (e) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      reject(e);
-    });
-    proc.on("exit", (code) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      reject(
-        new Error(
-          `astro preview が早期終了しました（exit ${code}）\n出力:\n${buf}`,
-        ),
-      );
-    });
-  });
 }
 
 // 1ページ分の実描画チェック（http・dump-dom結果から判定）。
@@ -319,8 +465,7 @@ function evaluateRenderSmokeDom(dom, builtHtml, label) {
 }
 
 async function checkRenderSmokeHttp(chromiumBin) {
-  const NAME =
-    "2a. 実描画スモーク（http・astro preview経由・全生成ページ対象）";
+  const NAME = "2a. 実描画スモーク（http・静的サーバー経由・全生成ページ対象）";
   const htmlFiles = existsSync(DASHBOARD_DIR)
     ? findAllHtmlFiles(DASHBOARD_DIR)
     : [];
@@ -333,39 +478,60 @@ async function checkRenderSmokeHttp(chromiumBin) {
     return;
   }
 
-  const astroBin = join(ROOT, "node_modules", ".bin", "astro");
-  let proc;
+  let serverHandle;
   try {
-    proc = spawn(astroBin, ["preview"], {
-      cwd: ROOT,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-    const baseUrl = await waitForPreviewReady(proc, 15000);
+    serverHandle = await startStaticDashboardServer(DASHBOARD_DIR);
+    const baseUrl = serverHandle.baseUrl;
 
     const perPage = [];
     for (const htmlFile of htmlFiles) {
       const rel = relative(DASHBOARD_DIR, htmlFile).split(sep).join("/");
       const targetUrl = new URL(rel, baseUrl).toString();
-      const run = spawnSync(
-        chromiumBin,
-        [
-          "--headless",
-          "--disable-gpu",
-          "--no-sandbox",
-          "--virtual-time-budget=8000",
-          "--dump-dom",
-          targetUrl,
-        ],
-        { encoding: "utf8", timeout: 30000 },
-      );
-      if (run.error || run.status !== 0) {
+
+      // fetchStatusCode の失敗（reject）をここで捕まえずに投げっぱなしにすると、
+      // 外側の try/catch まで飛んで 2a 全体が1行の例外で落ちる。すぐ下の
+      // chromium 失敗は該当ページだけを perPage に記録して次へ進む設計なので、
+      // 扱いを揃える（独立レビュー指摘: 1ページの一過性エラーで他ページの結果が
+      // 失われるのを防ぐ）。
+      let statusCode;
+      try {
+        statusCode = await fetchStatusCode(targetUrl, 5000);
+      } catch (e) {
         perPage.push({
           label: rel,
           ok: false,
           summary: "",
-          problems: [
-            `chromium の実行が失敗しました（exit ${run.status}）\n${run.stderr || run.error?.message || ""}`,
-          ],
+          problems: [`HTTPステータス確認が失敗しました: ${e.message}`],
+        });
+        continue;
+      }
+      if (statusCode !== 200) {
+        perPage.push({
+          label: rel,
+          ok: false,
+          summary: `status=${statusCode}`,
+          problems: [`HTTPステータスが200ではありません: ${statusCode}`],
+        });
+        continue;
+      }
+
+      const run = await runChromiumDumpDom(chromiumBin, targetUrl, 30000);
+      if (run.error || run.status !== 0) {
+        // タイムアウトによるSIGKILLと、それ以外の異常終了（クラッシュ等）を
+        // 同じ文言にすると原因の切り分けができない（独立レビュー指摘）ため、
+        // timedOut/signal を見て文言を分ける。
+        const cause = run.error
+          ? `プロセス起動に失敗: ${run.error.message}`
+          : run.timedOut
+            ? `30秒のタイムアウトでSIGKILLしました（signal=${run.signal}）`
+            : run.signal
+              ? `シグナルで終了しました（signal=${run.signal}）`
+              : `異常終了しました（exit ${run.status}）`;
+        perPage.push({
+          label: rel,
+          ok: false,
+          summary: "",
+          problems: [`chromium の実行が失敗しました: ${cause}\n${run.stderr}`],
         });
         continue;
       }
@@ -404,10 +570,10 @@ async function checkRenderSmokeHttp(chromiumBin) {
   } catch (e) {
     record(NAME, "fail", `検証中に例外: ${e.message}`);
   } finally {
-    // astro preview は確実に終了させる（残留プロセスがポートを専有し続けるのを防ぐ）。
-    if (proc && proc.exitCode === null && proc.signalCode === null) {
-      proc.kill("SIGTERM");
-    }
+    // 検証専用の使い捨てサーバーを確実に閉じる（例外・タイムアウト経路も含む）。
+    // プロセス内で完結し他プロセスと共有しないため、閉じ忘れても他者に影響は
+    // 及ばないが、実行のたびにポートを使い捨てるのを避けるため必ず閉じる。
+    await closeStaticDashboardServer(serverHandle?.server);
   }
 }
 
@@ -571,7 +737,7 @@ async function checkRenderSmoke() {
       "chromium/chromium-browser/google-chrome のいずれも見つかりません。" +
       "この環境ではスキップします（既存のprettierベストエフォート方針と同じfail-soft）。";
     record(
-      "2a. 実描画スモーク（http・astro preview経由・全生成ページ対象）",
+      "2a. 実描画スモーク（http・静的サーバー経由・全生成ページ対象）",
       "skip",
       detail,
     );
@@ -1002,12 +1168,41 @@ function checkDocReferencesExist() {
 //  node_modules 等の再発・新規パターン追加の反映漏れが起きるため検知する。)
 function checkGitignoreTwinConsistency() {
   const NAME = "9. .gitignore ⇔ template.gitignore 双子drift検知";
-  if (!existsSync(GITIGNORE) || !existsSync(TEMPLATE_GITIGNORE)) {
+  // このチェックはテンプレート本体専用である。scripts/init-project.sh は複製時に
+  // template.gitignore を .gitignore へリネームするため（npm がパッキング時に
+  // .gitignore を常時除外する制約の回避策）、生成プロジェクトには template.gitignore が
+  // 存在しないのが正常であり、7.の modelUsage 欠落と同じ流儀でスキップにする。
+  //
+  // スキップ条件は「template.gitignore が無い」だけでなく、「かつテンプレート本体
+  // でもない（package.scaffold.json が無い）」も要求する。テンプレート本体
+  // （package.scaffold.json が存在する側）で template.gitignore を誤って削除・
+  // 移動した場合まで無条件にスキップすると、このチェックが本来防ぐはずだった
+  // 事故（複製先に .gitignore が配られなくなる）を素通りさせてしまう
+  // （scripts/init-project.sh:184 はwarnを出すだけで止めない）。
+  //
+  // 既知の限界（対応不要・独立レビュー指摘）: この判別は package.scaffold.json
+  // 自身の実在に依存する。package.scaffold.json が誤って削除された場合は
+  // isTemplateBody が false になり、生成プロジェクトと誤認してskipへ落ちる
+  // （半分しか検知できない構造）。
+  const isTemplateBody = existsSync(PACKAGE_SCAFFOLD_JSON);
+  if (!existsSync(TEMPLATE_GITIGNORE)) {
+    if (isTemplateBody) {
+      record(
+        NAME,
+        "fail",
+        `template.gitignore が見つかりません（${TEMPLATE_GITIGNORE}）。このリポジトリはテンプレート本体（${PACKAGE_SCAFFOLD_JSON} が存在）である。template.gitignore の不在は生成プロジェクトでは正常だが、ここはテンプレート本体なので正常な不在として扱えない。誤って削除・移動していないか確認すること。`,
+      );
+      return;
+    }
     record(
       NAME,
-      "fail",
-      `.gitignore または template.gitignore が見つかりません（${GITIGNORE} / ${TEMPLATE_GITIGNORE}）`,
+      "skip",
+      `template.gitignore が無いためスキップ（テンプレート本体専用のチェック。生成プロジェクトでは scripts/init-project.sh が複製時に template.gitignore を .gitignore へリネームするため存在しないのが正常。package.scaffold.json も存在しないことを確認済み）`,
     );
+    return;
+  }
+  if (!existsSync(GITIGNORE)) {
+    record(NAME, "fail", `.gitignore が見つかりません（${GITIGNORE}）`);
     return;
   }
   const gitignoreContent = readFileSync(GITIGNORE, "utf8");

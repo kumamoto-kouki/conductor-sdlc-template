@@ -29,7 +29,18 @@ fi
 PORT="${1:-4321}"
 
 echo "起動中: npm run preview（ポート希望値: ${PORT}。使用中の場合は Astro が別ポートへ自動フォールバックします）"
-echo "終了するには Ctrl+C を押してください。"
+# Astro 7.2以降は preview をバックグラウンドデーモンとして起動できる。本スクリプトは
+# テンプレート本体（package-lock.jsonでAstro 7.0.6に固定＝前景常駐が確定）と、
+# scripts/init-project.shで複製された生成プロジェクトの両方に配布される。生成
+# プロジェクト側は package-lock.json が複製から除外されるため、package.json の
+# キャレット範囲（^7.0.0）でAstroが解決され、どちらのバージョンが入るかは利用者の
+# 手元の初回 npm install まで確定しない。デーモン化した場合はこのコマンドが即座に
+# 終了し、Ctrl+C を押す場面が来ないままサーバーだけ残る。本スクリプト単体では
+# どちらの配布先で動いているか判別できないため、前景常駐・デーモン化の両方に
+# 触れておく。
+echo "終了するには Ctrl+C を押してください（このまま常駐する場合）。"
+echo "バックグラウンドで起動した場合（このコマンドがすぐ終了した場合）は、プロジェクトルートで"
+echo "'node_modules/.bin/astro preview stop'（停止）または 'node_modules/.bin/astro preview status'（状態確認）を実行してください。"
 echo
 
 # node_modules/.bin/astro を直接 exec する（npx 経由だと npx 層が SIGTERM を

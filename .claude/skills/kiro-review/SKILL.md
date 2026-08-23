@@ -141,6 +141,12 @@ Run these checks and use the result as primary signal.
 
 - Confirm relevant failure paths are handled and not silently swallowed.
 
+### 13. Approved-Scope Narrowing Check
+
+- Compare the requirements, design, and any recorded PO answers against what the implementation and its supporting spec text actually commit to.
+- Reject if a qualifier, exception, or narrower reading appears in `design.md` or the implementation that is not present in the approved `requirements.md`, PO answer, or steering (see `.kiro/steering/orchestration.md`, "承認済み事項の切り下げ禁止（PO 差し戻し）", for the rule and why it is a distinct category from the external-facing permission boundary).
+- Do not accept the narrowing as a reasonable interpretation; escalate per that section instead of approving it as a design choice.
+
 ## Severity Model
 
 Use:
@@ -159,6 +165,7 @@ Escalate instead of papering over the issue when:
 - Required evidence cannot be gathered
 - The implementation only works by silently deviating from approved scope
 - Boundary ownership cannot be determined cleanly from requirements, design, and task scope
+- An approved requirement, design commitment, or PO answer was narrowed or reinterpreted to resolve an infeasibility (see item 13 above)
 
 ## Common Rationalizations
 

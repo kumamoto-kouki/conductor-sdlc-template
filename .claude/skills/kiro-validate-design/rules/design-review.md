@@ -51,7 +51,13 @@ Conduct interactive quality review of technical design documents to ensure they 
 
 - When the design introduces a new dependency or technology, confirm the Technology Selection subsection of `design.md` §4 Architecture records the adopted technology/version, the reason it is a stable version, and rejected alternatives -- not placeholder-only (locate it by position, since its heading follows the spec's configured language)
 - Confirm the adopted version is a latest-stable release, not a `dev`/`rc`/`preview` tag, per `.claude/playbooks/tech-selection.md`
-- This criterion checks that the selection is *recorded and justified*, not that the reviewer re-runs the selection itself -- re-deriving the choice or finalizing technology decisions remains out of scope per Scope & Non-Goals above
+- This criterion checks that the selection is _recorded and justified_, not that the reviewer re-runs the selection itself -- re-deriving the choice or finalizing technology decisions remains out of scope per Scope & Non-Goals above
+
+### 6. Approved-Scope Fidelity
+
+- Compare `design.md`'s stated boundaries and acceptance-criteria interpretations against the approved `requirements.md` and any recorded PO answers.
+- Flag as a Critical Issue any qualifier, exception, or narrower reading in `design.md` that does not appear in the approved requirements or PO answers (see `.kiro/steering/orchestration.md`, "承認済み事項の切り下げ禁止（PO 差し戻し）", for the rule).
+- This criterion targets the design phase specifically -- catching narrowing before implementation begins, distinct from `kiro-review`'s post-implementation check of the same rule.
 
 ## Review Process
 

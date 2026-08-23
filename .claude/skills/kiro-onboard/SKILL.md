@@ -53,11 +53,11 @@ Read the two signals together:
 
 ### Step 2: Interview the PO (AskUserQuestion, one question at a time, no jargon)
 
-Ask through `AskUserQuestion`, one question per turn, each with concrete choices:
+Ask through `AskUserQuestion`, one question per turn, each with concrete choices. For each question, first tell the PO plainly whose territory it is — theirs (their own business/product knowledge) or the AI's (technical judgment) — per `.claude/playbooks/po-communication.md` §1. Do not restate that section's reasoning here; just apply it.
 
-1. **What are you building, and who is it for?**
-2. **What must always hold true, and what should this never do?** — becomes `product.md`'s Product Invariants and Non-Goals. Phrase it without engineering terms, e.g. "Is there anything this absolutely must never do, or must always show/protect?"
-3. **Do you already know what technology you want to use?** Always include a **"Not decided yet"** choice alongside any concrete options.
+1. **What are you building, and who is it for?** — the PO's territory: say plainly that this is about their own idea/business, which they know better than the AI does.
+2. **What must always hold true, and what should this never do?** — the PO's territory, same framing as above. Becomes `product.md`'s Product Invariants and Non-Goals. Phrase it without engineering terms, e.g. "Is there anything this absolutely must never do, or must always show/protect?"
+3. **Do you already know what technology you want to use?** — the AI's territory: say plainly that this is a technical question, so the PO isn't expected to already have an answer. Always include a **"Not decided yet"** choice alongside any concrete options.
    - If the PO names a technology, treat it as the input to `.claude/playbooks/tech-selection.md` §2: still work up one recommended alternative and lay the PO's choice and your recommendation side by side with pros/cons before recording anything — do not accept it silently.
    - If the PO picks "Not decided yet", follow `.claude/playbooks/tech-selection.md` to propose exactly one recommended stack with pros/cons and let them pick.
    - If still undecided after that, leave `tech.md`'s Stack section blank and tell the PO: "That's fine — we'll decide this together when we build the first feature." **Never block onboarding on an undecided tech stack.**
@@ -73,8 +73,8 @@ Using `Edit`, fill `.kiro/steering/product.md` from the interview answers, and `
 ### Step 4: Scale Preset (S/M/L)
 
 1. From the interview answers (a small solo idea vs. an effort the PO expects to run with parallel workstreams), recommend one of S/M/L using the criteria in `.kiro/steering/role-catalog.md`'s "規模別プリセット（S/M/L）" table, with a one-line rationale.
-2. Ask the PO to confirm or override via `AskUserQuestion`.
-3. Using `Edit`, write the chosen preset into `role-catalog.md` yourself: the `**採用中プリセット**` line, and the 状態 column of the 配役表（現状） table (roles the preset doesn't use get 状態 = `未配役`; roles it does use keep `配役済` / `配役済（スコープ限定）`). **Never delete a table row** — role names are cross-checked against `src/data/personas.json` by `npm run verify` (check 6); deleting a row breaks that check.
+2. Ask the PO to confirm or override via `AskUserQuestion`, telling them plainly that this pick is provisional: "This is a first guess, not a final decision — the information that actually determines project scale (how many specs your idea splits into, and whether they run in parallel) only shows up once `/kiro-discovery` breaks it down. We'll revisit this right after that."
+3. Using `Edit`, write the chosen preset into `role-catalog.md` yourself: the `**採用中プリセット**` line, the `**決定日 / 次の見直し**` line, and the 状態 column of the 配役表（現状） table (roles the preset doesn't use get 状態 = `未配役`; roles it does use keep `配役済` / `配役済（スコープ限定）`). For `**決定日 / 次の見直し**`, replace its template placeholder (`—（テンプレ本体の値）/ wave 境界・マイルストーン境界で見直す`) with today's actual date (get it from the environment; never fabricate a date) before the `/`, and, after it, write literally: discovery（`/kiro-discovery`）完了直後（以降は wave 境界・マイルストーン境界で見直す） — keeping the same `決定日 / 次の見直し` two-part format the placeholder uses. Lead with the word `discovery`, not the slash command itself, so the field's own `/` separator is never immediately followed by the command's leading `/` (this repo's own convention for naming a slash command in prose is a parenthetical backtick mention, e.g. this file's own "(`/kiro-discovery`)" a few lines above, or `CLAUDE.md`'s "（`/kiro-steering-custom` で管理）" — not a bare leading slash right after punctuation). Recording this here is what makes the provisional pick durable: `role-catalog.md` is steering that every later session reads in full, so a promise made only in conversation (Step 4 item 2, Step 6 item 4) would otherwise leave no trace if onboarding and `/kiro-discovery` don't run in the same session. **Never delete a table row** — role names are cross-checked against `src/data/personas.json` by `npm run verify` (check 6); deleting a row breaks that check.
 
 This does not contradict `kiro-steering`'s "PO decides, AI does not write" principle for this same field: the choice itself still comes from the PO through `AskUserQuestion` above. The AI is transcribing the PO's decision into the file, not making the decision on its behalf.
 
@@ -87,6 +87,7 @@ Summarize what was written — `product.md`, `tech.md` (if the stack was decided
 1. Run `npm run serve` via Bash.
 2. Tell the PO the URL to open, and that it **must end in `/status-dashboard`** (e.g. `http://localhost:4321/status-dashboard`) — the bare root `/` returns 404 because of `build.format: "file"`.
 3. Tell the PO their one next command, in plain language: `/kiro-discovery "idea"` ("describe what you want to build next, and the AI will take it from there").
+4. Tell the PO that the scale preset chosen in Step 4 gets revisited right after `/kiro-discovery` finishes, not because it was wrong but because that's when the scale-determining information (spec count, parallelism) first exists. `role-catalog.md`'s 規模別プリセット table calls for revisiting the preset at a 節目 (a milestone-like checkpoint), and deliberately leaves that list open ("wave 境界・マイルストーン境界**など**") rather than limiting it to those two. The point right after `/kiro-discovery` is not itself a wave or milestone boundary — both arise later, during spec creation and implementation (`CLAUDE.md`, `orchestration.md`) — but it is the earliest 節目 under that same open principle, because it is the first moment the information needed to size the project exists. This extends the existing "など" opening; it is not a claim that discovery already was one of the two named boundary types.
 
 ## Output Description
 

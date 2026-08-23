@@ -2,7 +2,7 @@
 name: kiro-discovery
 description: Entry point for new work. Determines the best action path or work decomposition (update existing spec, create new spec, mixed decomposition, or no spec needed) and refines ideas through structured dialogue.
 disable-model-invocation: true
-allowed-tools: Read, Write, Glob, Grep, Agent, WebSearch, WebFetch, AskUserQuestion
+allowed-tools: Read, Write, Edit, Glob, Grep, Agent, WebSearch, WebFetch, AskUserQuestion
 argument-hint: <idea-or-request>
 ---
 
@@ -85,12 +85,13 @@ For Path A/B, recommend the next action and stop.
 Ask clarifying questions **sequentially** (not all at once), prioritizing boundary discovery over feature detail:
 
 1. **Who and why**: Who has the problem? What pain does it cause?
-2. **Desired outcome**: What should be true when this is done?
-3. **Boundary candidates**: What are the natural responsibility seams in this work? Where could this be split so implementation can proceed independently?
-4. **Out of boundary**: What should this spec explicitly NOT own, even if related?
-5. **Existing vs new**: Which parts seem like extensions to existing specs, and which parts look like genuinely new boundaries?
-6. **Upstream / downstream**: What existing systems, specs, or components does this depend on? What future work is likely to depend on this?
-7. **Constraints**: Are there technology, timeline, or compatibility constraints?
+2. **Day-to-day operator**: Skip this if question 1's "who" already identifies the day-to-day operator as the person answering these questions — no separate follow-up is needed. Otherwise, ask (this is the PO's domain, not a technical choice — frame it that way per `.claude/playbooks/po-communication.md` §1) who will operate this day-to-day, and whether that person is part of this conversation. If the operator is someone else and isn't present, record in brief.md's `## Problem` section that the decision-maker answered by proxy on the operator's behalf — `.claude/playbooks/full-sdlc.md`'s stakeholder mapping already routes single stakeholder facts to `## Problem`, reserving `## Stakeholders` for when stakeholders are numerous enough to need their own section — and consider whether `.kiro/steering/role-catalog.md`'s 🙋 エンドユーザー代弁 protopersona (listed there as a candidate role, not yet cast) should stand in for the absent operator's perspective in this discovery.
+3. **Desired outcome**: What should be true when this is done?
+4. **Boundary candidates**: What are the natural responsibility seams in this work? Where could this be split so implementation can proceed independently?
+5. **Out of boundary**: What should this spec explicitly NOT own, even if related?
+6. **Existing vs new**: Which parts seem like extensions to existing specs, and which parts look like genuinely new boundaries?
+7. **Upstream / downstream**: What existing systems, specs, or components does this depend on? What future work is likely to depend on this?
+8. **Constraints**: Are there technology, timeline, or compatibility constraints?
 
 Ask only questions whose answers you cannot infer from the context already loaded. Skip questions that steering documents already answer. If the user already provided a clear description, skip to Step 5.
 The goal is NOT to assign final owners yet. The goal is to discover the cleanest responsibility boundaries that can later become specs, tasks, and review scopes.
@@ -263,6 +264,20 @@ Suggest the next command and stop. Do NOT automatically run downstream spec gene
 - Re-entry: `/kiro-spec-init <next-feature-name>` or `/kiro-spec-batch` if multiple specs remain
 
 If the decomposition contains only existing-spec updates plus direct implementation candidates, do NOT use Path E. Prefer Path A when one existing spec is the clear home, or recommend the existing-spec update plus direct implementation work without creating roadmap entries.
+
+**Surface a pending scale-preset review, if one is recorded.** After suggesting the next command above, read `.kiro/steering/role-catalog.md`'s `**決定日 / 次の見直し**` line:
+
+- If the value contains the substring `kiro-discovery` anywhere, a provisional S/M/L pick is still awaiting review right after `/kiro-discovery` finishes (`kiro-onboard` writes that mention when it records a provisional pick). Match on the substring alone, not the surrounding wording, punctuation, or code-span formatting — those are free to change independently of this check and are not part of the signal. Present it as a decision the PO needs to make, not a report, per `.claude/playbooks/po-communication.md` §2 (do not restate that section's reasoning here): ask the PO whether the current preset (S/M/L) should stay, or change now that `/kiro-discovery` has shown the actual scope. Wait for the PO's answer before writing anything — see the resolution procedure below.
+- If the value does not contain `kiro-discovery`, say nothing. This covers two cases the same way: the project was never onboarded through `kiro-onboard` (the field still holds the template's own placeholder, which never mentions `kiro-discovery`), or the review already happened (resolving it drops the mention, per the procedure below). Both read identically to this check and both stay silent — there is nothing left to surface either way.
+
+Matching on the substring rather than the full recorded sentence is deliberate: an exact-string match would silently stop firing the moment either file's wording, punctuation, or formatting changes, with no error to catch it — this happened once already between these two files.
+
+**Resolving the review, once the PO answers.** `role-catalog.md` records only the PO's own decisions — this skill otherwise reads it, never writes it. The narrow exception below exists because no other writer in this template ever revisits `**決定日 / 次の見直し**` after `kiro-onboard` first records it (`scripts/init-project.sh` only resets `**採用中プリセット**` on project duplication, and `kiro-steering`'s Sync doesn't touch this field either): without this step writing the resolution, the same pending-review line would resurface on every later `/kiro-discovery` run — including on a project's second and third spec — with no way to ever clear it. What gets written here is the fact that the PO answered, not a choice made on the PO's behalf.
+
+1. Ask first, write after: present the pending review and get the PO's answer before touching the file. Never write in anticipation of an answer.
+2. Using `Edit`, always update the `**決定日 / 次の見直し**` line's value to `<today's date, read from the environment — never fabricate a date> / wave 境界・マイルストーン境界で見直す`, keeping the field's existing two-part `決定日 / 次の見直し` format. This is the same tail wording the template's own placeholder already uses, so it reverts the field to that standing cadence — and it must never contain `kiro-discovery` (or any `/kiro-discovery`-shaped text): writing that substring back in would immediately re-trigger this same pending-review check on the next run, recreating the noise this procedure exists to stop.
+3. Only if the PO chose to change the preset, also use `Edit` to update the `**採用中プリセット**` line and the 配役表の 状態 column — follow the same update `kiro-onboard`'s Step 4 item 3 already performs for those two elements (do not re-derive that procedure here). Never delete a table row — role names are cross-checked against `src/data/personas.json` by `npm run verify` check 6.
+4. If the PO answered "keep it as-is", perform step 2 only. Do not touch `**採用中プリセット**` or the 状態 column — nothing about the cast changed, only the fact that the review happened.
 
 ## Critical Constraints
 
