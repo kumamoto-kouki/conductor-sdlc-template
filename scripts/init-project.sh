@@ -95,18 +95,62 @@ echo "テンプレートを複製中: $ROOT -> $TARGET"
 #     複製先の package.json として配置する。
 #   - 派生プロジェクト（package.scaffold.json 無し・孫派生時）: root の package.json は既に生成
 #     プロジェクト用マニフェストなので、そのまま複製する（除外も cp もしない）。これにより孫派生でも成立する。
+# ここから先で失敗したら、作りかけの複製先を消してから終わる。
+# ロールバックが無いと、権限エラー・ディスク満杯・不正なプロジェクト名などで
+# 途中終了したとき「.git 無し・template.gitignore 未リネーム・プリセット未リセット」
+# という半端な状態が残り、しかも冒頭の「複製先が既に存在します」チェックに阻まれて
+# 同じパスで再実行できなくなる（利用者は手で消すしかない）。
+# TARGET は冒頭で「存在しないこと」を確認済みなので、消してよいのはこの実行が
+# 作ったものだけである。
+_rollback() {
+  local code=$?
+  if [ "$code" -ne 0 ] && [ "${TARGET_CREATED:-0}" = "1" ] && [ -d "$TARGET" ]; then
+    echo "" >&2
+    echo "error: 複製に失敗したため、作りかけの $TARGET を削除しました。" >&2
+    echo "       原因を直してから、同じコマンドをもう一度実行してください。" >&2
+    find "$TARGET" -mindepth 1 -delete 2>/dev/null || true
+    rmdir "$TARGET" 2>/dev/null || true
+  fi
+  exit "$code"
+}
+trap _rollback EXIT
+TARGET_CREATED=1
+
 pkg_excludes=( --exclude='/bin/' --exclude='/package-lock.json' --exclude='/package.scaffold.json' )
 if [ -f "$ROOT/package.scaffold.json" ]; then
   pkg_excludes+=( --exclude='/package.json' )
 fi
+# テンプレ本体の README.md / CHANGELOG.md は複製しない（本体のみ）。
+# README はテンプレート自身の使い方（「npx でプロジェクトを作れ」）を説明しており、
+# 生成プロジェクトの利用者が最初に開くファイルとしては誤り。CHANGELOG はテンプレート
+# 自身の開発史（77KB）で、新規プロジェクトの変更履歴ではない。どちらも複製後に
+# プロジェクト用のものを書き起こす。
+doc_excludes=()
+if [ -f "$ROOT/package.scaffold.json" ]; then
+  doc_excludes+=( --exclude='/README.md' --exclude='/CHANGELOG.md' )
+fi
 rsync -a \
   --exclude='.git' \
+  "${doc_excludes[@]}" \
   --exclude='node_modules/' \
   --exclude='.orchestration/' \
   --exclude='.claude/worktrees/' \
   --exclude='.claude/settings.local.json' \
   "${pkg_excludes[@]}" \
   "$ROOT"/ "$TARGET"/
+
+# テンプレ本体の場合のみ、プロジェクト用の README.md / CHANGELOG.md を書き起こす。
+# 上の rsync でテンプレ自身のものは除外してある。（プロジェクト名）プレースホルダは
+# 後段の置換で実際の名前に変わる。
+if [ -f "$ROOT/package.scaffold.json" ]; then
+  for doc in README.md CHANGELOG.md; do
+    if [ -f "$ROOT/.kiro/settings/templates/project/$doc" ]; then
+      cp "$ROOT/.kiro/settings/templates/project/$doc" "$TARGET/$doc"
+    else
+      echo "warn: プロジェクト用 $doc のテンプレートが見つかりません（$doc は作成されません）" >&2
+    fi
+  done
+fi
 
 # テンプレ本体の場合のみ、生成プロジェクト用マニフェストの正本 package.scaffold.json を
 # 複製先の package.json として配置する。プレースホルダ置換の前に置くことで、万一 name 等に
@@ -142,8 +186,9 @@ fi
 # 検出対象から明示的に除外する）
 if [ -n "$PROJECT_NAME" ]; then
   echo "プレースホルダ（プロジェクト名）を置換中: $PROJECT_NAME"
-  # sed の置換文字列として安全になるよう / と & をエスケープする
-  esc_name="$(printf '%s' "$PROJECT_NAME" | sed -e 's/[\/&]/\\&/g')"
+  # sed の置換文字列として安全になるよう \ と / と & をエスケープする
+  # （\ を先に処理しないと、後から足すエスケープ用の \ まで二重に置換される）
+  esc_name="$(printf '%s' "$PROJECT_NAME" | sed -e 's/[\\/&]/\\&/g')"
   self_script="$TARGET/scripts/init-project.sh"
   # -l: 該当ファイル名のみ出力 / -I: バイナリファイルは対象外 / -Z: NUL区切りで安全にループ
   while IFS= read -r -d '' f; do

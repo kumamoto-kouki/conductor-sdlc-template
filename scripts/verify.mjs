@@ -54,10 +54,14 @@ function record(name, status, detail) {
 //  まで対象にすると誤検知が大量に出て、チェック自体が無視されるようになるため。
 //  プレースホルダ・テンプレ記法（<...>・*・{...}・$...・（...）を含むもの）も除外する。)
 const DOC_REF_TARGET_PATTERN =
-  /^(CLAUDE\.md|README\.md|\.claude\/|\.kiro\/steering\/|docs\/)/;
+  /^(CLAUDE\.md|README\.md|\.claude\/|\.kiro\/|docs\/)/;
 const DOC_REF_PATTERN =
-  /`((?:\.claude|\.kiro|scripts|docs|bin)\/[^`\s]+\.(?:md|mjs|json|sh))`/g;
-const DOC_REF_PLACEHOLDER_CHARS = /[<>*{}$（）]/;
+  /`((?:\.claude|\.kiro|\.githooks|scripts|docs|bin)\/[^`\s]+(?:\.(?:md|mjs|json|sh))?)`/g;
+// Markdown リンク記法 `[表示](path)` も検査する。バッククォート囲みだけを見ていると、
+// 文書中のリンクが切れても気づけない（実測時点で本体に11件存在）。
+const DOC_LINK_PATTERN =
+  /\]\((?!https?:|#|mailto:)([^)\s]+\.(?:md|mjs|json|sh))\)/g;
+const DOC_REF_PLACEHOLDER_CHARS = /[<>*{}$（）[\]]/;
 // 許可リスト（実在しなくてよい参照）: .kiro/steering/roadmap.md は
 // /kiro-discovery が複数spec構成のプロジェクトで生成する成果物であり、
 // テンプレート状態のリポジトリには存在しないのが正常なため除外する。
@@ -68,13 +72,32 @@ const DOC_REF_ALLOWLIST = new Set([".kiro/steering/roadmap.md"]);
 // 本体で bin/create.mjs を壊しても検知できなくなる。
 const DOC_REF_SCAFFOLD_ONLY = new Set(["bin/create.mjs"]);
 
+/** そのパスが .gitignore の対象か。git が使えない場合は false（＝欠落として報告）。 */
+function isIgnored(ref) {
+  const r = spawnSync("git", ["check-ignore", "-q", "--", ref], { cwd: ROOT });
+  return r.status === 0;
+}
+
 function checkDocReferencesExist() {
   const NAME = "1. AI向けドキュメントのリポジトリ相対参照の実在検証";
   const isTemplateBody = existsSync(PACKAGE_SCAFFOLD_JSON);
-  const files = execSync("git ls-files '*.md'", { cwd: ROOT, encoding: "utf8" })
-    .split("\n")
-    .filter(Boolean)
-    .filter((f) => DOC_REF_TARGET_PATTERN.test(f));
+  // git が使えない環境（zip 配布・.git 削除・git 未インストール）でここが例外死すると、
+  // git を必要としない他の4チェックまで巻き添えで実行されなくなる。ヘッダに書いた
+  // 「1つの失敗で止めず全チェックを実行する」という設計が最初のチェックで破れる。
+  let files;
+  try {
+    files = execSync("git ls-files '*.md'", { cwd: ROOT, encoding: "utf8" })
+      .split("\n")
+      .filter(Boolean)
+      .filter((f) => DOC_REF_TARGET_PATTERN.test(f));
+  } catch {
+    record(
+      NAME,
+      "skip",
+      "git を実行できないためスキップ（このチェックは追跡ファイルの一覧に git を使う）。他のチェックは続行します。",
+    );
+    return;
+  }
 
   let total = 0;
   const missing = [];
@@ -89,15 +112,22 @@ function checkDocReferencesExist() {
     }
     const lines = readFileSync(join(ROOT, f), "utf8").split("\n");
     for (let i = 0; i < lines.length; i++) {
-      const re = new RegExp(DOC_REF_PATTERN);
-      let m;
-      while ((m = re.exec(lines[i]))) {
-        const ref = m[1];
-        if (DOC_REF_PLACEHOLDER_CHARS.test(ref)) continue;
-        total++;
-        if (DOC_REF_ALLOWLIST.has(ref)) continue;
-        if (!isTemplateBody && DOC_REF_SCAFFOLD_ONLY.has(ref)) continue;
-        if (!existsSync(join(ROOT, ref))) {
+      for (const pat of [DOC_REF_PATTERN, DOC_LINK_PATTERN]) {
+        const re = new RegExp(pat);
+        let m;
+        while ((m = re.exec(lines[i]))) {
+          const ref = m[1];
+          if (DOC_REF_PLACEHOLDER_CHARS.test(ref)) continue;
+          total++;
+          if (DOC_REF_ALLOWLIST.has(ref)) continue;
+          if (!isTemplateBody && DOC_REF_SCAFFOLD_ONLY.has(ref)) continue;
+          // リンクは書かれた文書からの相対パス。リポジトリ相対でも解決を試す。
+          const fromDoc = join(ROOT, dirname(f), ref);
+          if (existsSync(join(ROOT, ref)) || existsSync(fromDoc)) continue;
+          // gitignore されているパスは実行時に作られる状態（worktree・進捗ログ等）で、
+          // 存在しないのが正常な場面がある。テンプレート本体には偶然あって生成
+          // プロジェクトには無い、という「生成側でのみ落ちる」差の温床でもある。
+          if (isIgnored(ref)) continue;
           missing.push(`${f}:${i + 1} -> ${ref}`);
         }
       }
@@ -283,6 +313,42 @@ function checkVersionConsistency() {
   }
 }
 
+// ---- 6. pre-commit フックが有効になっているか ----
+// (git は core.hooksPath をクローンへ引き継がない。生成プロジェクトを clone した
+//  第三者・CI・2台目の環境ではフックが一切効かず、STATUS.md が自動再生成されない。
+//  症状は「コミットしたのに STATUS.md が古い」＝チェック3の失敗として現れるが、
+//  原因がフック不在だと分からないと直しようがない。git の仕様なので防げないが、
+//  検知して直し方を出すことはできる。失敗ではなく警告にする——クローン直後に
+//  未設定なのは異常ではなく、1コマンドで直るため。)
+function checkHooksEnabled() {
+  const NAME = "6. pre-commit フックが有効（STATUS.md の自動再生成）";
+  const inRepo = spawnSync("git", ["rev-parse", "--git-dir"], { cwd: ROOT });
+  if (inRepo.status !== 0) {
+    record(NAME, "skip", "git リポジトリではないためスキップ");
+    return;
+  }
+  const r = spawnSync("git", ["config", "core.hooksPath"], {
+    cwd: ROOT,
+    encoding: "utf8",
+  });
+  const configured = (r.stdout || "").trim();
+  if (!existsSync(join(ROOT, ".githooks", "pre-commit"))) {
+    record(NAME, "skip", ".githooks/pre-commit がありません");
+    return;
+  }
+  if (configured.endsWith(".githooks")) {
+    record(NAME, "pass", `core.hooksPath = ${configured}`);
+    return;
+  }
+  record(
+    NAME,
+    "warn",
+    "core.hooksPath が .githooks を指していません。git はこの設定をクローンへ引き継がないため、" +
+      "クローンした環境では STATUS.md が自動再生成されません（コミット後に古いままになります）。\n" +
+      "次を1度実行してください: git config core.hooksPath .githooks",
+  );
+}
+
 function main() {
   console.log("=== テンプレート整合性検証ハーネス（scripts/verify.mjs） ===\n");
 
@@ -291,6 +357,7 @@ function main() {
   checkStatusReportFresh();
   checkSpecJsonReadable();
   checkVersionConsistency();
+  checkHooksEnabled();
 
   console.log("=== 結果一覧 ===");
   for (const r of results) {

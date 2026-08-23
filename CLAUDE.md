@@ -21,7 +21,7 @@
 
 ## 開発ガイドライン
 
-- 思考は英語で行い、応答は英語で生成する。ただしプロジェクトファイルとして書き出すすべての Markdown コンテンツ（requirements.md、design.md、tasks.md、research.md、検証レポートなど）は、その仕様に設定された対象言語（spec.json の language を参照）で記述しなければならない。
+- 思考は英語で行ってよいが、**PO への応答は PO の言語で行う**（このテンプレートの既定は日本語。steering・playbooks・skills・docs もすべて日本語で書かれている）。プロジェクトファイルとして書き出すすべての Markdown コンテンツ（requirements.md、design.md、tasks.md、research.md、検証レポートなど）は、その仕様に設定された対象言語（`spec.json` の language を参照）で記述しなければならない。
 
 ## 最小ワークフロー
 

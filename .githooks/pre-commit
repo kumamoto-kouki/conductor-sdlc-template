@@ -33,38 +33,52 @@ ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
 # ---- (1) ステージされた spec.json の妥当性 ----
-staged_specs=$(git diff --cached --name-only --diff-filter=ACM -- '.kiro/specs/*/spec.json' || true)
-if [ -n "$staged_specs" ]; then
-  bad=0
-  while IFS= read -r f; do
-    [ -n "$f" ] || continue
-    if ! git show ":$f" | node -e '
+# node が無ければ検証もフックの後半も成立しない。後半（STATUS.md 再生成）は
+# 「警告して続行」なので、前半だけがブロックするのは非対称であり、しかも
+# 「spec.json が壊れている」という誤った理由で止まる。
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-commit: node が見つからないため spec.json の検証と STATUS.md の再生成をスキップします。" >&2
+  exit 0
+fi
+
+# -z を使う理由: git は既定（core.quotePath=true）で非ASCIIパスを引用符＋8進エスケープ
+# して返す。日本語の機能名（.kiro/specs/ログイン機能/spec.json）は当然ありうる入力だが、
+# その文字列をそのまま git show へ渡すと解決できず、正常な spec.json が「壊れている」と
+# 誤診断されてコミットが必ずブロックされる。-z は生のパスを NUL 区切りで返す。
+bad=0
+while IFS= read -r -d '' f; do
+  [ -n "$f" ] || continue
+  case "$f" in
+    .kiro/specs/*/spec.json) ;;
+    *) continue ;;
+  esac
+  if ! git show ":$f" | node -e '
       let raw = "";
       process.stdin.setEncoding("utf8");
       process.stdin.on("data", (c) => { raw += c; });
       process.stdin.on("end", () => {
         try {
           const j = JSON.parse(raw);
-          if (!j || typeof j !== "object") throw new Error("オブジェクトではありません");
-          if (!j.approvals || typeof j.approvals !== "object") {
-            throw new Error("approvals フィールドがありません");
+          if (!j || typeof j !== "object" || Array.isArray(j)) throw new Error("オブジェクトではありません");
+          if (!j.approvals || typeof j.approvals !== "object" || Array.isArray(j.approvals)) {
+            throw new Error("approvals フィールドがオブジェクトとして存在しません");
           }
         } catch (e) {
           console.error("    " + e.message);
           process.exit(1);
         }
       });
-    ' 2>&1; then
-      echo "pre-commit: $f を状況の導出元として読めません。" >&2
-      bad=1
-    fi
-  done <<< "$staged_specs"
-  if [ "$bad" -ne 0 ]; then
-    echo "" >&2
-    echo "pre-commit: 壊れた spec.json をコミットすると、その仕様が STATUS.md から" >&2
-    echo "静かに消えます。上記を直してから再度コミットしてください。" >&2
-    exit 1
+  ' 2>&1; then
+    echo "pre-commit: $f を状況の導出元として読めません。" >&2
+    bad=1
   fi
+done < <(git diff --cached --name-only -z --diff-filter=ACM -- '.kiro/specs')
+
+if [ "$bad" -ne 0 ]; then
+  echo "" >&2
+  echo "pre-commit: 壊れた spec.json をコミットすると、その仕様が STATUS.md から" >&2
+  echo "静かに消えます。上記を直してから再度コミットしてください。" >&2
+  exit 1
 fi
 
 # ---- (2) STATUS.md をインデックスの内容から再生成 ----

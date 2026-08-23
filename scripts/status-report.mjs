@@ -43,7 +43,15 @@ const STAGES = [
 
 function readJson(file) {
   try {
-    return { ok: true, value: JSON.parse(fs.readFileSync(file, "utf8")) };
+    const v = JSON.parse(fs.readFileSync(file, "utf8"));
+    // JSON として妥当でも、オブジェクトでなければ導出元として使えない。
+    // null / 数値 / 文字列 / 真偽値 / 配列を通すと、後段のプロパティ参照で
+    // 未捕捉例外になり生成そのものが死ぬ（「読めなかった入力は本文に出す」
+    // という設計がこの形の破損で破れる）。
+    if (v === null || typeof v !== "object" || Array.isArray(v)) {
+      return { ok: false, reason: "spec.json の中身がオブジェクトではありません" };
+    }
+    return { ok: true, value: v };
   } catch (e) {
     return { ok: false, reason: e.code === "ENOENT" ? "spec.json がありません" : "spec.json を JSON として読めません" };
   }
@@ -58,8 +66,8 @@ function approvalMark(a) {
 
 /** 仕様1件の現在地。戻り値の owner は「次に動くのが誰か」。
  *  owner が null なら終端（次にやることが無い）。 */
-function progressOf(spec, tasks, blocked) {
-  const f = spec.feature_name;
+function progressOf(spec, tasks, blocked, dirName) {
+  const f = dirName || spec.feature_name;
   const ap = spec.approvals || {};
   // 止まっていることは他の何より先に出す。工程がどこであっても、人の判断を待って
   // いる状態が最優先の情報である。
@@ -132,17 +140,33 @@ function taskProgress(featureDir) {
   return { done: items.filter(Boolean).length, total: items.length };
 }
 
+/** ``` フェンスの外側だけを連結して返す。tasks.md には書き方の例がコードブロックで
+ *  入りうるため、本文全体を正規表現で走査すると例示を実データとして拾ってしまう
+ *  （`_Blocked:` は STATUS.md の最上段に出るので誤検知の被害が大きい）。 */
+function outsideFences(file) {
+  if (!fs.existsSync(file)) return "";
+  const lines = fs.readFileSync(file, "utf8").split("\n");
+  const out = [];
+  let inFence = false;
+  for (const line of lines) {
+    if (/^\s*(```|~~~)/.test(line)) {
+      inFence = !inFence;
+      continue;
+    }
+    if (!inFence) out.push(line);
+  }
+  return out.join("\n");
+}
+
 /** tasks.md の `_Blocked: <理由>_` を集める。
  *  kiro-impl は実装が詰まると tasks.md にこのマーカーを書いて止まる。これを読まないと、
  *  人の判断を待って止まっている機能が、順調に進行中の機能と同じ見た目になる。
  *  PO が最も知りたいのは「止まっているかどうか」なので、チェックボックスと同格で扱う。 */
 function blockedReasons(featureDir) {
-  const file = path.join(featureDir, "tasks.md");
-  if (!fs.existsSync(file)) return [];
   const out = [];
   const re = /_Blocked:\s*([^_]+)_/g;
   let m;
-  const text = fs.readFileSync(file, "utf8");
+  const text = outsideFences(path.join(featureDir, "tasks.md"));
   while ((m = re.exec(text)) !== null) {
     const reason = m[1].trim();
     if (reason && !out.includes(reason)) out.push(reason);
@@ -152,11 +176,9 @@ function blockedReasons(featureDir) {
 
 /** tasks.md の `_Model: xxx_` を集計する。実際にどのモデルを割り当てる計画かを示す。 */
 function modelPlan(featureDir) {
-  const file = path.join(featureDir, "tasks.md");
-  if (!fs.existsSync(file)) return {};
   const counts = {};
   const re = /_Model:\s*([A-Za-z0-9.\-]+)_/g;
-  const text = fs.readFileSync(file, "utf8");
+  const text = outsideFences(path.join(featureDir, "tasks.md"));
   let m;
   while ((m = re.exec(text)) !== null) {
     counts[m[1]] = (counts[m[1]] || 0) + 1;
@@ -208,7 +230,7 @@ function progressBar(done, total) {
 }
 
 function listSpecs() {
-  if (!fs.existsSync(SPECS_DIR)) return { specs: [], unreadable: [] };
+  if (!fs.existsSync(SPECS_DIR)) return { specs: [], unreadable: [], duplicated: [] };
   const specs = [];
   const unreadable = [];
   const dirs = fs
@@ -226,13 +248,30 @@ function listSpecs() {
       continue;
     }
     const spec = r.value;
-    if (!spec.feature_name) spec.feature_name = name;
-    specs.push({ dir, spec });
+    if (typeof spec.feature_name !== "string" || spec.feature_name.trim() === "") {
+      spec.feature_name = name;
+    }
+    specs.push({ dir, name, spec });
   }
-  specs.sort((a, b) =>
-    a.spec.feature_name.localeCompare(b.spec.feature_name, "en"),
-  );
-  return { specs, unreadable };
+  // feature_name が重複すると、表示上どちらの spec の状態か区別できない。
+  // 実際に起きるのは spec ディレクトリをコピーして作ったとき。入力はどちらも
+  // 妥当なので verify のどのチェックも落ちず、「実在する spec の状態を嘘で
+  // 表示する」——この生成器が撤去した status.json と同じ失敗モードになる。
+  // 重複したものは表示名にディレクトリ名を添えて区別し、警告にも出す。
+  const seen = new Map();
+  for (const it of specs) {
+    seen.set(it.spec.feature_name, (seen.get(it.spec.feature_name) || 0) + 1);
+  }
+  const duplicated = [];
+  for (const it of specs) {
+    it.label =
+      seen.get(it.spec.feature_name) > 1
+        ? `${it.spec.feature_name}（${it.name}）`
+        : it.spec.feature_name;
+    if (seen.get(it.spec.feature_name) > 1) duplicated.push(it.name);
+  }
+  specs.sort((a, b) => a.label.localeCompare(b.label, "en"));
+  return { specs, unreadable, duplicated };
 }
 
 /** 表のセルに入れる文字列。`|` は表を壊すのでエスケープする。 */
@@ -242,15 +281,17 @@ function cell(text) {
 
 function build() {
   const out = [];
-  const { specs, unreadable } = listSpecs();
+  const { specs, unreadable, duplicated } = listSpecs();
   const progress = new Map();
-  for (const { dir, spec } of specs) {
-    const tasks = taskProgress(dir);
-    const blocked = blockedReasons(dir);
-    progress.set(spec.feature_name, {
+  for (const it of specs) {
+    const tasks = taskProgress(it.dir);
+    const blocked = blockedReasons(it.dir);
+    // キーはディレクトリ名（一意）。feature_name を鍵にすると重複時に後勝ちで
+    // 上書きされ、実在する spec の状態が別の spec のもので表示される。
+    progress.set(it.name, {
       tasks,
       blocked,
-      p: progressOf(spec, tasks, blocked),
+      p: progressOf(it.spec, tasks, blocked, it.name),
     });
   }
 
@@ -280,18 +321,27 @@ function build() {
     out.push("");
   }
 
+  if (duplicated.length > 0) {
+    out.push("## ⚠ 名前が重複している仕様");
+    out.push("");
+    out.push(
+      "次のディレクトリの `spec.json` が同じ `feature_name` を名乗っています。表ではディレクトリ名を添えて区別していますが、どちらかの名前を直してください。",
+    );
+    out.push("");
+    for (const d of duplicated) out.push(`- \`${cell(d)}\``);
+    out.push("");
+  }
+
   // --- 止まっている機能（あれば最優先で出す） ---
-  const stuck = specs.filter(
-    ({ spec }) => progress.get(spec.feature_name).blocked.length > 0,
-  );
+  const stuck = specs.filter((it) => progress.get(it.name).blocked.length > 0);
   if (stuck.length > 0) {
     out.push("## ⛔ 止まっている機能");
     out.push("");
     out.push("人の判断を待って止まっています。");
     out.push("");
-    for (const { spec } of stuck) {
-      const { blocked } = progress.get(spec.feature_name);
-      out.push(`- \`${cell(spec.feature_name)}\``);
+    for (const it of stuck) {
+      const { blocked } = progress.get(it.name);
+      out.push(`- \`${cell(it.label)}\``);
       for (const b of blocked) out.push(`  - ${cell(b)}`);
     }
     out.push("");
@@ -306,14 +356,15 @@ function build() {
   } else {
     out.push("| 仕様 | いまの工程 | 要件 | 設計 | タスク | 実装 |");
     out.push("| --- | --- | --- | --- | --- | --- |");
-    for (const { spec } of specs) {
-      const { tasks, p } = progress.get(spec.feature_name);
+    for (const it of specs) {
+      const { spec } = it;
+      const { tasks, p } = progress.get(it.name);
       const ap = spec.approvals || {};
       const impl = tasks
         ? `${progressBar(tasks.done, tasks.total)} ${tasks.done}/${tasks.total}`
         : "—";
       out.push(
-        `| \`${cell(spec.feature_name)}\` | ${p.stage} | ${approvalMark(ap.requirements)} | ${approvalMark(ap.design)} | ${approvalMark(ap.tasks)} | ${impl} |`,
+        `| \`${cell(it.label)}\` | ${p.stage} | ${approvalMark(ap.requirements)} | ${approvalMark(ap.design)} | ${approvalMark(ap.tasks)} | ${impl} |`,
       );
     }
     out.push("");
@@ -337,11 +388,11 @@ function build() {
   out.push("");
   const poItems = [];
   const devItems = [];
-  for (const { spec } of specs) {
-    const { p } = progress.get(spec.feature_name);
-    if (!p.owner) continue; // 終端（完了）は「次にやること」に載せない
+  for (const it of specs) {
+    const { p } = progress.get(it.name);
+    if (!p.owner) continue; // 終端は「次にやること」に載せない
     (p.owner === "po" ? poItems : devItems).push(
-      `- \`${cell(spec.feature_name)}\` — ${p.next}`,
+      `- \`${cell(it.label)}\` — ${p.next}`,
     );
   }
   out.push("**あなた（PO）の番**");
@@ -385,8 +436,8 @@ function build() {
 
   // --- モデルの割り当て ---
   const models = {};
-  for (const { dir } of specs) {
-    for (const [k, v] of Object.entries(modelPlan(dir))) {
+  for (const it of specs) {
+    for (const [k, v] of Object.entries(modelPlan(it.dir))) {
       models[k] = (models[k] || 0) + v;
     }
   }
