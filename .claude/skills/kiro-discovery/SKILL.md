@@ -96,6 +96,8 @@ Ask clarifying questions **sequentially** (not all at once), prioritizing bounda
 Ask only questions whose answers you cannot infer from the context already loaded. Skip questions that steering documents already answer. If the user already provided a clear description, skip to Step 5.
 The goal is NOT to assign final owners yet. The goal is to discover the cleanest responsibility boundaries that can later become specs, tasks, and review scopes.
 
+**Before moving on, check whose account the problem statement rests on.** Name the person who actually performs the work today. If that person is not the PO and has not been interviewed, say so plainly and offer to interview them before approaches are proposed — the numbers a PO gives about someone else's work (how long it takes, what the hard part is, why a previous attempt failed) are second-hand and have been measurably wrong in practice. Record who was and was not heard from where item 2 above already sends proxy answers — `brief.md`'s `## Problem` — so a later phase cannot mistake hearsay for a verified baseline, and so the same fact does not end up split across two sections. If the person is unreachable, say that too; `.claude/playbooks/discovery-personas.md` treats a proxy persona as the fallback for exactly this case, not as the default.
+
 ### Step 5: Propose Approaches
 
 Propose **2-3 concrete approaches** with trade-offs:

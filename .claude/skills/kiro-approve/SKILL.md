@@ -54,6 +54,14 @@ Order of presentation (this order is the point of the skill):
 
 Use the language recorded in `spec.json.language` (default Japanese for PO-facing text in this template).
 
+### Step 2.5: Check Whether the PO Is the Right Approver for This
+
+Before asking, check whether this phase's promises rest on someone else's work. If an acceptance criterion or product invariant is about **what another person does every day** -- the clerk whose workload should shrink, the operator who has to keep entering data -- say plainly that the PO's approval alone does not settle it, and ask whether that person should see it first.
+
+Do not turn this into a second gate the PO cannot clear: if the person is unreachable, say so in the **先に伝えること** section of this run's own output (Step 2 item 2) — that the approval rests on the PO alone and on whose behalf — and move on. Do not invent a field for it: Step 4 writes only `approvals.<phase>.approved` and `updated_at`, and that constraint holds here too. The point is that the PO knows what they are approving on someone else's behalf.
+
+> In the 2026-08-24 run the PO reached this conclusion unprompted -- "I'll approve it, but my saying so is meaningless; it's her work. If she doesn't say it's fine, I'm not approving it." The workflow assumed a single approver; the PO had to supply the missing step himself, and his stated reason was that skipping it was exactly how the previous system failed.
+
 ### Step 3: Ask for the Decision
 
 Use `AskUserQuestion` with a single question and clearly distinct options, e.g.:

@@ -55,3 +55,33 @@ _Boundary: <what this requirement area explicitly does not cover>_
 
 <!-- Repeat "## Requirement N: <Title>" blocks for every requirement area.
 Every acceptance criterion must be testable, unambiguous, and single-behavior. -->
+
+## Open Questions (optional)
+
+<!--
+Add this section whenever a question is still unanswered at the end of the
+requirements phase. Classify every entry by WHO HOLDS THE ANSWER -- an
+unresolved item filed under the wrong owner is worse than one left blank,
+because nobody is waiting for it.
+
+  - **AI が調べる**   -- answerable by research or by reading the codebase.
+  - **PO が決める**   -- a business, cost, or risk trade-off. The AI cannot
+                        resolve it by investigating harder, and must not
+                        absorb it as an assumption.
+  - **第三者に聞く**  -- held by someone outside the room (an actual user, an
+                        external accountant, a customer, a vendor).
+
+In the 2026-08-24 run this classification was missing and a decision the PO
+had personally made years earlier -- and could reverse -- was filed as
+"the AI will look into it". It was not researchable: it was a trade-off
+between two invariants the PO had already approved, and only the PO could
+settle it. State also what breaks if the question stays open.
+-->
+
+<!-- Table headings and the three owner values follow spec.json.language, like
+     every other prose element in this template. English shown here as the
+     placeholder form; Japanese equivalents are 「AI が調べる／PO が決める／第三者に聞く」. -->
+
+| #   | Open question | Who holds the answer                      | What fails while it stays open                  |
+| --- | ------------- | ----------------------------------------- | ----------------------------------------------- |
+| 1   | <question>    | AI investigates / PO decides / ask a third party | <which acceptance criterion or invariant fails> |
