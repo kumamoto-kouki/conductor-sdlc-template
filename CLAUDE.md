@@ -25,6 +25,7 @@
 
 ## 最小ワークフロー
 
+- 初回導入: `/kiro-onboard`（AI が対話で誘導。詳細は `.claude/skills/kiro-onboard/SKILL.md`）
 - フェーズ 0（任意）: `/kiro-steering`、`/kiro-steering-custom`
 - Discovery: `/kiro-discovery "idea"` — 進め方を判定し、複数スペックのプロジェクトでは brief.md と roadmap.md を作成する
 - フェーズ 1（仕様策定）:
