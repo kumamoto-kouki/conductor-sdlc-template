@@ -42,6 +42,8 @@ const STATUS_JSON = join(DASHBOARD_DIR, "status.json");
 const HTML_PATH = join(DASHBOARD_DIR, "status-dashboard.html");
 const ROLE_CATALOG_MD = join(ROOT, ".kiro", "steering", "role-catalog.md");
 const PERSONAS_JSON = join(ROOT, "src", "data", "personas.json");
+const GITIGNORE = join(ROOT, ".gitignore");
+const TEMPLATE_GITIGNORE = join(ROOT, "template.gitignore");
 
 // ポータル化（Wave3 #3）で dashboard/reports/**・dashboard/steering/** の
 // ネストしたページが増えたため、レンダースモーク・NaN漏れチェックは
@@ -988,6 +990,40 @@ function checkDocReferencesExist() {
   }
 }
 
+// ---- 9. .gitignore ⇔ template.gitignore 双子drift検知 ----
+// (npm はパッキング時に .gitignore を tarball から常時除外する（.npmignore を足しても
+//  .gitignore 自体が除外されたままなので解決しない）。この制約を避けるため、npx 経由の
+//  複製では template.gitignore という別名の双子ファイルを配り、scripts/init-project.sh が
+//  複製先で .gitignore へリネームする。2ファイルは常に同一内容でなければならない双子であり、
+//  かつ「無視パターンの列挙」という本質的にフォーマットが同じでも実体としては別ファイルなので、
+//  .claude/rules/steering-consistency.md の方針（フォーマットが本質的に異なる双子は機械的な
+//  drift チェックを設ける）と同じ発想で、内容一致を機械チェックする。
+//  片方だけを更新すると、複製先の .gitignore がテンプレ本体の .gitignore と乖離し、
+//  node_modules 等の再発・新規パターン追加の反映漏れが起きるため検知する。)
+function checkGitignoreTwinConsistency() {
+  const NAME = "9. .gitignore ⇔ template.gitignore 双子drift検知";
+  if (!existsSync(GITIGNORE) || !existsSync(TEMPLATE_GITIGNORE)) {
+    record(
+      NAME,
+      "fail",
+      `.gitignore または template.gitignore が見つかりません（${GITIGNORE} / ${TEMPLATE_GITIGNORE}）`,
+    );
+    return;
+  }
+  const gitignoreContent = readFileSync(GITIGNORE, "utf8");
+  const templateGitignoreContent = readFileSync(TEMPLATE_GITIGNORE, "utf8");
+  if (gitignoreContent === templateGitignoreContent) {
+    record(NAME, "pass", ".gitignore と template.gitignore の内容が完全一致");
+  } else {
+    record(
+      NAME,
+      "fail",
+      `.gitignore と template.gitignore の内容が一致しません。npm は .gitignore を tarball から常時除外するため、npx 経由の複製先には template.gitignore の内容が届きます。` +
+        `どちらを直すべきか判断し（通常は最後に編集した方が正、もう片方をそれに合わせてコピーする）、2ファイルを同一内容にしてください（例: cp .gitignore template.gitignore）。`,
+    );
+  }
+}
+
 async function main() {
   console.log(
     "=== dashboard 検証ハーネス（scripts/verify-dashboard.mjs） ===\n",
@@ -1001,6 +1037,7 @@ async function main() {
   checkRoleCatalogPersonaConsistency();
   checkModelUsageRoleConsistency();
   checkDocReferencesExist();
+  checkGitignoreTwinConsistency();
 
   console.log("\n=== 結果一覧 ===");
   for (const r of results) {

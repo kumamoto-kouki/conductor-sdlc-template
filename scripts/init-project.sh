@@ -26,6 +26,10 @@
 # 依存するので、role-catalog.md 側の文言を変えるときは下記 sed パターンも同時に直す。
 # 複製先の dashboard/status.json は dashboard/status.init.json（汎用の初期状態）へ入れ替える。
 # テンプレ本体側の status.json は見本用サンプルデータのまま変更しない。
+# 複製先の .gitignore は template.gitignore（テンプレ本体の .gitignore と同一内容の双子）を
+# リネームして作る。npm はパッキング時に .gitignore を tarball から常時除外するため、npx 経由の
+# 複製では素の .gitignore を直接運べない（node_modules・.astro・dashboard/ 生成物が複製先で
+# 未追跡ファイルとして現れる不具合の原因だった）。git 初期化より前に配置すること。
 set -euo pipefail
 
 usage() {
@@ -168,6 +172,16 @@ if [ -f "$TARGET/dashboard/status.init.json" ]; then
   mv -f "$TARGET/dashboard/status.init.json" "$TARGET/dashboard/status.json"
 else
   echo "warn: $TARGET/dashboard/status.init.json が見つかりません。status.json は複製元のサンプルのまま残ります" >&2
+fi
+
+# template.gitignore を .gitignore として配置する（npm パッキング対策）。npm は tarball 作成時に
+# .gitignore を常時除外するため（.npmignore を足しても .gitignore 自体は除外されたまま解決しない）、
+# リポジトリ直下に同一内容の双子 template.gitignore を置いて配り、複製先でこの名前へリネームする。
+# git 初期化より前に置くこと: 後にすると初回コミットに node_modules 等が含まれてしまう。
+if [ -f "$TARGET/template.gitignore" ]; then
+  mv -f "$TARGET/template.gitignore" "$TARGET/.gitignore"
+else
+  echo "warn: $TARGET/template.gitignore が見つかりません。.gitignore は配置されません" >&2
 fi
 
 # git 初期化 + 初回コミット（user.name/email 未設定の環境でも失敗しないようフォールバックを渡す）
