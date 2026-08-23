@@ -8,13 +8,14 @@
 
 ```bash
 npx github:kumamoto-kouki/conductor-sdlc-template ~/projects/my-app "マイアプリ"
-cd ~/projects/my-app
-npm install
-npm run build
-npm run preview
 ```
 
-`npm run preview` が表示する URL の末尾に **`/status-dashboard`** を付けて開く（例: `http://localhost:4321/status-dashboard`）。初期ダッシュボードが出れば成功。
+生成された新しいフォルダ（例: `~/projects/my-app`）を Claude Code で開く。
+
+- VS Code の場合: 「ファイル > フォルダーを開く」で新しいフォルダを選ぶ
+- ターミナルの場合: `cd ~/projects/my-app` してから `claude` と入力する
+
+開いたら `/kiro-onboard` と入力する。あとは AI が対話で質問しながら、依存関係のインストール・ビルド・`product.md` 等の記入・規模プリセットの選定までを順に進め、最後にダッシュボードを開いて見せる。
 
 <details><summary>うまくいかないとき</summary>
 
@@ -26,14 +27,20 @@ npm run preview
 
 ## インストール後にすること
 
-対象プロジェクトのフォルダで Claude Code を開いて進める。
+対象プロジェクトのフォルダで Claude Code を開き、`/kiro-onboard` と入力する。Node/npm の確認、依存関係のインストールとビルド、`product.md` / `tech.md` / `structure.md` の記入、規模プリセット S/M/L の選定まで、AI が対話で質問しながら代行する。詳細は `.claude/skills/kiro-onboard/SKILL.md`。
+
+状況確認はいつでも `/kiro-spec-status {機能名}`。
+
+<details><summary>手動で進める場合</summary>
+
+エンジニアが手順を直接進めたい場合は、次の4ステップを自分で行う。
 
 1. **`.kiro/steering/` の `product.md` / `tech.md` / `structure.md` を記入**（`/kiro-steering` でも可）— AI に渡る前提知識
 2. **規模プリセット S/M/L を選ぶ** — `.kiro/steering/role-catalog.md`「配役表（現状）」冒頭の**採用中プリセット**行に記入し、配役表の 状態 列を合わせる（実装者(Maker)と検査者(Checker)を別人にする規律は規模に関わらず不変）
 3. **最初の機能を作る**: `/kiro-discovery "アイデア"` → `/kiro-spec-quick {機能名}` → `/kiro-impl {機能名}`（各段階を承認）
 4. **進捗を反映**: `dashboard/status.json` を更新して `npm run build`
 
-状況確認はいつでも `/kiro-spec-status {機能名}`。
+</details>
 
 ## 全体の流れ（1周）
 
