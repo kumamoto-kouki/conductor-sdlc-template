@@ -53,12 +53,7 @@ Check, via Bash, and report as a plain list:
 
 ### Step 2: Harvest Permanent Content
 
-Read through `.claude/reports/` and check whether anything in it still needs to move to a permanent home before the project closes and nobody comes back to do this. Use the destination table in `.claude/reports/README.md` as-is — do not re-derive or restate its criteria here:
-
-- version-history facts → `CHANGELOG.md`
-- cross-cutting learnings → `.kiro/steering/`
-- path-scoped learnings → `.claude/rules/`
-- delegation/playbook improvements → `.claude/playbooks/`
+Read through `.claude/reports/` and check whether anything in it still needs to move to a permanent home before the project closes and nobody comes back to do this. **Read `.claude/reports/README.md` and work from its destination table directly** — it is the single source for where each kind of permanent content goes, and restating it here would let the copy drift out of sync with it (the table currently has five categories, and carry-over items are one of the easiest to miss).
 
 Move anything that qualifies now, while the context for it is still fresh. This step is about the project's _own_ permanent records — Step 3 below handles the separate, narrower case of feedback aimed at the template itself.
 
