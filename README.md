@@ -30,7 +30,7 @@ npx github:kumamoto-kouki/conductor-sdlc-template ~/projects/my-app "マイア�
 
 ## インストール後にすること
 
-対象プロジェクトのフォルダで Claude Code を開き、`/kiro-onboard` と入力する。Node/npm の確認、依存関係のインストールとビルド、`product.md` / `tech.md` / `structure.md` の記入、規模プリセット S/M/L の選定まで、AI が対話で質問しながら代行する。詳細は `.claude/skills/kiro-onboard/SKILL.md`。
+対象プロジェクトのフォルダで Claude Code を開き、`/kiro-onboard` と入力する。Node/npm の確認、依存関係のインストールとビルド、`product.md`（と技術が決まっていれば `tech.md`）の記入、規模プリセット S/M/L の選定まで、AI が対話で質問しながら代行する。`structure.md` はコードができてから `/kiro-steering` で埋めるため、この時点では意図的に空のまま残す。詳細は `.claude/skills/kiro-onboard/SKILL.md`。
 
 状況確認はいつでも `/kiro-spec-status {機能名}`。
 

@@ -39,7 +39,9 @@ Read the two signals together:
 
 - **Both signals say "not onboarded"** (preset is `未選択` *and* `product.md` is still placeholder text) → continue to Step 1.
 - **Both say "already onboarded"** → tell the user in plain language that setup already looks complete, point them to `/kiro-discovery "idea"`, and stop. Do not re-run the interview or overwrite existing answers.
-- **They disagree** — most commonly `product.md` is filled but the preset reads `未選択`, because `role-catalog.md` says the preset is deliberately revisited at wave and milestone boundaries → **do not re-run the interview.** Say what you observed, ask whether they want to re-pick the scale preset, and if so run **Step 4 only**, leaving every other file untouched.
+- **They disagree** — decide by *which* signal is the stale one; do not apply one rule to both directions:
+  - `product.md` is filled but the preset reads `未選択` → onboarding did run; the preset was reset on purpose (`role-catalog.md` says it is revisited at wave and milestone boundaries). **Do not re-run the interview.** Say what you observed, ask whether they want to re-pick the scale preset, and if so run **Step 4 only**, leaving every other file untouched.
+  - The preset is chosen but `product.md` is still placeholder text → the interview never completed (or its answers were lost). **Run Steps 1–3 normally**, then skip Step 4 unless the PO asks to change the preset. Never treat a chosen preset as evidence that the interview happened.
 
 ### Step 1: Prepare the Environment (the AI does this, not the user)
 
@@ -78,7 +80,7 @@ This does not contradict `kiro-steering`'s "PO decides, AI does not write" princ
 
 ### Step 5: Confirm
 
-Summarize what was written to `product.md`, `tech.md`, `structure.md`, and the scale preset in plain language (not a raw file dump). Ask if anything should be corrected, and apply corrections with `Edit`.
+Summarize what was written — `product.md`, `tech.md` (if the stack was decided), and the scale preset — in plain language (not a raw file dump). Also say plainly that `structure.md` was deliberately left for later, so the PO does not read the untouched file as a mistake. Ask if anything should be corrected, and apply corrections with `Edit`.
 
 ### Step 6: Hand Off
 
