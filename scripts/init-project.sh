@@ -128,6 +128,14 @@ else
   echo "warn: $ROOT/VERSION が見つかりません。TEMPLATE_VERSION は作成しません" >&2
 fi
 
+# 複製先自身の VERSION は初期値へ戻す。rsync は複製元の VERSION をそのまま運ぶため、
+# 何もしないと「新規プロジェクトなのに版がテンプレートの最新版になっている」状態に
+# なる（派生元の追跡は上の TEMPLATE_VERSION が担うので、ここで引き継ぐ必要はない）。
+# package.scaffold.json の version と揃える。
+if [ -f "$TARGET/VERSION" ]; then
+  echo "0.1.0" > "$TARGET/VERSION"
+fi
+
 # プレースホルダ置換（対象ファイルを決め打ちしない: ページ数はテンプレの発展で増減するため、
 # 複製済みの $TARGET を対象に grep でプレースホルダを含むテキストファイルを都度検出する。
 # scripts/init-project.sh 自身はこの置換パターンをコードとして保持する必要があるため、

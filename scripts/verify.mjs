@@ -245,6 +245,44 @@ function checkSpecJsonReadable() {
   }
 }
 
+// ---- 5. VERSION ⇔ package.json の version 一致 ----
+// (VERSION はリリース版の記録で、scripts/init-project.sh が複製先の TEMPLATE_VERSION
+//  に写して派生元の追跡に使う。package.json だけ上げて VERSION を上げ忘れると、
+//  そのタグから生成したプロジェクトが誤った派生元バージョンを記録する。実際に
+//  v0.11.0 のリリースコミットで漏れ、公開後に発覚した（履歴は訂正できなかった）。
+//  人の記憶に頼らずここで機械的に突き合わせる。)
+function checkVersionConsistency() {
+  const NAME = "5. VERSION ⇔ package.json の version 一致";
+  const vf = join(ROOT, "VERSION");
+  const pf = join(ROOT, "package.json");
+  if (!existsSync(vf)) {
+    record(NAME, "skip", "VERSION がありません");
+    return;
+  }
+  if (!existsSync(pf)) {
+    record(NAME, "fail", "package.json がありません");
+    return;
+  }
+  const v = readFileSync(vf, "utf8").trim();
+  let pkg;
+  try {
+    pkg = JSON.parse(readFileSync(pf, "utf8"));
+  } catch (e) {
+    record(NAME, "fail", `package.json を読めません: ${e.message}`);
+    return;
+  }
+  if (v === pkg.version) {
+    record(NAME, "pass", `どちらも ${v}`);
+  } else {
+    record(
+      NAME,
+      "fail",
+      `VERSION は ${v}、package.json は ${pkg.version} で一致しません。` +
+        "どちらかの更新が漏れています（VERSION はリリース版の記録で、生成プロジェクトの TEMPLATE_VERSION の元になる）。",
+    );
+  }
+}
+
 function main() {
   console.log("=== テンプレート整合性検証ハーネス（scripts/verify.mjs） ===\n");
 
@@ -252,6 +290,7 @@ function main() {
   checkGitignoreTwinConsistency();
   checkStatusReportFresh();
   checkSpecJsonReadable();
+  checkVersionConsistency();
 
   console.log("=== 結果一覧 ===");
   for (const r of results) {

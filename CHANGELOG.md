@@ -29,7 +29,7 @@
 - **`src/data/personas.json` を撤去**し、配役の正本を `role-catalog.md` 単独にした。両者の役割名整合を機械照合していた旧チェック6は、双子そのものが解消されたため不要になった（チェックを持つより双子を作らない方が良い）。
 - **`.githooks/pre-commit` の役目を差し替えた**：手書き `status.json` のスキーマ検証（zod）→ ①ステージされた `spec.json` の妥当性検証（壊れていればコミットをブロック＝旧フックが持っていた「壊れた正本はコミットさせない」ゲートの後継）②`.kiro/specs/` または `role-catalog.md` が変わったコミットでの `STATUS.md` 自動再生成。更新を人の記憶に頼らない。
   - 再生成は**インデックスの内容から**行い、作業ツリーの `STATUS.md` は書き換えない。作業ツリーから生成すると、パス限定の部分コミット（`.claude/playbooks/delegation.md` が統合手順として推奨している）のときに、そのコミットに存在しない仕様を載せた `STATUS.md` がコミットされ、クローン直後や CI の `npm run verify` が落ちる。旧フックも同じ理由でインデックスを読んでいた。
-- **`scripts/verify.mjs` を新設**（旧 `verify-dashboard.mjs` の後継、1,262行→279行）。9チェックのうち生成 HTML を対象にしていた6つと、撤去したデータとの整合2つは対象が消滅。残る2つ（文書の相対参照の実在／`.gitignore`⇔`template.gitignore` 双子drift）に、新設の「`STATUS.md` が実態と一致（再生成しても差分が出ないこと）」と「`.kiro/specs/*/spec.json` が状況の導出元として読める」を加えた4チェック構成。
+- **`scripts/verify.mjs` を新設**（旧 `verify-dashboard.mjs` の後継、1,262行→279行）。9チェックのうち生成 HTML を対象にしていた6つと、撤去したデータとの整合2つは対象が消滅。残る2つ（文書の相対参照の実在／`.gitignore`⇔`template.gitignore` 双子drift）に、新設の「`STATUS.md` が実態と一致（再生成しても差分が出ないこと）」・「`.kiro/specs/*/spec.json` が状況の導出元として読める」・「`VERSION` ⇔ `package.json` の version 一致」を加えた5チェック構成。
 - **`src/content/*.mdx` を `docs/*.md` へ移行**：`team-structure.md`・`glossary.md`・`pdca-practice.md`・`autonomy-tiers.md`・`external-services.md`。旧ファイルは Tailwind クラス付きの生 HTML だったため書き直した。`team-structure.mdx` が持っていた体制図1枚とフェーズ別ツリー7枚は、`orchestration.md` の体制図と `role-catalog.md` のフェーズ別投入計画表を drift チェック無しで複製したものだったため移していない（図は v0.11.0 タグに残る）。
 
 ### 追加
@@ -45,6 +45,8 @@
 
 ### 修正
 
+- **生成プロジェクトの `VERSION` にテンプレートの版が漏れていた。** `scripts/init-project.sh` は複製元の `VERSION` をそのまま運んでいたため、新規プロジェクトなのに版がテンプレートの最新版（例: `0.12.0`）になっていた。複製先の `VERSION` を `0.1.0` へ初期化する（派生元の追跡は `TEMPLATE_VERSION` が担う）。
+- **`VERSION` と `package.json` の version がずれても検知できなかった。** v0.11.0 のリリースコミットで実際に漏れ、公開後に発覚した（履歴は訂正できず CHANGELOG への記録に留めた）。`npm run verify` にチェック5として突き合わせを追加し、負のテストで実証した。
 - `docs/glossary.md` への移行時に、匿名化で語が消えた空エントリ（`（技術）（タウリ）`）と、撤去により事実でなくなる「Tailwind CSS はこのダッシュボードで採用」の項を除いた。
 - `.claude/playbooks/delegation.md` が実在しない `docs/status.json` を参照していた（旧チェックは `docs/` を走査対象に含めておらず見逃していた）。チェック1の走査対象に `README.md` と `docs/` を追加したことで検出し、是正した。
 - `scripts/verify.mjs` のチェック1が、git の index にあってディスクに無いファイルで未捕捉例外により停止し、他のチェックの結果も見えなくなる欠陥を修正（失敗として記録し続行するようにした）。負のテストで実証済み。
