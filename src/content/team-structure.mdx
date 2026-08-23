@@ -29,7 +29,7 @@ export const mainOrgChart = `flowchart TD
   ENGLEAD --> ENGREV
   DESLEAD --> DESMAKE
   DESLEAD --> DESREV
-  T["🧑🏼‍🏫 PO技術検証<br/>PO側の独立検証(既定空席)"] -. 裏書き .- PO
+  T["🧑🏼‍🏫 PO技術検証<br/>受理権限なし・既定空席"] -. 裏書き .- PO
 
   %% Mermaid の classDef は CSS の var() を解釈できない（構文エラーになる）ため、
   %% 案A「Indigo / Cool Slate」トークンのライトモード相当値を直接埋め込む。
@@ -186,7 +186,8 @@ export const phaseTrees = [
   ※ 🧑‍🚀 FDE（フォワードデプロイド）は現場・ステークホルダーへ直接常駐する実施者（Maker）で、権限は実装範囲内の自律調整に限定されます。spec・スコープの変更は既存のDiscovery→PO承認フローを必ず通し、現場情報は優先度の高い根拠であって無条件の正解として扱いません（<code>role-catalog.md</code> のFDE charter）。
 </div>
 <div class="mt-1 text-xs text-muted">
-  ※ 🧑🏼‍🏫 PO技術検証は PO の側に立ち、PO が単独では検証できない技術的回答を独立に確認する常設の席です。成果物は作らず受理判定も行いません（合否は🛡️ EngRev）。着任は実在の人間を既定とし、AI 代替は別実体であることの開示が必須です。テンプレ既定は空席（<code>role-catalog.md</code>「PO技術検証の charter と境界」）。
+  ※ 🧑🏼‍🏫 PO技術検証は、実在の人間が座るときは PO の側に立ち、PO が単独では検証できない技術的回答を独立に確認する常設の席です。成果物は作らず受理判定も行いません（合否は🛡️
+  EngRev）。AI 代替は別実体であることの開示が必須で、その場合は側も変わります（詳細は正本 <code>role-catalog.md</code>「PO技術検証の charter と境界」）。テンプレ既定は空席。
 </div>
 
 <MermaidDiagram
@@ -227,8 +228,8 @@ export const phaseTrees = [
     <td>claude.ai/design で生成（文面は <code>docs/design-brief.md</code>）→ レビュー → <code>/design-sync</code> で1部品ずつコードへ取り込み → 公開は人間。</td>
   </tr>
   <tr>
-    <td><b>🧑🏼‍🏫 PO技術検証（PO側の独立検証・常設空席）</b></td>
-    <td>役割の詳細は上の注記のとおり。規模プリセット S/M/L のいずれでも席自体は削除されない（着任するかは別）。正本は <code>role-catalog.md</code>「PO技術検証の charter と境界」。</td>
+    <td><b>🧑🏼‍🏫 PO技術検証（受理権限なし・常設空席）</b></td>
+    <td>側（PO側か受注側か）は着任する実体によって変わる。詳細は上の注記および正本 <code>role-catalog.md</code>「PO技術検証の charter と境界」。規模プリセット S/M/L のいずれでも席自体は削除されない（着任するかは別）。</td>
   </tr>
 </table>
 </div>

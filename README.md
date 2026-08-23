@@ -85,7 +85,7 @@ flowchart TD
     RE["🛡️ EngRev（Checker）<br/>実装者と別人が受理判定"]
     RD["🕵🏼‍♀️ デザインRev（Checker）<br/>実装者と別人が受理判定"]
     OPS["👩🏼‍💼 運用<br/>状態が実態と合っているか監視"]
-    T["🧑🏼‍🏫 PO技術検証<br/>PO側の独立検証(既定空席)"]
+    T["🧑🏼‍🏫 PO技術検証<br/>受理権限なし・既定空席"]
 
     PO --> K
     K --> LE --> ME --> RE --> K
