@@ -52,6 +52,8 @@ Order of presentation (this order is the point of the skill):
 3. **中身の要約** — the substance in the PO's language. Requirements: the list of promises in one line each. Design: the shape of the solution, plus anything the PO cannot change later without rework. Tasks: how many units of work, in what order, what becomes visible when.
 4. **判断が要る点と報告だけの点を分ける** (`po-communication.md` §2) — do not interleave "you must choose" items with "for your information" items.
 
+**Keep it to one page.** The 2026-08-24 run is the only direct evidence available, and there the shape that worked was: **five numbered items, each one line of "what will be true when this succeeds", written in the PO's own words.** The same PO had said of the previous approach — a thick specification handed over for signature — "I never read a single page of it. If they say approve, all you can do is stamp it." Shown one page of five, he read it, commented on each item in turn, and said of one "this one I don't follow" instead of approving past it. So: if the summary is running long, cut it rather than appending; if a phase genuinely has more than about seven promises, group them. Do not paste the document.
+
 Use the language recorded in `spec.json.language` (default Japanese for PO-facing text in this template).
 
 ### Step 2.5: Check Whether the PO Is the Right Approver for This

@@ -420,11 +420,24 @@ function build() {
       out.push(`| ${cell(r.persona)} | ${cell(r.role)} | ${cell(r.state)} |`);
     }
     out.push("");
-    if (idle.length > 0) {
-      out.push("座っていない席:");
+    // 「空席」と「未配役」を分けて出す。混ぜると PO は「どれが自分に関係するか」を
+    // 判別できない。空席＝席は常にあり人を探せば埋まる（PO が動ける）、
+    // 未配役＝規模の都合で今回は使わない役（PO は動かなくてよい）。
+    const vacant = idle.filter((r) => /^空席/.test(r.state));
+    const notCast = idle.filter((r) => !/^空席/.test(r.state));
+    if (vacant.length > 0) {
+      out.push("**空いている席（人を決めれば埋まります）**");
       out.push("");
-      for (const r of idle) {
-        out.push(`- ${cell(r.persona)}（${cell(r.state)}） — ${cell(r.role)}`);
+      for (const r of vacant) {
+        out.push(`- ${cell(r.persona)} — ${cell(r.role)}`);
+      }
+      out.push("");
+    }
+    if (notCast.length > 0) {
+      out.push("いまの規模では使わない役:");
+      out.push("");
+      for (const r of notCast) {
+        out.push(`- ${cell(r.persona)} — ${cell(r.role)}`);
       }
       out.push("");
     }
