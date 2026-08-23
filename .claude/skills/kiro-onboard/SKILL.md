@@ -18,7 +18,7 @@ You are the first-run onboarding guide for a project freshly created from `condu
 
 - Node/npm verified, or the PO is told in plain language exactly what to install
 - Dependencies installed and the dashboard built by this skill, not by the PO
-- `product.md` / `tech.md` / `structure.md` filled from a plain-language interview, not left as placeholders
+- `product.md` filled from a plain-language interview; `tech.md` filled when the PO has a stack in mind; `structure.md` left for later on purpose (see Step 3) — never fabricated
 - Scale preset (S/M/L) recorded in `role-catalog.md`'s adopted-preset line and cast-table 状態 column, with **no rows deleted**
 - The PO sees the dashboard and knows the one next command (`/kiro-discovery`)
 
@@ -35,9 +35,11 @@ Before asking anything, check whether onboarding already happened:
 1. Read `.kiro/steering/role-catalog.md` and check the `**採用中プリセット**` line.
 2. Read `.kiro/steering/product.md` and check whether its `## 目的（何を・なぜ）` section still contains the unedited placeholder text (`（このプロダクトが解く課題・提供価値を1〜2行で）`).
 
-If the preset line does **not** say `未選択` and the steering files are no longer placeholder text, onboarding already happened. Tell the user in plain language that setup already looks complete, point them to `/kiro-discovery "idea"` for their next feature, and stop — do not re-run the interview or overwrite existing answers.
+Read the two signals together:
 
-Otherwise, continue to Step 1.
+- **Both signals say "not onboarded"** (preset is `未選択` *and* `product.md` is still placeholder text) → continue to Step 1.
+- **Both say "already onboarded"** → tell the user in plain language that setup already looks complete, point them to `/kiro-discovery "idea"`, and stop. Do not re-run the interview or overwrite existing answers.
+- **They disagree** — most commonly `product.md` is filled but the preset reads `未選択`, because `role-catalog.md` says the preset is deliberately revisited at wave and milestone boundaries → **do not re-run the interview.** Say what you observed, ask whether they want to re-pick the scale preset, and if so run **Step 4 only**, leaving every other file untouched.
 
 ### Step 1: Prepare the Environment (the AI does this, not the user)
 
@@ -62,7 +64,9 @@ Skip a question only if the PO already answered it unprompted earlier in the con
 
 ### Step 3: Write the Steering Files (the AI writes, the PO never opens a file)
 
-Using `Edit`, fill `.kiro/steering/product.md`, `.kiro/steering/tech.md`, and `.kiro/steering/structure.md` from the interview answers. Follow the granularity principle in `.claude/skills/kiro-steering/rules/steering-principles.md` (patterns and rationale, not exhaustive lists) even though this is an interview-first fill rather than a codebase-analysis fill. Leave `tech.md`'s Stack section as its placeholder if Step 2's tech question ended undecided.
+Using `Edit`, fill `.kiro/steering/product.md` from the interview answers, and `.kiro/steering/tech.md` if Step 2's tech question reached a decision. Follow the granularity principle in `.claude/skills/kiro-steering/rules/steering-principles.md` (patterns and rationale, not exhaustive lists) even though this is an interview-first fill rather than a codebase-analysis fill. Leave `tech.md`'s Stack section as its placeholder if Step 2 ended undecided.
+
+**Leave `structure.md` as its placeholder — do not fill it here.** It asks for the directory tree, naming conventions, and design invariants, none of which the interview asks about and none of which exist yet: at onboarding time the project has no code of its own. Writing a plausible-looking generic layout (`src/`, `tests/`, …) would put an unverified claim into project memory, where every later AI turn reads it as a settled decision — worse than an honestly empty placeholder, which announces itself as unfilled. Tell the PO plainly that this one gets filled once there is real code, by `/kiro-steering` (its Sync flow reads the actual tree). Do not treat the remaining placeholder as an incomplete onboarding.
 
 ### Step 4: Scale Preset (S/M/L)
 
@@ -88,7 +92,7 @@ Conversational, plain language throughout — this skill's entire audience is a 
 
 ## Safety & Fallback
 
-- **Environment too old or missing** (Step 1): stop, explain plainly, do not proceed until resolved.
+- **Environment too old or missing** (Step 1): stop, explain plainly, do not proceed until resolved. **Always tell the PO how to resume**: once the tool is installed or updated, they type `/kiro-onboard` again and it picks up from where it stopped (Step 0 makes re-running safe). The same applies to any other stop in this skill — never leave the PO without a stated next action.
 - **Ambiguous or contradictory interview answers**: ask a clarifying follow-up rather than guessing.
 - **Tech stack still undecided after the recommendation**: don't block onboarding; leave `tech.md`'s Stack section blank and say it will be decided at the first feature.
 - **Already onboarded** (Step 0 positive): report completion, point to `/kiro-discovery`, stop without repeating the interview.

@@ -4,7 +4,10 @@
 
 ## すぐに始める
 
-**前提**: Node.js 22.12 以上・npm 10 以上（`node -v` / `npm -v` で確認。古ければ [nvm](https://github.com/nvm-sh/nvm) で更新）。
+**前提**: 次の2つが要る。
+
+- **Node.js 22.12 以上・npm 10 以上**（`node -v` / `npm -v` で確認。古ければ [nvm](https://github.com/nvm-sh/nvm) で更新）
+- **Claude Code**（この手順は生成後に Claude Code で開いて進める。未導入なら `npm i -g @anthropic-ai/claude-code`。詳細は [公式ドキュメント](https://claude.com/claude-code)）
 
 ```bash
 npx github:kumamoto-kouki/conductor-sdlc-template ~/projects/my-app "マイアプリ"
