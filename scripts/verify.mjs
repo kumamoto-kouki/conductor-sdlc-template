@@ -349,6 +349,62 @@ function checkHooksEnabled() {
   );
 }
 
+// ---- 7. 常時ロードの予算 ----
+// (`CLAUDE.md` と `.kiro/steering/*.md` は毎セッション丸ごとモデルへ渡る。ここは
+//  「あれば便利」を置く場所ではなく、毎ターンのコストと注意を消費する固定費である。
+//  Agent = Model + Harness という見方では、環境の質はモデルの賢さと同格に効き、
+//  読ませる量はその環境設計の一部になる。放っておくと単調に増える——実測で、棚卸し
+//  直後 68,658 バイトから 83,597 バイトまで戻った（+21.8%）ことがある。
+//  そこで予算を宣言し、超えたら止める。増やしたいときは、この定数を上げるという
+//  意識的な操作を要求する——それが「黙って増える」を「決めて増やす」に変える。
+//  条件付きでよい内容は `.claude/rules/`（glob 一致時のみ）か、そのスキルが必要な
+//  ときに読む場所へ置く。)
+const CONTEXT_BUDGET_CHARS = 32000;
+
+function checkContextBudget() {
+  const NAME = "7. 常時ロードの予算（CLAUDE.md ＋ .kiro/steering/）";
+  const files = [join(ROOT, "CLAUDE.md")];
+  const steeringDir = join(ROOT, ".kiro", "steering");
+  if (existsSync(steeringDir)) {
+    for (const f of readdirSync(steeringDir).sort()) {
+      if (f.endsWith(".md")) files.push(join(steeringDir, f));
+    }
+  }
+  const present = files.filter((f) => existsSync(f));
+  if (present.length === 0) {
+    record(NAME, "skip", "CLAUDE.md も .kiro/steering/*.md も見つかりません");
+    return;
+  }
+  let chars = 0;
+  const rows = [];
+  for (const f of present) {
+    const n = [...readFileSync(f, "utf8")].length;
+    chars += n;
+    rows.push([n, f.slice(ROOT.length + 1)]);
+  }
+  rows.sort((a, b) => b[0] - a[0]);
+  const top = rows
+    .slice(0, 3)
+    .map(([n, f]) => `${f} ${n.toLocaleString()}`)
+    .join(" / ");
+  if (chars <= CONTEXT_BUDGET_CHARS) {
+    record(
+      NAME,
+      "pass",
+      `${chars.toLocaleString()} / ${CONTEXT_BUDGET_CHARS.toLocaleString()} 文字（残り ${(CONTEXT_BUDGET_CHARS - chars).toLocaleString()}）。大きい順: ${top}`,
+    );
+    return;
+  }
+  record(
+    NAME,
+    "fail",
+    `${chars.toLocaleString()} 文字で、予算 ${CONTEXT_BUDGET_CHARS.toLocaleString()} を ${(chars - CONTEXT_BUDGET_CHARS).toLocaleString()} 超えています。\n` +
+      `大きい順: ${top}\n` +
+      `条件付きでよい内容を .claude/rules/（glob 一致時のみ読まれる）か、必要なスキルが読む場所へ移してください。\n` +
+      `本当に毎セッション必要なら scripts/verify.mjs の CONTEXT_BUDGET_CHARS を上げること——ただしそれは「決めて増やす」操作であり、理由をコミットメッセージに残すこと。`,
+  );
+}
+
 function main() {
   console.log("=== テンプレート整合性検証ハーネス（scripts/verify.mjs） ===\n");
 
@@ -358,6 +414,7 @@ function main() {
   checkSpecJsonReadable();
   checkVersionConsistency();
   checkHooksEnabled();
+  checkContextBudget();
 
   console.log("=== 結果一覧 ===");
   for (const r of results) {

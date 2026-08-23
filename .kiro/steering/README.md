@@ -9,9 +9,9 @@
 | `product.md`           | プロダクトの目的・原則                                                                             | PO／全員                  |
 | `tech.md`              | 技術スタック・制約                                                                                 | 全員                      |
 | `structure.md`         | ディレクトリ／コード構成                                                                           | 全員                      |
-| `orchestration.md`     | **中核モデル**：役割・レーン＋リーダー・委譲規律 A〜E・worktree 戦略・信用原則・振り返り・git 運用 | 👨🏼‍💼 統括                   |
+| `orchestration.md`     | **中核モデル**：役割・レーン＋リーダー・委譲規律 A〜E・信用原則・振り返り・git 運用 | 👨🏼‍💼 統括                   |
 | `operations.md`        | **運用統治**：報告系統・状態遷移＋全体整合・WIP 上限・ID 体系・開示の健全性                        | 👩🏼‍💼 運用                   |
-| `role-catalog.md`      | 役割カタログ＋投入計画（配役・候補・charter）                                                      | 👩🏼‍💼 運用                   |
+| `role-catalog.md`      | 役割カタログ（いま誰が座っているか＋charter。投入計画は `.claude/playbooks/casting.md`）                                                      | 👩🏼‍💼 運用                   |
 | `review-checklists.md` | レビュー受理観点（セキュリティ／パフォ／a11y／原則／状態／プロセス）                               | 🕵🏼‍♀️ デザインRev／🛡️ EngRev |
 | `writing-standards.md` | 日本語技術文書の文章規範（新規に書く文章・変更で触れた文章に適用）                                 | 全員                      |
 

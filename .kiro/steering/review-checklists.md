@@ -33,4 +33,4 @@
 ## 🔁 プロセス（汎用は skills が正本・固有の注意のみ）
 
 - 証拠の再生成・独立レビュー・受理判定は `kiro-review` ＋ `kiro-verify-completion` に従う（ここで再掲しない）。
-- 本プロジェクト固有：**テスト合計が現行を下回ったら古ベースの疑い**（base-guard の信号）。ベース是正・worktree 撤去の手順は `orchestration.md`（worktree 戦略）が正本。
+- 本プロジェクト固有：**テスト合計が現行を下回ったら古ベースの疑い**（base-guard の信号）。ベース是正・worktree 撤去の手順は `.claude/playbooks/worktree-strategy.md`。判断基準は `orchestration.md`（worktree 戦略）が正本。

@@ -103,7 +103,7 @@ flowchart TD
     class T cand
 ```
 
-図は **M（標準）プリセット**の体制。S/M/L でどの役を置くかは `.kiro/steering/role-catalog.md`「規模別プリセット（S/M/L）」を参照する。破線の 🧑🏼‍🏫 PO技術検証は統括を介さずPOへ裏書きする常設の席で、既定は空席（詳細は `.kiro/steering/role-catalog.md`「PO技術検証の charter と境界」）。
+図は **M（標準）プリセット**の体制。S/M/L でどの役を置くかは `.claude/playbooks/casting.md`「規模別プリセット（S/M/L）」を参照する。破線の 🧑🏼‍🏫 PO技術検証は統括を介さずPOへ裏書きする常設の席で、既定は空席（詳細は `.kiro/steering/role-catalog.md`「PO技術検証の charter と境界」）。
 
 ## いまの状況を見る
 
@@ -121,7 +121,7 @@ flowchart LR
 - 読むだけならビルドもサーバも要らない。エディタでも GitHub 上でも `STATUS.md` をそのまま開く。
 - `.kiro/specs/` か `.kiro/steering/role-catalog.md` を変更したコミットでは、`.githooks/pre-commit` が `STATUS.md` を作り直してコミットに含める（`git config core.hooksPath .githooks` が前提。`scripts/init-project.sh` が複製時に設定する）。更新を人の記憶に頼らせないための仕掛けである。
 - 生成器は同じリポジトリ状態から常に同じ出力を返すため、`npm run verify` は「作り直して差分が出るか」で陳腐化を検知できる。
-- 体制図と配役の詳細は `STATUS.md` ではなく正本を読む（体制＝`.kiro/steering/orchestration.md`、配役とフェーズ別投入計画＝`.kiro/steering/role-catalog.md`）。前提知識なしの読み方は `docs/team-structure.md`、用語は `docs/glossary.md` にある。
+- 体制図と配役の詳細は `STATUS.md` ではなく正本を読む（体制＝`.kiro/steering/orchestration.md`、配役＝`.kiro/steering/role-catalog.md`、フェーズ別投入計画＝`.claude/playbooks/casting.md`、`.kiro/steering/role-catalog.md`）。前提知識なしの読み方は `docs/team-structure.md`、用語は `docs/glossary.md` にある。
 
 ## 中身の地図
 

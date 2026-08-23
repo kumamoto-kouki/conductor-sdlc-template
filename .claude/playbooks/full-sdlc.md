@@ -18,7 +18,7 @@
 | 引き継ぎ           | handoff ドキュメント＋`.claude/reports/`                                           | 引き継ぎメモ・セッション報告                                                                       |
 | 終了               | `/kiro-offboard`                                                                   | クロージング記録（`.claude/reports/YYYY-MM-DD-closing-<mode>.md`）・テンプレへの還流マーカーの保全 |
 
-役割配置は `role-catalog.md` のフェーズ別投入計画表を正本とする（本表では重複させない）。
+役割配置は `.claude/playbooks/casting.md` のフェーズ別投入計画表を正本とする（本表では重複させない）。
 
 ### 超上流（要求定義）の詳細
 
@@ -39,7 +39,7 @@ brief.md のセクションに厳密に一致しない場合（例：ステー�
 ①実在のエンドユーザー・現場担当・ステークホルダーに直接当たれるならそちらを書く、
 ②単一顧客への深い密着案件で **🧑‍🚀 FDE（フォワードデプロイド）** が投入されているなら FDE が
 現場で得た一次情報を書く（ただし FDE の情報も無条件の正解ではなく根拠つきで書く。
-`.claude/playbooks/discovery-personas.md` の FDE charter を参照）、③どちらも無い場合のみ `role-catalog.md` 候補ロスターの
+`.claude/playbooks/discovery-personas.md` の FDE charter を参照）、③どちらも無い場合のみ `.claude/playbooks/casting.md` 候補ロスターの
 **代弁ペルソナ（🙋 エンドユーザー代弁／🏭 現場代弁／🤝 ステークホルダー代弁）を検証すべき仮説として
 書く**（意見でなく仮説として書く運用は `.claude/playbooks/discovery-personas.md` を参照）。
 
@@ -47,7 +47,7 @@ brief.md のセクションに厳密に一致しない場合（例：ステー�
 
 - **要件定義**＝`/kiro-spec-requirements`。EARS 形式（Ubiquitous/Event-driven/State-driven/
   Unwanted behavior/Optional）で受け入れ可能な要件に落とす。
-- **設計**＝`/kiro-spec-design`。着手前設計判断が要る規模（`role-catalog.md` の候補ロスター
+- **設計**＝`/kiro-spec-design`。着手前設計判断が要る規模（`.claude/playbooks/casting.md` の候補ロスター
   「設計（アーキテクト）」）では、着手前に設計エージェントを常設する。「AI 単独で判断を
   確定させない類型」（`.kiro/steering/orchestration.md`）に当たったらPO技術検証の席へ回す。
 - **実装**＝`/kiro-impl`。委譲規律 A〜E・ベース是正ガードは `orchestration.md`／
@@ -56,7 +56,7 @@ brief.md のセクションに厳密に一致しない場合（例：ステー�
   ＋ `kiro-verify-completion`（完了主張の前に新鮮な証拠を要求するゲート）。**両方**を通す
   ——`kiro-validate-impl` は spec 単位の整合、`kiro-verify-completion` は個々の完了主張の
   証拠ゲートで、役割が異なる（前者を通しても後者を省略しない）。
-- **リリース前**＝セキュリティ監査（`role-catalog.md` 候補ロスター）を外部 I/O・認証・公開前に
+- **リリース前**＝セキュリティ監査（`.claude/playbooks/casting.md` 候補ロスター）を外部 I/O・認証・公開前に
   投入。**push/公開は PO の判断**（`orchestration.md` 権限境界。統括・実装エージェントは push
   しない）。
 
