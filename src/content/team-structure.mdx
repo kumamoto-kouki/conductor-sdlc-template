@@ -29,6 +29,7 @@ export const mainOrgChart = `flowchart TD
   ENGLEAD --> ENGREV
   DESLEAD --> DESMAKE
   DESLEAD --> DESREV
+  T["🧑🏼‍🏫 PO技術検証<br/>PO側の独立検証(既定空席)"] -. 裏書き .- PO
 
   %% Mermaid の classDef は CSS の var() を解釈できない（構文エラーになる）ため、
   %% 案A「Indigo / Cool Slate」トークンのライトモード相当値を直接埋め込む。
@@ -37,6 +38,7 @@ export const mainOrgChart = `flowchart TD
   classDef lead fill:#4655c4,stroke:#4655c4,color:#ffffff,font-weight:bold;
   classDef ops fill:#e9ecfb,stroke:#4655c4,stroke-dasharray: 3 2,color:#4655c4;
   classDef demand fill:#e7effb,stroke:#2563c9,stroke-dasharray: 3 2,color:#1c2333;
+  classDef cand fill:#e7effb,stroke:#2563c9,stroke-dasharray: 3 2,color:#1c2333;
   classDef lane fill:#eef1f7,stroke:#0c7f92,color:#1c2333;
   classDef laneDesign fill:#e9ecfb,stroke:#7452c9,color:#1c2333;
   classDef leaf fill:#ffffff,stroke:#0c7f92,color:#1c2333;
@@ -46,6 +48,7 @@ export const mainOrgChart = `flowchart TD
   class OPS ops
   class DEMAND demand
   class FDE demand
+  class T cand
   class ENGLANE lane
   class DESLANE laneDesign
   class ENGMAKE leaf
@@ -65,8 +68,9 @@ export const phaseTrees = [
   PO["🧑🏻‍💼 PO"] --> CD["👨🏼‍💼 統括"]
   CD -. 報告 .- OPS["👩🏼‍💼 運用"]
   CD --> DESIGN["🧭 設計<br/>候補・着手前設計"]
+  T["🧑🏼‍🏫 PO技術検証<br/>常設空席・PO単独で妥当性を確かめられない回答"] -. 裏書き .- PO
   classDef cand fill:#e7effb,stroke:#2563c9,stroke-dasharray: 3 2,color:#1c2333;
-  class DESIGN,DEMAND,FDE cand`,
+  class DESIGN,DEMAND,FDE,T cand`,
   },
   {
     title: "② 設計",
@@ -78,8 +82,9 @@ export const phaseTrees = [
   CD --> DREV["🕵🏼‍♀️ デザインRev<br/>観点助言"]
   CD --> EREV["🕵🏼‍♂️ EngRev<br/>観点助言"]
   CD --> GENBA["🏭 現場代弁<br/>候補・運用設計レビュー"]
+  T["🧑🏼‍🏫 PO技術検証<br/>常設空席・承認済み事項の衝突"] -. 裏書き .- PO
   classDef cand fill:#e7effb,stroke:#2563c9,stroke-dasharray: 3 2,color:#1c2333;
-  class DESIGN,GENBA cand`,
+  class DESIGN,GENBA,T cand`,
   },
   {
     title: "③ 実装",
@@ -155,6 +160,7 @@ export const phaseTrees = [
   <span>実線＝配役済（現役）</span>
   <span><span class="badge badge-warn">▰</span> これまで投入すべきだった（後追いで凌いだ＝仕組みの弱さ・blameless）</span>
   <span><span class="badge badge-info">▱</span> これから投入する（破線＝候補）</span>
+  <span>破線には「候補（これから投入）」と「常設だが空席（🧑🏼‍🏫 PO技術検証など）」の2種があり、後者はカードのバッジで示す</span>
 </div>
 
 <div class="mb-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
@@ -179,10 +185,13 @@ export const phaseTrees = [
 <div class="mt-1 text-xs text-muted">
   ※ 🧑‍🚀 FDE（フォワードデプロイド）は現場・ステークホルダーへ直接常駐する実施者（Maker）で、権限は実装範囲内の自律調整に限定されます。spec・スコープの変更は既存のDiscovery→PO承認フローを必ず通し、現場情報は優先度の高い根拠であって無条件の正解として扱いません（<code>role-catalog.md</code> のFDE charter）。
 </div>
+<div class="mt-1 text-xs text-muted">
+  ※ 🧑🏼‍🏫 PO技術検証は PO の側に立ち、PO が単独では検証できない技術的回答を独立に確認する常設の席です。成果物は作らず受理判定も行いません（合否は🛡️ EngRev）。着任は実在の人間を既定とし、AI 代替は別実体であることの開示が必須です。テンプレ既定は空席（<code>role-catalog.md</code>「PO技術検証の charter と境界」）。
+</div>
 
 <MermaidDiagram
   code={mainOrgChart}
-  ariaLabel="開発体制の図。左に需要側の代弁ペルソナ（候補・破線、実在アクセスが無い時の仮説の供給元）とFDE（候補・破線、現場へ直接常駐し統括へ提案を上げる）が入力し、PO の下に統括コンダクター、その横に運用マネージャー（横断支援）、その下にエンジニアリングとデザインの2レーン、各レーンに采配リーダー（Engリーダー・Designリーダー）・実施者・レビュアー"
+  ariaLabel="開発体制の図。左に需要側の代弁ペルソナ（候補・破線、実在アクセスが無い時の仮説の供給元）とFDE（候補・破線、現場へ直接常駐し統括へ提案を上げる）が入力し、PO の下に統括コンダクター、その横に運用マネージャー（横断支援）、その下にエンジニアリングとデザインの2レーン、各レーンに采配リーダー（Engリーダー・Designリーダー）・実施者・レビュアー。PO の横にはPO技術検証（人間の席・既定は空席・破線）があり、統括を介さずPOへ裏書きする"
   class="mx-auto max-w-[760px]"
 />
 
@@ -216,6 +225,10 @@ export const phaseTrees = [
   <tr>
     <td><b>デザインの作り方</b></td>
     <td>claude.ai/design で生成（文面は <code>docs/design-brief.md</code>）→ レビュー → <code>/design-sync</code> で1部品ずつコードへ取り込み → 公開は人間。</td>
+  </tr>
+  <tr>
+    <td><b>🧑🏼‍🏫 PO技術検証（PO側の独立検証・常設空席）</b></td>
+    <td>役割の詳細は上の注記のとおり。規模プリセット S/M/L のいずれでも席自体は削除されない（着任するかは別）。正本は <code>role-catalog.md</code>「PO技術検証の charter と境界」。</td>
   </tr>
 </table>
 </div>

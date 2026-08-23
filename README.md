@@ -39,7 +39,7 @@ npx github:kumamoto-kouki/conductor-sdlc-template ~/projects/my-app "マイア�
 エンジニアが手順を直接進めたい場合は、次の4ステップを自分で行う。
 
 1. **`.kiro/steering/` の `product.md` / `tech.md` / `structure.md` を記入**（`/kiro-steering` でも可）— AI に渡る前提知識
-2. **規模プリセット S/M/L を選ぶ** — `.kiro/steering/role-catalog.md`「配役表（現状）」冒頭の**採用中プリセット**行に記入し、配役表の 状態 列を合わせる（実装者(Maker)と検査者(Checker)を別人にする規律は規模に関わらず不変）
+2. **規模プリセット S/M/L を選ぶ** — `.kiro/steering/role-catalog.md`「配役表（現状）」冒頭の**採用中プリセット**行に記入し、配役表の 状態 列を合わせる（実装者(Maker)と検査者(Checker)を別人にする規律は規模に関わらず不変。PO技術検証の席はプリセットに依らず残す）
 3. **最初の機能を作る**: `/kiro-discovery "アイデア"` → `/kiro-spec-quick {機能名}` → `/kiro-impl {機能名}`（各段階を承認）
 4. **進捗を反映**: `dashboard/status.json` を更新して `npm run build`
 
@@ -85,19 +85,23 @@ flowchart TD
     RE["🛡️ EngRev（Checker）<br/>実装者と別人が受理判定"]
     RD["🕵🏼‍♀️ デザインRev（Checker）<br/>実装者と別人が受理判定"]
     OPS["👩🏼‍💼 運用<br/>状態が実態と合っているか監視"]
+    T["🧑🏼‍🏫 PO技術検証<br/>PO側の独立検証(既定空席)"]
 
     PO --> K
     K --> LE --> ME --> RE --> K
     K --> LD --> MD --> RD --> K
     OPS -. 健全性を監視 .- K
+    T -. 裏書き .- PO
 
     classDef maker fill:#d1e7dd,stroke:#0f5132,color:#0f5132
     classDef checker fill:#f8d7da,stroke:#842029,color:#842029
+    classDef cand fill:#e7effb,stroke:#2563c9,stroke-dasharray: 3 2,color:#1c2333
     class ME,MD maker
     class RE,RD checker
+    class T cand
 ```
 
-図は **M（標準）プリセット**の体制。S/M/L でどの役を置くかは `.kiro/steering/role-catalog.md`「規模別プリセット（S/M/L）」を参照する。
+図は **M（標準）プリセット**の体制。S/M/L でどの役を置くかは `.kiro/steering/role-catalog.md`「規模別プリセット（S/M/L）」を参照する。破線の 🧑🏼‍🏫 PO技術検証は統括を介さずPOへ裏書きする常設の席で、既定は空席（詳細は `.kiro/steering/role-catalog.md`「PO技術検証の charter と境界」）。
 
 ## 画面で進捗を見る
 

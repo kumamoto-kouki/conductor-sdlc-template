@@ -48,7 +48,8 @@ brief.md のセクションに厳密に一致しない場合（例：ステー�
 - **要件定義**＝`/kiro-spec-requirements`。EARS 形式（Ubiquitous/Event-driven/State-driven/
   Unwanted behavior/Optional）で受け入れ可能な要件に落とす。
 - **設計**＝`/kiro-spec-design`。着手前設計判断が要る規模（`role-catalog.md` の候補ロスター
-  「設計（アーキテクト）」）では、着手前に設計エージェントを常設する。
+  「設計（アーキテクト）」）では、着手前に設計エージェントを常設する。「AI 単独で判断を
+  確定させない類型」（`.kiro/steering/orchestration.md`）に当たったらPO技術検証の席へ回す。
 - **実装**＝`/kiro-impl`。委譲規律 A〜E・ベース是正ガードは `orchestration.md`／
   `delegation.md` が正本。
 - **検証**＝`/kiro-validate-impl`（feature 全体の cross-task 整合・全テスト・spec カバレッジ）
