@@ -1,22 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 274" width="900" height="274" role="img" aria-label="先に、不利なことも。3点あります。時間: Mac は 30分〜1時間、Windows は 1時間半〜2時間（WSL を先に入れる必要があります）。お金: 月ぎめの契約が要ります。無料では使えません。2026年8月時点で月20ドルほどから。限界: AI だけでは終わらない場面が2つあります。画面の見た目の判断と、本当に動くかの最終確認です。詳しくは、この下の本文にあります。">
-<rect x="0" y="0" width="900" height="274" fill="#FCFBF9"/>
-<rect x="34" y="30" width="832" height="214" rx="10" fill="#FBEDEA" stroke="#B03A2E" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 308" width="900" height="308" role="img" aria-label="先に、不利なことも。3点あります。時間: Mac は 30分〜1時間。Windows は 1時間半〜2時間で、先に「ウィンドウズの中で Linux を動かす機能（WSL）」を入れます。お金: 月ぎめの契約が要ります。無料では使えません。2026年8月時点で月20ドル（1ドル150円なら約3,000円）ほどから。限界: AI だけでは終わらない場面が2つあります。画面の見た目の判断と、本当に動くかの最終確認です。詳しくは、この下の本文にあります。">
+<rect x="0" y="0" width="900" height="308" fill="#FCFBF9"/>
+<rect x="34" y="30" width="832" height="248" rx="10" fill="#FBEDEA" stroke="#B03A2E" stroke-width="1.5"/>
 <text x="70" y="68" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="18" fill="#B03A2E" font-weight="bold">先に、不利なことも</text>
 <text x="250" y="68" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33">— 詳しくは、この下の本文にあります</text>
 <line x1="70" y1="88" x2="830" y2="88" stroke="#E0C4BE" stroke-width="1"/>
 
-<rect x="70" y="110" width="54" height="24" rx="12" fill="#B03A2E"/>
-<text x="97" y="127" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#FFFFFF" font-weight="bold">時間</text>
-<text x="140" y="127" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14.5" fill="#8C3D33" font-weight="bold">Mac は 30分〜1時間</text>
-<text x="400" y="127" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33">Windows は 1時間半〜2時間（WSL を先に入れる必要があります）</text>
+<rect x="70" y="112" width="54" height="24" rx="12" fill="#B03A2E"/>
+<text x="97" y="129" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#FFFFFF" font-weight="bold">時間</text>
+<text x="140" y="129" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14.5" fill="#8C3D33" font-weight="bold">Mac は 30分〜1時間</text>
+<text x="400" y="120" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33">Windows は 1時間半〜2時間。先に、</text>
+<text x="400" y="140" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33">ウィンドウズの中で Linux を動かす機能（WSL）を入れます</text>
 
-<rect x="70" y="154" width="54" height="24" rx="12" fill="#B03A2E"/>
-<text x="97" y="171" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#FFFFFF" font-weight="bold">お金</text>
-<text x="140" y="171" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14.5" fill="#8C3D33" font-weight="bold">月ぎめの契約が要ります</text>
-<text x="400" y="171" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33">無料では使えません。2026年8月時点で月20ドルほどから</text>
+<rect x="70" y="174" width="54" height="24" rx="12" fill="#B03A2E"/>
+<text x="97" y="191" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#FFFFFF" font-weight="bold">お金</text>
+<text x="140" y="191" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14.5" fill="#8C3D33" font-weight="bold">月ぎめの契約が要ります</text>
+<text x="400" y="182" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33">無料では使えません。2026年8月時点で</text>
+<text x="400" y="202" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33">月20ドル（1ドル150円なら約3,000円）ほどから</text>
 
-<rect x="70" y="198" width="54" height="24" rx="12" fill="#B03A2E"/>
-<text x="97" y="215" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#FFFFFF" font-weight="bold">限界</text>
-<text x="140" y="215" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14.5" fill="#8C3D33" font-weight="bold">AI だけでは終わらない場面が2つ</text>
-<text x="400" y="215" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33">画面の見た目の判断／本当に動くかの最終確認</text>
+<rect x="70" y="230" width="54" height="24" rx="12" fill="#B03A2E"/>
+<text x="97" y="247" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#FFFFFF" font-weight="bold">限界</text>
+<text x="140" y="247" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14.5" fill="#8C3D33" font-weight="bold">AI だけでは終わらない場面が2つ</text>
+<text x="400" y="247" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33">画面の見た目の判断／本当に動くかの最終確認</text>
 </svg>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" width="900" height="320" role="img" aria-label="導入が終わったあとに、ずっと繰り返す3つの流れの図。打つのは1行だけで、残りは会話である。1つめ、作りたいことを言う——スラッシュ kiro-discovery と作りたいことを打つ。打つのはこの1行だけで、あとは AI が質問してくる。2つめ、読んで承認する——何を作るか、どう作るか、どんな順で作るかの3つを、あなたが順に承認する。分からなければ書き直させてよい。3つめ、できたものを確かめる——AI が作り、チェック役の AI が検査し、最後にあなたが動かして見る。ここを通らないと完成にしない。3つめが終わったら1つめへ戻り、機能ができるたびにこれを繰り返す。">
+<rect x="0" y="0" width="900" height="320" fill="#FCFBF9"/>
+<text x="450" y="36" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" text-anchor="middle" fill="#2B2B2B" font-weight="bold">導入が終わったあとは、この3つの繰り返しです</text>
+<text x="450" y="60" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#6E6A64">打つのは1行だけで、残りは会話です</text>
+
+<rect x="34" y="88" width="254" height="164" rx="10" fill="#FFFFFF" stroke="#D8D4CC" stroke-width="1.5"/>
+<circle cx="58" cy="118" r="14" fill="#1F6F6B"/>
+<text x="58" y="123" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="14" text-anchor="middle" fill="#FFFFFF" font-weight="bold">1</text>
+<text x="82" y="124" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#2B2B2B" font-weight="bold">作りたいことを言う</text>
+<rect x="58" y="140" width="206" height="30" rx="6" fill="#F5F2EC" stroke="#D8D4CC" stroke-width="1"/>
+<text x="70" y="160" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" fill="#2B2B2B">/kiro-discovery "…"</text>
+<text x="58" y="196" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#2B2B2B">打つのは、この1行だけ</text>
+<text x="58" y="220" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#6E6A64">あとは AI が質問してきます</text>
+
+<line x1="294" y1="170" x2="311" y2="170" stroke="#9A948A" stroke-width="2"/>
+<path d="M 309 164 L 319 170 L 309 176 Z" fill="#9A948A"/>
+
+<rect x="323" y="88" width="254" height="164" rx="10" fill="#FFFFFF" stroke="#D8D4CC" stroke-width="1.5"/>
+<circle cx="347" cy="118" r="14" fill="#1F6F6B"/>
+<text x="347" y="123" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="14" text-anchor="middle" fill="#FFFFFF" font-weight="bold">2</text>
+<text x="371" y="124" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#2B2B2B" font-weight="bold">読んで承認する</text>
+<rect x="347" y="142" width="15" height="15" rx="3" fill="#FFFFFF" stroke="#6E6A64" stroke-width="1.5"/>
+<text x="374" y="154" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#2B2B2B">何を作るか</text>
+<rect x="347" y="166" width="15" height="15" rx="3" fill="#FFFFFF" stroke="#6E6A64" stroke-width="1.5"/>
+<text x="374" y="178" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#2B2B2B">どう作るか</text>
+<rect x="347" y="190" width="15" height="15" rx="3" fill="#FFFFFF" stroke="#6E6A64" stroke-width="1.5"/>
+<text x="374" y="202" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#2B2B2B">どんな順で作るか</text>
+<text x="347" y="228" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#6E6A64">分からなければ、書き直させてよい</text>
+
+<line x1="583" y1="170" x2="600" y2="170" stroke="#9A948A" stroke-width="2"/>
+<path d="M 598 164 L 608 170 L 598 176 Z" fill="#9A948A"/>
+
+<rect x="612" y="88" width="254" height="164" rx="10" fill="#FFFFFF" stroke="#D8D4CC" stroke-width="1.5"/>
+<circle cx="636" cy="118" r="14" fill="#1F6F6B"/>
+<text x="636" y="123" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="14" text-anchor="middle" fill="#FFFFFF" font-weight="bold">3</text>
+<text x="660" y="124" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#2B2B2B" font-weight="bold">できたものを確かめる</text>
+<text x="636" y="154" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#2B2B2B">AI が作ります</text>
+<text x="636" y="178" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#2B2B2B">チェック役の AI が検査します</text>
+<text x="636" y="202" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#2E7D4F" font-weight="bold">最後に、あなたが動かして見ます</text>
+<text x="636" y="226" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#6E6A64">自分の書類を1枚、作らせて確かめます</text>
+
+<path d="M 739 252 V 282 H 161 V 262" fill="none" stroke="#1F6F6B" stroke-width="2" stroke-linejoin="round"/>
+<path d="M 155 262 L 161 252 L 167 262 Z" fill="#1F6F6B"/>
+<rect x="286" y="270" width="328" height="24" fill="#FCFBF9"/>
+<text x="450" y="287" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#1F6F6B">機能ができるたびに、これを繰り返します（小さな機能で1周 数日）</text>
+</svg>

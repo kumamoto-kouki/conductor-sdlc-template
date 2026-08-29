@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 458" width="900" height="458" role="img" aria-label="AI に送られる情報の範囲を示した図。あなたのパソコンの中は2つに分かれる。ひとつは作業するフォルダで、この中のファイルを AI に開かせると、中身が AI の提供元のサーバーへ処理のために送信される。もうひとつは作業するフォルダの外で、見せたくないものはここに置いておけば送られない。パソコンの中が勝手に調べられることはない。ただし、送られたあとの扱い——保存されるか、AI の学習に使われるか、提供元の社員が見ることがあるか——は契約の種類と設定で変わる。説明が要る情報を扱うなら、提供元のプライバシーポリシーを読んでから決めること。">
+<rect x="0" y="0" width="900" height="458" fill="#FCFBF9"/>
+<text x="450" y="36" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" text-anchor="middle" fill="#2B2B2B" font-weight="bold">AI に送られるのは、あなたが読ませたものだけです</text>
+
+<rect x="34" y="64" width="470" height="216" rx="10" fill="#FFFFFF" stroke="#D8D4CC" stroke-width="1.5"/>
+<text x="58" y="90" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#6E6A64">あなたのパソコン ── 中が勝手に調べられることはありません</text>
+
+<rect x="56" y="100" width="426" height="78" rx="8" fill="#1F6F6B" fill-opacity="0.07" stroke="#1F6F6B" stroke-opacity="0.55" stroke-width="1.5"/>
+<path d="M 78 147 V 131 h 10 l 3 4 h 13 v 12 z" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="116" y="130" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#1F6F6B" font-weight="bold">作業するフォルダ</text>
+<text x="116" y="156" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#2B2B2B">この中のファイルを AI に開かせると、中身が送られます</text>
+
+<rect x="56" y="192" width="426" height="68" rx="8" fill="#F5F2EC" stroke="#D8D4CC" stroke-width="1.5"/>
+<path d="M 78 234 V 218 h 10 l 3 4 h 13 v 12 z" stroke="#9A948A" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="116" y="218" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#6E6A64" font-weight="bold">作業するフォルダの外</text>
+<text x="116" y="244" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#2B2B2B">見せたくないものは、ここに置いてください。</text>
+<text x="384" y="244" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#2E7D4F" font-weight="bold">送られません</text>
+
+<line x1="488" y1="139" x2="550" y2="139" stroke="#6E6A64" stroke-width="2"/>
+<path d="M 548 133 L 560 139 L 548 145 Z" fill="#6E6A64"/>
+
+<rect x="560" y="106" width="306" height="132" rx="10" fill="#FFFFFF" stroke="#4A5C8C" stroke-width="1.5"/>
+<rect x="691" y="130" width="44" height="14" rx="3" fill="none" stroke="#4A5C8C" stroke-width="2"/>
+<rect x="691" y="150" width="44" height="14" rx="3" fill="none" stroke="#4A5C8C" stroke-width="2"/>
+<circle cx="700" cy="137" r="2" fill="#4A5C8C"/>
+<circle cx="700" cy="157" r="2" fill="#4A5C8C"/>
+<text x="713" y="188" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" text-anchor="middle" fill="#4A5C8C" font-weight="bold">AI の提供元のサーバー</text>
+<text x="713" y="212" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#2B2B2B">処理のために、送信されます</text>
+
+<rect x="34" y="332" width="832" height="100" rx="10" fill="#F5F2EC" stroke="#D8D4CC" stroke-width="1.5"/>
+<rect x="70" y="354" width="132" height="26" rx="13" fill="#8A6A2F"/>
+<text x="136" y="372" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#FFFFFF" font-weight="bold">ここは自分で確認</text>
+<text x="216" y="372" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13.5" fill="#2B2B2B" font-weight="bold">送られたあとの扱い ── 保存されるか／学習に使われるか／社員が見ることがあるか</text>
+<text x="70" y="404" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#6E6A64">契約の種類と設定で変わります。取引先に説明が要る情報を扱うなら、ここは詳しい人に一度見てもらってください。</text>
+</svg>

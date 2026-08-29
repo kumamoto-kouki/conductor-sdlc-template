@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 444" width="900" height="444" role="img" aria-label="月ぎめの契約を止めたら、どうなるかの図。契約を止めても、動き続けるものと、できなくなることに分かれます。動き続けるもの: 作ったソフト（見積書の作成、在庫の記録など）と、中に入れたデータ（作った書類や記録は、そのまま残ります）。止まるのは支払いであって、作ったソフトではありません。できなくなること: 直す（不具合が出ても、直せません）と、機能を足す（「ここを変えてくれ」に応えられません）。現場のソフトは、作って終わりになりません。人を雇うのに比べれば安く見えます。それは、決めることと確かめることを、あなたが自分で引き受けるからです。">
+<rect x="0" y="0" width="900" height="444" fill="#FCFBF9"/>
+<text x="450" y="36" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" text-anchor="middle" fill="#2B2B2B" font-weight="bold">月ぎめの契約を止めたら、どうなるか</text>
+
+<rect x="360" y="58" width="180" height="34" rx="17" fill="#8A6A2F"/>
+<text x="450" y="80" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" text-anchor="middle" fill="#FFFFFF" font-weight="bold">契約を止める</text>
+<path d="M 450 92 V 106 H 236 V 122" stroke="#9A948A" stroke-width="1.5" fill="none"/>
+<path d="M 450 92 V 106 H 664 V 122" stroke="#9A948A" stroke-width="1.5" fill="none"/>
+<path d="M 236 122 L 230 112 L 242 112 Z" fill="#9A948A"/>
+<path d="M 664 122 L 658 112 L 670 112 Z" fill="#9A948A"/>
+
+<rect x="34" y="122" width="404" height="200" rx="10" fill="#FFFFFF" stroke="#2E7D4F" stroke-width="2"/>
+<text x="58" y="154" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#2E7D4F" font-weight="bold">動き続けるもの</text>
+<circle cx="64" cy="185" r="5" fill="#2E7D4F"/>
+<text x="80" y="190" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" fill="#2B2B2B" font-weight="bold">作ったソフト</text>
+<text x="80" y="210" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#6E6A64">見積書の作成、在庫の記録など</text>
+<circle cx="64" cy="237" r="5" fill="#2E7D4F"/>
+<text x="80" y="242" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" fill="#2B2B2B" font-weight="bold">中に入れたデータ</text>
+<text x="80" y="262" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#6E6A64">作った書類や記録は、そのまま残ります</text>
+<line x1="58" y1="278" x2="414" y2="278" stroke="#D8D4CC" stroke-width="1"/>
+<text x="58" y="302" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#2E7D4F" font-weight="bold">止まるのは支払いであって、作ったソフトではありません</text>
+
+<rect x="462" y="122" width="404" height="200" rx="10" fill="#FBEDEA" stroke="#B03A2E" stroke-width="2"/>
+<text x="486" y="154" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#B03A2E" font-weight="bold">できなくなること</text>
+<circle cx="492" cy="185" r="5" fill="#B03A2E"/>
+<text x="508" y="190" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" fill="#2B2B2B" font-weight="bold">直す</text>
+<text x="508" y="210" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#8C3D33">不具合が出ても、直せません</text>
+<circle cx="492" cy="237" r="5" fill="#B03A2E"/>
+<text x="508" y="242" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" fill="#2B2B2B" font-weight="bold">機能を足す</text>
+<text x="508" y="262" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#8C3D33">「ここを変えてくれ」に応えられません</text>
+<line x1="486" y1="278" x2="842" y2="278" stroke="#E0C4BE" stroke-width="1"/>
+<text x="486" y="302" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#B03A2E" font-weight="bold">現場のソフトは、作って終わりになりません</text>
+
+<rect x="34" y="350" width="832" height="66" rx="10" fill="#F5F2EC" stroke="#D8D4CC" stroke-width="1.5"/>
+<text x="450" y="378" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" text-anchor="middle" fill="#2B2B2B" font-weight="bold">人を雇うのに比べれば、安く見えます</text>
+<text x="450" y="400" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#6E6A64">それは、決めることと確かめることを、あなたが自分で引き受けるからです</text>
+</svg>

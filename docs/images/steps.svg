@@ -1,50 +1,51 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 316" width="940" height="316" role="img" aria-label="導入の9ステップの行程図。準備・道具を入れる・プロジェクトを作る・AI と話し始める の4つの束からなる">
-<rect x="0" y="0" width="940" height="316" fill="#FCFBF9"/>
-<rect x="49" y="52" width="260" height="140" rx="8" fill="#1F6F6B" fill-opacity="0.07" stroke="#1F6F6B" stroke-opacity="0.35"/>
-<text x="179" y="42" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13.5" font-weight="bold" fill="#1F6F6B">準備</text>
-<rect x="340" y="52" width="163" height="140" rx="8" fill="#4A5C8C" fill-opacity="0.07" stroke="#4A5C8C" stroke-opacity="0.35"/>
-<text x="421" y="42" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13.5" font-weight="bold" fill="#4A5C8C">道具を入れる</text>
-<rect x="534" y="52" width="163" height="140" rx="8" fill="#8A6A2F" fill-opacity="0.07" stroke="#8A6A2F" stroke-opacity="0.35"/>
-<text x="615" y="42" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13.5" font-weight="bold" fill="#8A6A2F">プロジェクトを作る</text>
-<rect x="728" y="52" width="163" height="140" rx="8" fill="#2E7D4F" fill-opacity="0.07" stroke="#2E7D4F" stroke-opacity="0.35"/>
-<text x="809" y="42" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13.5" font-weight="bold" fill="#2E7D4F">AI と話し始める</text>
-<line x1="82" y1="104" x2="858" y2="104" stroke="#D8D4CC" stroke-width="4"/>
-<circle cx="82" cy="104" r="24" fill="#1F6F6B"/>
-<text x="82" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">1</text>
-<text x="82" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">パソコンを</text>
-<text x="82" y="168" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">確かめる</text>
-<circle cx="179" cy="104" r="24" fill="#1F6F6B"/>
-<text x="179" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">2</text>
-<text x="179" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">画面を開く</text>
-<circle cx="276" cy="104" r="24" fill="#1F6F6B"/>
-<text x="276" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">3</text>
-<text x="276" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">Node.js</text>
-<circle cx="373" cy="104" r="24" fill="#4A5C8C"/>
-<text x="373" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">4</text>
-<text x="373" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">Claude Code</text>
-<text x="373" y="168" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">を入れる</text>
-<circle cx="470" cy="104" r="29" fill="none" stroke="#B03A2E" stroke-width="2"/>
-<circle cx="470" cy="104" r="24" fill="#4A5C8C"/>
-<text x="470" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">5</text>
-<text x="470" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">ログイン</text>
-<text x="470" y="190" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" font-weight="bold" fill="#B03A2E">契約が要ります</text>
-<circle cx="567" cy="104" r="24" fill="#8A6A2F"/>
-<text x="567" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">6</text>
-<text x="567" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">複製する</text>
-<circle cx="664" cy="104" r="29" fill="none" stroke="#B03A2E" stroke-width="2"/>
-<circle cx="664" cy="104" r="24" fill="#8A6A2F"/>
-<text x="664" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">7</text>
-<text x="664" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">確認する</text>
-<text x="664" y="190" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" font-weight="bold" fill="#B03A2E">いちばん大事</text>
-<circle cx="761" cy="104" r="24" fill="#2E7D4F"/>
-<text x="761" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">8</text>
-<text x="761" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">開く</text>
-<circle cx="858" cy="104" r="24" fill="#2E7D4F"/>
-<text x="858" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">9</text>
-<text x="858" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">/kiro-onboard</text>
-<line x1="58" y1="222" x2="779" y2="222" stroke="#9A948A" stroke-width="2"/>
-<path d="M 773 216 L 783 222 L 773 228 Z" fill="#9A948A"/>
-<text x="421" y="244" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">ここまでが、自分でコマンドを打つ区間です（全部で9つ）</text>
-<rect x="280" y="266" width="380" height="30" rx="15" fill="#2E7D4F"/>
-<text x="470" y="286" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF">ここから先は、AI の質問に答えていくだけです</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 316" width="900" height="316" role="img" aria-label="導入の9ステップの行程図。準備・道具を入れる・プロジェクトを作る・AI と話し始める の4つの束からなる">
+<rect x="0" y="0" width="900" height="316" fill="#FCFBF9"/>
+<rect x="34" y="52" width="258" height="140" rx="8" fill="#1F6F6B" fill-opacity="0.07" stroke="#1F6F6B" stroke-opacity="0.35"/>
+<text x="163" y="42" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13.5" font-weight="bold" fill="#1F6F6B">準備</text>
+<rect x="323" y="52" width="160" height="140" rx="8" fill="#4A5C8C" fill-opacity="0.07" stroke="#4A5C8C" stroke-opacity="0.35"/>
+<text x="403" y="42" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13.5" font-weight="bold" fill="#4A5C8C">道具を入れる</text>
+<rect x="515" y="52" width="160" height="140" rx="8" fill="#8A6A2F" fill-opacity="0.07" stroke="#8A6A2F" stroke-opacity="0.35"/>
+<text x="595" y="42" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13.5" font-weight="bold" fill="#8A6A2F">プロジェクトを作る</text>
+<rect x="707" y="52" width="160" height="140" rx="8" fill="#2E7D4F" fill-opacity="0.07" stroke="#2E7D4F" stroke-opacity="0.35"/>
+<text x="787" y="42" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13.5" font-weight="bold" fill="#2E7D4F">AI と話し始める</text>
+<line x1="67" y1="104" x2="835" y2="104" stroke="#D8D4CC" stroke-width="4"/>
+<circle cx="67" cy="104" r="24" fill="#1F6F6B"/>
+<text x="67" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">1</text>
+<text x="67" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">パソコンを</text>
+<text x="67" y="168" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">確かめる</text>
+<circle cx="163" cy="104" r="24" fill="#1F6F6B"/>
+<text x="163" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">2</text>
+<text x="163" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">画面を開く</text>
+<circle cx="259" cy="104" r="24" fill="#1F6F6B"/>
+<text x="259" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">3</text>
+<text x="259" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">Node.js</text>
+<circle cx="355" cy="104" r="24" fill="#4A5C8C"/>
+<text x="355" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">4</text>
+<text x="355" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">Claude Code</text>
+<text x="355" y="168" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">を入れる</text>
+<circle cx="451" cy="104" r="29" fill="none" stroke="#B03A2E" stroke-width="2"/>
+<circle cx="451" cy="104" r="24" fill="#4A5C8C"/>
+<text x="451" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">5</text>
+<text x="451" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">ログイン</text>
+<text x="451" y="190" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" font-weight="bold" fill="#B03A2E">契約が要ります</text>
+<circle cx="547" cy="104" r="24" fill="#8A6A2F"/>
+<text x="547" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">6</text>
+<text x="547" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">複製する</text>
+<circle cx="643" cy="104" r="29" fill="none" stroke="#B03A2E" stroke-width="2"/>
+<circle cx="643" cy="104" r="24" fill="#8A6A2F"/>
+<text x="643" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">7</text>
+<text x="643" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">確認する</text>
+<text x="643" y="190" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" font-weight="bold" fill="#B03A2E">いちばん大事</text>
+<circle cx="739" cy="104" r="24" fill="#2E7D4F"/>
+<text x="739" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">8</text>
+<text x="739" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">開く</text>
+<circle cx="835" cy="104" r="24" fill="#2E7D4F"/>
+<text x="835" y="111" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">9</text>
+<text x="835" y="152" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">/kiro-</text>
+<text x="835" y="168" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#2B2B2B">onboard</text>
+<line x1="40" y1="222" x2="849" y2="222" stroke="#9A948A" stroke-width="2"/>
+<path d="M 843 216 L 861 222 L 843 228 Z" fill="#9A948A"/>
+<text x="450" y="244" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">ここまでが、自分でコマンドを打つ区間です（全部で9つ）</text>
+<rect x="260" y="266" width="380" height="30" rx="15" fill="#2E7D4F"/>
+<text x="450" y="286" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF">ここから先は、AI の質問に答えていくだけです</text>
 </svg>

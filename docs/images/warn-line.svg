@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 710" width="900" height="710" role="img" aria-label="「完了」と出ていても、成功とは限らない、という図。上半分は手順6を実行したあとの画面の見分け方。ターミナルの画面が2つ並んでいる。左は「そのまま進んでよい画面」で、打ったコマンドのあとに読まなくてよい行が何行か流れ、最後に「完了: スラッシュ Users スラッシュ my-app」と出ている。右は「進んではいけない画面」で、左とまったく同じように最後に「完了:」と出ているが、途中に「warn: node が見つかりません」という行が混ざっている。左は warn の行が無いのでそのまま手順8へ進んでよい。右は warn の行があるので、完了と出ていても直してから進む。途中で問題が起きても、最後には必ず「完了:」と出る。見るのは最後の行ではなく、その前に warn: の行があるかどうかである。下半分は、同じことがもっと大きい話でも起こるという説明。機械が出す言葉が3つ並ぶ。「完了:」はこの画面の1行。「できました」は AI が1機能を終えたとき。「順調です」は何か月も報告され続けたとき。右へ行くほど規模が大きくなり、気づきにくくなる。どれも機械が出した言葉で、確かめた証拠ではない。完了と書いてあっても、中身は自分の目で見る。最後に、あなたが動かして見る。ここを通らないと完成にしない。">
+<rect x="0" y="0" width="900" height="710" fill="#FCFBF9"/>
+<text x="450" y="36" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" text-anchor="middle" fill="#2B2B2B" font-weight="bold">「完了」と出ていても、成功とは限りません</text>
+
+<text x="237" y="68" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13.5" text-anchor="middle" fill="#2E7D4F" font-weight="bold">そのまま進んでよい画面</text>
+<rect x="34" y="84" width="406" height="190" rx="8" fill="#2E2C29" stroke="#2E7D4F" stroke-width="2"/>
+<text x="58" y="118" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" fill="#A9A49C">$ npx github:kumamoto-kouki/…</text>
+<rect x="58" y="136" width="300" height="8" rx="4" fill="#55504A"/>
+<rect x="58" y="162" width="218" height="8" rx="4" fill="#55504A"/>
+<rect x="58" y="188" width="262" height="8" rx="4" fill="#55504A"/>
+<rect x="58" y="214" width="176" height="8" rx="4" fill="#55504A"/>
+<rect x="50" y="234" width="176" height="22" rx="4" fill="#3E3A35"/>
+<text x="58" y="249" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#F2EFEA">完了: /Users/…/my-app</text>
+
+<text x="663" y="68" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13.5" text-anchor="middle" fill="#B03A2E" font-weight="bold">進んではいけない画面</text>
+<rect x="460" y="84" width="406" height="190" rx="8" fill="#2E2C29" stroke="#B03A2E" stroke-width="2"/>
+<text x="484" y="118" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" fill="#A9A49C">$ npx github:kumamoto-kouki/…</text>
+<rect x="484" y="136" width="300" height="8" rx="4" fill="#55504A"/>
+<rect x="484" y="162" width="218" height="8" rx="4" fill="#55504A"/>
+<rect x="476" y="182" width="264" height="22" rx="4" fill="#4E312C"/>
+<path d="M 466 190 L 476 196 L 466 202 Z" fill="#E8938A"/>
+<text x="484" y="197" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#F0A69C">warn: node が見つかりません…</text>
+<rect x="484" y="214" width="176" height="8" rx="4" fill="#55504A"/>
+<rect x="476" y="234" width="176" height="22" rx="4" fill="#3E3A35"/>
+<text x="484" y="249" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#F2EFEA">完了: /Users/…/my-app</text>
+
+<text x="237" y="300" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#2E7D4F"><tspan font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">warn:</tspan> の行が無い → そのまま 8 へ進む</text>
+<text x="663" y="300" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#B03A2E"><tspan font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">warn:</tspan> の行がある → 完了 と出ていても直す</text>
+
+<rect x="34" y="324" width="832" height="68" rx="10" fill="#FBEDEA" stroke="#B03A2E" stroke-width="1.5"/>
+<text x="70" y="352" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13.5" fill="#B03A2E" font-weight="bold">途中で問題が起きても、最後には必ず「完了:」と出ます。</text>
+<text x="70" y="376" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33">見るのは最後の行ではなく、その前に <tspan font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">warn:</tspan> の行があるかどうかです。</text>
+
+<line x1="34" y1="426" x2="866" y2="426" stroke="#D8D4CC" stroke-width="1"/>
+<text x="450" y="458" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" text-anchor="middle" fill="#2B2B2B" font-weight="bold">同じことが、もっと大きい話でも起こります</text>
+
+<rect x="122" y="481" width="116" height="26" rx="6" fill="#2E2C29"/>
+<text x="180" y="499" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" text-anchor="middle" fill="#F2EFEA">完了:</text>
+<text x="180" y="528" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#6E6A64">この画面の1行</text>
+
+<path d="M 306 488 L 318 494 L 306 500" stroke="#9A948A" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+<rect x="370" y="479" width="160" height="30" rx="6" fill="#2E2C29"/>
+<text x="450" y="499" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" text-anchor="middle" fill="#F2EFEA">できました</text>
+<text x="450" y="528" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#6E6A64">AI が1機能を終えたとき</text>
+
+<path d="M 576 488 L 588 494 L 576 500" stroke="#9A948A" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+<rect x="618" y="477" width="204" height="34" rx="6" fill="#2E2C29"/>
+<text x="720" y="499" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" text-anchor="middle" fill="#F2EFEA">順調です</text>
+<text x="720" y="528" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#6E6A64">何か月も報告され続けたとき</text>
+
+<text x="450" y="552" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="11.5" text-anchor="middle" fill="#6E6A64">右へ行くほど規模が大きくなり、気づいたときの手戻りも大きくなります</text>
+
+<rect x="34" y="570" width="832" height="112" rx="10" fill="#F5F2EC" stroke="#2E7D4F" stroke-width="1.5"/>
+<text x="450" y="604" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14.5" text-anchor="middle" fill="#2E7D4F" font-weight="bold">どれも機械が出した言葉です。確かめた証拠ではありません。</text>
+<text x="450" y="636" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="17" text-anchor="middle" fill="#2B2B2B" font-weight="bold">「完了」と書いてあっても、中身は自分の目で見る</text>
+<text x="450" y="664" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13.5" text-anchor="middle" fill="#6E6A64">最後に、あなたが動かして見る。ここを通らないと完成にしません。</text>
+</svg>
