@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 306" width="900" height="306" role="img" aria-label="conductor-sdlc-template のタイトル画像。プログラムを書けなくても、AI と一緒に業務ソフトを作って育てるためのテンプレート。流れは、言葉で伝える、AI がプログラムを書く、本当にできているか確かめる、の3つ。個人が公開しているもので、サポート窓口はなく、無保証です（MIT ライセンス）。">
+<rect x="0" y="0" width="900" height="306" fill="#FCFBF9"/>
+<rect x="52" y="70" width="5" height="156" rx="2.5" fill="#1F6F6B"/>
+<text x="84" y="114" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="34" fill="#2B2B2B" font-weight="bold">conductor-sdlc-template</text>
+<text x="84" y="154" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="17" fill="#2B2B2B">プログラムを書けなくても、AI と一緒に業務ソフトを作って育てるためのテンプレート</text>
+<rect x="84" y="192" width="118" height="32" rx="16" fill="#FFFFFF" stroke="#1F6F6B" stroke-width="1.5"/>
+<text x="143" y="213" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#1F6F6B" font-weight="bold">言葉で伝える</text>
+<line x1="210" y1="208" x2="228" y2="208" stroke="#9A948A" stroke-width="2"/><path d="M 234 208 L 226 203 L 226 213 Z" fill="#9A948A"/>
+<rect x="242" y="192" width="177" height="32" rx="16" fill="#FFFFFF" stroke="#4A5C8C" stroke-width="1.5"/>
+<text x="330" y="213" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#4A5C8C" font-weight="bold">AI がプログラムを書く</text>
+<line x1="427" y1="208" x2="445" y2="208" stroke="#9A948A" stroke-width="2"/><path d="M 451 208 L 443 203 L 443 213 Z" fill="#9A948A"/>
+<rect x="459" y="192" width="209" height="32" rx="16" fill="#FFFFFF" stroke="#2E7D4F" stroke-width="1.5"/>
+<text x="563" y="213" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#2E7D4F" font-weight="bold">本当にできているか確かめる</text>
+<text x="84" y="272" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#6E6A64">個人が公開しているものです。サポート窓口はなく、無保証です（MIT ライセンス）</text>
+</svg>

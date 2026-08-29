@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 186" width="900" height="186" role="img" aria-label="作れるものの例。見積書の作成、在庫の記録、作業日報の集計、社内の申請フォームの4つ。">
+<rect x="0" y="0" width="900" height="186" fill="#FCFBF9"/>
+<text x="450" y="34" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" text-anchor="middle" fill="#2B2B2B" font-weight="bold">作れるものの例</text>
+
+<rect x="34" y="60" width="193" height="92" rx="10" fill="#FFFFFF" stroke="#D8D4CC" stroke-width="1.5"/>
+<path d="M 116 75 h 20 l 8 8 v 22 h -28 z" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 122 87 h 14 M 122 95 h 10" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="130" y="131" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" text-anchor="middle" fill="#2B2B2B" font-weight="bold">見積書の作成</text>
+
+<rect x="247" y="60" width="193" height="92" rx="10" fill="#FFFFFF" stroke="#D8D4CC" stroke-width="1.5"/>
+<path d="M 328 91 h 14 v 14 h -14 z M 346 91 h 14 v 14 h -14 z M 337 75 h 14 v 14 h -14 z" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="344" y="131" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" text-anchor="middle" fill="#2B2B2B" font-weight="bold">在庫の記録</text>
+
+<rect x="460" y="60" width="193" height="92" rx="10" fill="#FFFFFF" stroke="#D8D4CC" stroke-width="1.5"/>
+<path d="M 541 79 h 32 v 26 h -32 z M 541 87 h 32 M 549 75 v 6 M 565 75 v 6" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 548 95 h 5 M 558 95 h 5" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="557" y="131" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" text-anchor="middle" fill="#2B2B2B" font-weight="bold">作業日報の集計</text>
+
+<rect x="673" y="60" width="193" height="92" rx="10" fill="#FFFFFF" stroke="#D8D4CC" stroke-width="1.5"/>
+<path d="M 756 75 h 28 v 30 h -28 z" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 762 83 h 16 M 762 91 h 16 M 762 99 h 8" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="770" y="131" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" text-anchor="middle" fill="#2B2B2B" font-weight="bold">社内の申請フォーム</text>
+</svg>
