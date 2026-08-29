@@ -68,9 +68,9 @@ flowchart TD
     class E,J human
 ```
 
-**worktree**（同じgitリポジトリを複数の作業ディレクトリへ同時展開し、並行実装時のファイル衝突を防ぐ仕組み）を使い、複数の実装が同時並行で進む。承認は人が行い、それ以外の受理判定（独立レビュー）は仕組みで回す。
+`/kiro-impl` はタスクを順に処理し、1つずつ独立レビューを通してからコミットする（git の衝突を避け、受理の境界を明確に保つため）。複数の機能を**同時並行**で進めたいときは **worktree**（同じ git リポジトリを複数の作業ディレクトリへ同時展開する仕組み）を使う別経路がある（`.claude/playbooks/worktree-strategy.md`・`scripts/swarm-up.sh`）。承認は人が行い、それ以外の受理判定（独立レビュー）は仕組みで回す。
 
-承認は `/kiro-approve {機能名}` で行う。成果物を平易な日本語で要約して見せ、懸念があれば先に出したうえで可否を聞き、**承認した1段だけ**を `spec.json` に記録する。`--auto`（`/kiro-spec-quick`）・`-y`（`/kiro-spec-design`・`/kiro-spec-tasks`）・`--auto-approve`（`/kiro-spec-batch`）は**読まずに承認を飛ばす**ファストトラックであり、承認の既定手段ではない。
+承認は `/kiro-approve {機能名}` で行う。成果物を平易な日本語で要約して見せ、懸念があれば先に出したうえで可否を聞き、**承認した1段だけ**を `spec.json` に記録する。記録には**承認した時点の文書のハッシュ**が含まれるため、**承認のあとに中身が書き換えられると `npm run verify` が検知**し、`STATUS.md` はその段を「要再承認」と表示する（「承認済み」という表示が実際の中身とずれない）。`--auto`（`/kiro-spec-quick`）・`-y`（`/kiro-spec-design`・`/kiro-spec-tasks`）・`--auto-approve`（`/kiro-spec-batch`）は**読まずに承認を飛ばす**ファストトラックであり、承認の既定手段ではない。
 
 ## 体制（誰が何をするか）
 
@@ -107,7 +107,7 @@ flowchart TD
 
 ## いまの状況を見る
 
-進捗はリポジトリ直下の `STATUS.md` を開けば分かる。**手で書く欄は無く、`npm run status` が実データから毎回作り直す生成物**である。「いまどの工程にいて、次に PO が何を承認するのか、誰が参画しているのか」がこの1枚に載る。導出元（`spec.json`）が壊れていて読み取れなかった仕様は、黙って消さずに冒頭へ「⚠ 読み取れなかった仕様」として出す。
+進捗はリポジトリ直下の `STATUS.md` を開けば分かる。**手で書く欄は無く、`npm run status` が実データから毎回作り直す生成物**である。「いまどの工程にいて、次に PO が何を承認するのか、誰が参画しているのか」がこの1枚に載る。あわせて、**止まっている機能**（実装が人の判断待ちで停止したもの）・**独立レビューの結果と回数**・**あなたにしか決められないこと**（調べても答えの出ない、PO の業務・費用・リスクの判断）も出る。導出元（`spec.json`）が壊れていて読み取れなかった仕様は、黙って消さずに冒頭へ「⚠ 読み取れなかった仕様」として出す。
 
 ```mermaid
 flowchart LR
@@ -134,6 +134,8 @@ flowchart TD
     ROOT --> PLAYBOOKS[".claude/playbooks/<br/>委譲・還流の雛形"]
     ROOT --> REPORTSD[".claude/reports/<br/>実装後の振り返り"]
     ROOT --> SETTINGSD[".claude/settings.json<br/>権限ガードレール"]
+    ROOT --> MAINTD[".claude/maintenance.json<br/>定期点検の実施台帳"]
+    ROOT --> CID[".github/workflows/<br/>CI（push/PRで検証を自動実行）"]
     ROOT --> SCRIPTSD["scripts/<br/>複製・並行開発・状況生成・整合検証"]
     ROOT --> BIND["bin/<br/>npx スキャフォルダ入口"]
     ROOT --> STATUSF["STATUS.md<br/>状況レポート（npm run status が生成）"]
@@ -144,8 +146,8 @@ flowchart TD
 | ---------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | SDLC エンジン          | `.claude/skills/kiro-*`                                | Discovery→Requirements→Design→Tasks→Approve→Impl→Review→Verify の 20 スキル                                                                                                                                                                                                                                                                                                                               |
 | 体制・運用（正本）     | `.kiro/steering/`                                      | `orchestration.md`（中核モデル）／`operations.md`（運用統治）／`role-catalog.md`（配役）／`review-checklists.md`（受理観点）／`writing-standards.md`（日本語技術文書の規範）／`README.md`（索引）                                                                                                                                                                                                         |
-| 判断基準（lazy）       | `.claude/rules/`                                       | パス連動で必要時だけ読む規約。同梱: `retrospective.md`／`steering-consistency.md`／`verification.md`。スタック依存の参考例は `_examples/`（先頭 `_` は glob に当たらずロードされない）                                                                                                                                                                                                                    |
-| プレイブック           | `.claude/playbooks/`                                   | `delegation.md`（委譲雛形）／`full-sdlc.md`（超上流〜保守運用マッピング）／`discovery-personas.md`（代弁ペルソナ・FDE charter）／`swarm-multiprocess.md`（真マルチプロセス swarm）／`testing-strategy.md`（テスト戦略）／`model-assignment.md`（モデル選定）／`tech-selection.md`（技術選定）／`po-communication.md`（PO への報告）／`knowledge-graph.md`（大規模化判断）／`template-feedback.md`（還流） |
+| 判断基準（lazy）       | `.claude/rules/`                                       | パス連動で必要時だけ読む規約（振り返りの基準・SSoT・検証ハーネスの作り方・権限リストの組み立て方など。何が入っているかはディレクトリを見る）。スタック依存の参考例は `_examples/`（先頭 `_` は glob に当たらずロードされない）                                                                                                                                                                                                                    |
+| プレイブック           | `.claude/playbooks/`                                   | **常時ロードしない**判断基準と雛形。委譲（`delegation.md`）・工程マッピングと定常点検（`full-sdlc.md`）・配役の選び方（`casting.md`）・worktree 運用（`worktree-strategy.md`）・PO への報告（`po-communication.md`）・モデル/技術選定・テスト戦略・還流など。**必要になったときに読む**ことで常時ロードの予算（下記 `verify` が機械的に強制）を守る |
 | セッション報告         | `.claude/reports/`                                     | 作業メモ・中間レポート。恒久内容は書いた時点で `CHANGELOG.md`／正本へ直接記録し、レポート自体は随時削除できる                                                                                                                                                                                                                                                                                             |
 | ガードレール           | `.claude/settings.json`・`.claude/hooks/`              | 破壊的操作の deny・作業系の allow／`format-on-edit.mjs`（編集後の自動整形）                                                                                                                                                                                                                                                                                                                               |
 | 並行開発の道具         | `scripts/`・`.githooks/`                               | `swarm-up.sh`／`swarm-down.sh`（worktree 群の起動・撤収）／`_wt-status.sh`（worktree 状況の内部ヘルパ）／`pre-commit`（`STATUS.md` の自動再生成）                                                                                                                                                                                                                                                         |
@@ -168,7 +170,7 @@ npm スクリプトは `status`（`STATUS.md` の生成）と `verify`（整合�
 
 そのほかの土台:
 
-- **worktree 戦略（ベース是正ガード）**：実装エージェントが作業を始める前に、既存の成果物が本当に存在するかをマーカーファイル等で機械的に検証する。欠けていれば `git merge` で最新を取り込んでからやり直す（`git reset --hard` は破壊的操作なので使わせない）。詳細は `orchestration.md`。
+- **worktree 戦略（ベース是正ガード）**：実装エージェントが作業を始める前に、既存の成果物が本当に存在するかをマーカーファイル等で機械的に検証する。欠けていれば `git merge` で最新を取り込んでからやり直す（`git reset --hard` は破壊的操作なので使わせない）。判断基準は `orchestration.md`、実際の worktree 運用は `.claude/playbooks/worktree-strategy.md`。
 - **信用を支える運用原則（P1〜P6）と堅実性ファースト**：ノイズは削ってよいが、安全機構・判断根拠・開示・受理ゲートは削らない。詳細は `orchestration.md`。
 - **振り返りを記録する**：節目ごとに `.claude/reports/`（セッションメモ）へ振り返りを残す。バージョン記録・持ち越し事項は書いた時点で `CHANGELOG.md` へ、2回目以降も同じ判断を下す場面が来た学びは正本（`.kiro/steering/`・`.claude/rules/`）へ、それぞれ直接記録する。振り返りの基準そのものは `.claude/rules/retrospective.md`（`.claude/reports/**` に触れたときだけ読み込まれる）にある。
 - **文章の規範を揃える**：日本語文書は `.kiro/steering/writing-standards.md` に従う（新規に書く文章と、変更で触れた文章から適用。既存の一括書き換えはしない）。
@@ -191,6 +193,12 @@ npm スクリプトは `status`（`STATUS.md` の生成）と `verify`（整合�
   A. `npm run status` を実行して作り直す。それでも違うなら、ずれているのは導出元（`.kiro/specs/*/spec.json`・`tasks.md`・`.kiro/steering/role-catalog.md`）なので、そちらを直してから作り直す。`STATUS.md` を手で直しても次の生成で消える。
 - **Q. コミットしたら `STATUS.md` が勝手に変更に加わった**
   A. `.githooks/pre-commit` が仕様・配役の変更を検知して `STATUS.md` を作り直し、ステージに加えている（意図した動作）。導出元に変更が無いコミットでは何もしない。
+- **Q. `STATUS.md` に「要再承認」と出た**
+  A. あなたが承認したあとに、その文書の中身が変わっている（`npm run verify` も失敗する）。変更が正しいなら読み直して `/kiro-approve {機能名} {段}` で再承認する。意図しない変更なら戻す。承認を真偽値だけで持つと「承認済み」の表示が中身とずれるため、承認時の内容を照合している。
+- **Q. `npm run verify` が「常時ロードの予算」で失敗する**
+  A. `CLAUDE.md` と `.kiro/steering/` は毎回まるごと AI に渡る固定費なので、上限を設けている。条件付きでよい内容を `.claude/rules/`（必要なときだけ読む）か `.claude/playbooks/` へ移す。本当に毎回必要なら `scripts/verify.mjs` の予算定数を上げる——ただしそれは「決めて増やす」操作なので、理由をコミットメッセージに残す。
+- **Q. 「点検の鮮度」で警告が出た**
+  A. 定期点検（常時ロードの観測・不要ルールの掃除・steering の陳腐化点検・モデル世代への適合点検）が90日以上放置されている。`.claude/playbooks/full-sdlc.md` の定常運用に沿って実施し、`.claude/maintenance.json` の日付を更新する。失敗ではなく催促なので、作業は止まらない。
 - **Q. Mermaid 図が表示されない**
   A. GitHub・VSCode 上で見ている場合は自動描画される。素のテキストエディタではコードブロックのまま表示されるので、GitHub か VSCode のプレビューで開く。
 - **Q. `scripts/init-project.sh` が「複製先が既に存在します」で失敗する**
@@ -200,6 +208,7 @@ npm スクリプトは `status`（`STATUS.md` の生成）と `verify`（整合�
 
 現在のバージョンは `VERSION` に書かれている。このテンプレートの**成り立ち・設計判断・バージョンごとの変更**は [`CHANGELOG.md`](CHANGELOG.md) に記録。このディレクトリで作業を続けるときは、まずそれを読む。とくに次の2つは日々の手順に直結する。
 
+- **最新（未リリース）**：ハーネスを「散文で縛る」から「検証で担保する」へ寄せた。実測で、統括（AI）が犯した誤りを**散文の規律は1件も事前に止めておらず**、止めたのは独立レビューと機械チェックと人間だけだった。そこで検査を増やし（承認後の文書改変の検知・定期点検の放置の催促・常時ロードの予算・委譲プロンプトのガード）、CI で自動実行するようにし、代わりに一般知識の教科書と判断を縛る指示を削った。詳細は `CHANGELOG.md`。
 - **v0.12.0**：Astro 製ダッシュボードを撤去し、状況の正本を手書きの `status.json` から導出生成の `STATUS.md` へ反転させた。手書きの正本は日常のループで誰も更新せず、実態と食い違ったまま検知もされなかった。`STATUS.md` は仕様と配役から毎回作り直すため書き手が要らず、作り直していない状態は `npm run verify` が検知する。テンプレート本体の npm 依存はゼロになり、閲覧のためのビルドとサーバ起動も不要になった。
 - **v0.10.0**：`npx` からの一発インストール導線を追加した。複製ロジックの正本は従来どおり `scripts/init-project.sh` で、`bin/create.mjs` はそれを呼ぶだけの薄いラッパ（ロジックの二重管理を避けるため）。対象は Unix 系 / WSL（bash 前提）。リポジトリを clone して使う場合は `scripts/init-project.sh <target> [name]` を直接実行してもよい。
 
