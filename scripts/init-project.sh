@@ -120,14 +120,16 @@ pkg_excludes=( --exclude='/bin/' --exclude='/package-lock.json' --exclude='/pack
 if [ -f "$ROOT/package.scaffold.json" ]; then
   pkg_excludes+=( --exclude='/package.json' )
 fi
-# テンプレ本体の README.md / CHANGELOG.md は複製しない（本体のみ）。
+# テンプレ本体の README.md / CHANGELOG.md / LICENSE は複製しない（本体のみ）。
 # README はテンプレート自身の使い方（「npx でプロジェクトを作れ」）を説明しており、
 # 生成プロジェクトの利用者が最初に開くファイルとしては誤り。CHANGELOG はテンプレート
-# 自身の開発史（77KB）で、新規プロジェクトの変更履歴ではない。どちらも複製後に
-# プロジェクト用のものを書き起こす。
+# 自身の開発史（77KB）で、新規プロジェクトの変更履歴ではない。LICENSE はテンプレート
+# 著作者の権利表示であり、複製すると生成プロジェクト（利用者自身の著作物）に他人の
+# 著作権表示が付いてしまう。ライセンスは利用者が自分で決める。README と CHANGELOG は
+# 複製後にプロジェクト用のものを書き起こす。
 doc_excludes=()
 if [ -f "$ROOT/package.scaffold.json" ]; then
-  doc_excludes+=( --exclude='/README.md' --exclude='/CHANGELOG.md' )
+  doc_excludes+=( --exclude='/README.md' --exclude='/CHANGELOG.md' --exclude='/LICENSE' )
 fi
 rsync -a \
   --exclude='.git' \

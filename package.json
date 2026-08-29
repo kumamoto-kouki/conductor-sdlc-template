@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "version": "0.13.0",
+  "license": "MIT",
   "description": "conductor-sdlc-template のスキャフォルダ CLI。`npx github:kumamoto-kouki/conductor-sdlc-template <target> [name]` で新規プロジェクトを複製生成する。状況報告（status）と整合性検証（verify）のスクリプトを持つ。依存パッケージなし。",
   "engines": {
     "node": ">=22.12"
