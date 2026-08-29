@@ -211,6 +211,7 @@ Make the block self-contained enough to be read a year later without the convers
   - RED phase: VERIFIED | MISSING | N/A
 - FINDINGS:
   1. <specific finding with exact files/spec refs>
+- DISCIPLINES_CITED: <one line: which named disciplines/rules actually fired in this review (used as judgment grounds or violation findings), e.g. "規律C, 承認済み事項の切り下げ禁止" — or "none". Feeds the retirement-candidate review in full-sdlc.md: a constraint that never fires across inspection cycles becomes a candidate for removal, and this line is the only record of firing>
 - REMEDIATION: <mandatory if REJECTED>
 - SUMMARY: <one sentence>
 ```

@@ -35,7 +35,7 @@ Otherwise, load all necessary context:
 
 **Validate approvals**:
 
-- If auto-approve flag (`-y`) is true: Auto-approve **`design` only** — the immediately preceding phase — in spec.json. Tasks approval is also handled automatically in Step 4.
+- If auto-approve flag (`-y`) is true: Auto-approve **`design` only** — the immediately preceding phase — in spec.json, recording `approvals.design.approved_sha256` = `sha256sum design.md` alongside `approved: true`. Tasks approval is also handled automatically in Step 4.
   - Do **not** touch `approvals.requirements`. Requirements are two phases upstream; they were already resolved when the design was generated. A PO who read only `tasks.md` must never end up having "approved" requirements they never saw.
   - If `approvals.requirements.approved` is still `false`, stop even under `-y` and send the user to `/kiro-approve {feature} requirements` (see Safety & Fallback).
 - If bulk-generation flag (`--bulk`) is true: require `approvals.requirements.generated: true` and `approvals.design.generated: true`, then proceed **without writing any approval flag** (see `kiro-spec-design`'s note on the same flag). The human PO approves afterwards via `/kiro-approve`.
@@ -113,21 +113,21 @@ Before writing `tasks.md`, run one lightweight independent sanity review of the 
 - Create/update `.kiro/specs/{feature}/tasks.md`
 - Update spec.json metadata:
   - Set `phase: "tasks-generated"`
-  - Set `approvals.tasks.generated: true, approved: false`
+  - Set `approvals.tasks.generated: true, approved: false` (and delete any stale `approved_sha256` — regeneration invalidates the old approval)
   - Update `updated_at` timestamp
   - Do **not** write `approvals.requirements.approved` or `approvals.design.approved` here. Those phases are either already approved (the non-`-y` path verified it in Step 1) or were approved by `-y` for `design` alone. Recording upstream approvals from this step is what previously made one `-y` approve three phases at once.
 
 **Approval**:
 
 - If auto-approve flag (`-y`) is true:
-  - Set `approvals.tasks.approved: true` in spec.json
+  - Set `approvals.tasks.approved: true` and `approvals.tasks.approved_sha256` (= `sha256sum tasks.md`) in spec.json
   - Display task summary (task count, major groups, parallel markers)
   - Respond: "Tasks generated and auto-approved. Start implementation with `/kiro-impl {feature}`"
 - Otherwise (interactive):
   - Display a summary of the generated tasks (task count, major groups, parallel markers)
   - Ask the user: "Tasks generated. Approve and proceed to implementation?"
   - If the user approves:
-    - Set `approvals.tasks.approved: true` in spec.json
+    - Set `approvals.tasks.approved: true` and `approvals.tasks.approved_sha256` (= `sha256sum tasks.md`) in spec.json
     - Respond: "Tasks approved. Start implementation with `/kiro-impl {feature}`"
   - If the user wants changes:
     - Keep `approvals.tasks.approved: false`

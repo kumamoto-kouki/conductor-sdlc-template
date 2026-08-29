@@ -35,7 +35,7 @@ Otherwise, load all necessary context:
 
 **Validate requirements approval**:
 
-- If auto-approve flag (`-y`) is true: Auto-approve **`requirements` only** — the immediately preceding phase — in spec.json. Never write `approvals.design.approved` or `approvals.tasks.approved` here.
+- If auto-approve flag (`-y`) is true: Auto-approve **`requirements` only** — the immediately preceding phase — in spec.json, recording `approvals.requirements.approved_sha256` = `sha256sum requirements.md` alongside `approved: true` (the integrity check verifies approvals against document content; a hash-less approval is a hole in that net). Never write `approvals.design.approved` or `approvals.tasks.approved` here.
 - If bulk-generation flag (`--bulk`) is true: require `approvals.requirements.generated: true` and proceed **without writing any approval flag**. This is the formal intermediate state described in `kiro-spec-init` (`generated: true, approved: false`), produced when a delegated agent generates several phases in one run. The human PO approves afterwards via `/kiro-approve`. Never combine `--bulk` with writing `approved`.
 - Otherwise: Verify approval status (stop if unapproved, see Safety & Fallback)
 
@@ -134,7 +134,7 @@ After all findings return, synthesize in main context before proceeding.
 2. **Update Metadata** in spec.json:
 
    - Set `phase: "design-generated"`
-   - Set `approvals.design.generated: true, approved: false`
+   - Set `approvals.design.generated: true, approved: false` (and delete any stale `approved_sha256` — regeneration invalidates the old approval; the PO approved the previous content, not this one)
    - Update `updated_at` timestamp
    - Do not write `approvals.requirements.approved` here. Requirements are either already approved (the non-`-y` path verified it in Step 1) or were approved by `-y` in Step 1.
 

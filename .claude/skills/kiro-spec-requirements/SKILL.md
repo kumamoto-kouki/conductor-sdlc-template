@@ -77,7 +77,7 @@ After all research completes, synthesize findings in main context before generat
 
 - Write `.kiro/specs/{feature}/requirements.md` only after the requirements review gate passes
 - Set `phase: "requirements-generated"`
-- Set `approvals.requirements.generated: true`
+- Set `approvals.requirements.generated: true`. If this phase was already `approved: true` (a regeneration over an approved document), also reset `approved: false` and delete `approved_sha256` — the PO approved the old content, not this one; the integrity check (verify) exists precisely to catch the alternative.
 - Update `updated_at` timestamp
 
 ## Important Constraints

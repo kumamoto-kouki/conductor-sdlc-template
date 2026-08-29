@@ -1,0 +1,26 @@
+# 整合性検証を push / PR のたびに自動実行する。
+#
+# なぜ要るか: このハーネスの検知系（verify の各チェック）は、実行する主体が
+# いなければ発火しない。ローカルでは統括（AI セッション）と pre-commit が回すが、
+# どちらも「規律を監査される側」自身であり、人間が離脱した状態では検知系が
+# 「発火しない」側へ倒れる（2026-08-24 の監査指摘）。CI はその外側に立つ
+# 唯一の自動実行者になる。テンプレート本体・生成プロジェクトの双方で機能する
+# （verify は package.scaffold.json の有無で自分がどちらにいるかを判別する）。
+#
+# 依存パッケージはゼロ（Node 標準のみ）なので npm install は不要。
+name: verify
+on:
+  push:
+  pull_request:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      # npm run status は実行しない。チェック3（STATUS.md の鮮度）は「コミットされた
+      # STATUS.md が導出元と一致するか」を見る検査であり、CI 側で先に再生成すると
+      # 必ず一致してしまい、陳腐化したままコミットされた事実を検知できなくなる。
+      - run: npm run verify

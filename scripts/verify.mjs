@@ -13,6 +13,7 @@
 // ✅=合格 ❌=失敗（exit 1の原因） ⚠=要確認だが失敗扱いにしない ⏭=環境要因でスキップ。
 
 import { execSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -190,7 +191,9 @@ function checkGitignoreTwinConsistency() {
     record(NAME, "fail", `.gitignore が見つかりません（${GITIGNORE}）`);
     return;
   }
-  if (readFileSync(GITIGNORE, "utf8") === readFileSync(TEMPLATE_GITIGNORE, "utf8")) {
+  if (
+    readFileSync(GITIGNORE, "utf8") === readFileSync(TEMPLATE_GITIGNORE, "utf8")
+  ) {
     record(NAME, "pass", ".gitignore と template.gitignore の内容が完全一致");
   } else {
     record(
@@ -256,7 +259,8 @@ function checkSpecJsonReadable() {
     }
     try {
       const j = JSON.parse(readFileSync(f, "utf8"));
-      if (!j || typeof j !== "object") throw new Error("オブジェクトではありません");
+      if (!j || typeof j !== "object")
+        throw new Error("オブジェクトではありません");
       if (!j.approvals || typeof j.approvals !== "object") {
         throw new Error("approvals フィールドがありません");
       }
@@ -358,11 +362,25 @@ function checkHooksEnabled() {
 //  そこで予算を宣言し、超えたら止める。増やしたいときは、この定数を上げるという
 //  意識的な操作を要求する——それが「黙って増える」を「決めて増やす」に変える。
 //  条件付きでよい内容は `.claude/rules/`（glob 一致時のみ）か、そのスキルが必要な
-//  ときに読む場所へ置く。)
-const CONTEXT_BUDGET_CHARS = 32000;
+//  ときに読む場所へ置く。
+//
+//  予算は二本立てにする。生成プロジェクトでは kiro-onboard / kiro-steering が
+//  product.md・tech.md・structure.md へプロジェクト自身の内容（不変条件・制約・
+//  構成）を記入する——それは書くべきものであって、テンプレート水準の予算で
+//  縛ってはならない。初版はここが単一の 32,000 で、空テンプレ時点の残りが 897 字
+//  しかなく、オンボーディング直後から生成側の verify が恒常的に落ちる欠陥だった
+//  （「テンプレ本体で通るが生成側で落ちる」類型の3件目。.claude/rules/verification.md）。)
+const CONTEXT_BUDGET_CHARS_TEMPLATE = 32000;
+const CONTEXT_BUDGET_CHARS_PROJECT = 44000;
 
 function checkContextBudget() {
-  const NAME = "7. 常時ロードの予算（CLAUDE.md ＋ .kiro/steering/）";
+  const isTemplateBody = existsSync(PACKAGE_SCAFFOLD_JSON);
+  const CONTEXT_BUDGET_CHARS = isTemplateBody
+    ? CONTEXT_BUDGET_CHARS_TEMPLATE
+    : CONTEXT_BUDGET_CHARS_PROJECT;
+  const NAME = `7. 常時ロードの予算（CLAUDE.md ＋ .kiro/steering/・${
+    isTemplateBody ? "テンプレート本体" : "生成プロジェクト"
+  }水準）`;
   const files = [join(ROOT, "CLAUDE.md")];
   const steeringDir = join(ROOT, ".kiro", "steering");
   if (existsSync(steeringDir)) {
@@ -401,7 +419,11 @@ function checkContextBudget() {
     `${chars.toLocaleString()} 文字で、予算 ${CONTEXT_BUDGET_CHARS.toLocaleString()} を ${(chars - CONTEXT_BUDGET_CHARS).toLocaleString()} 超えています。\n` +
       `大きい順: ${top}\n` +
       `条件付きでよい内容を .claude/rules/（glob 一致時のみ読まれる）か、必要なスキルが読む場所へ移してください。\n` +
-      `本当に毎セッション必要なら scripts/verify.mjs の CONTEXT_BUDGET_CHARS を上げること——ただしそれは「決めて増やす」操作であり、理由をコミットメッセージに残すこと。`,
+      `本当に毎セッション必要なら scripts/verify.mjs の ${
+        isTemplateBody
+          ? "CONTEXT_BUDGET_CHARS_TEMPLATE"
+          : "CONTEXT_BUDGET_CHARS_PROJECT"
+      } を上げること——ただしそれは「決めて増やす」操作であり、理由をコミットメッセージに残すこと。`,
   );
 }
 
@@ -412,11 +434,24 @@ function checkContextBudget() {
 //  そのときの原因は「正本に書いてあるが委譲プロンプトで毎回引用しなかった」だった。
 //  実測（2026-08-24）：kiro-impl が実際に送る3つのプロンプトのいずれにも `git push`
 //  の禁止が書かれていなかった。文章での約束は、機械で見ないと同じ形で抜ける。)
-const DISPATCHED_PROMPTS = [
-  ".claude/skills/kiro-impl/templates/implementer-prompt.md",
-  ".claude/skills/kiro-impl/templates/reviewer-prompt.md",
-  ".claude/skills/kiro-impl/templates/debugger-prompt.md",
-];
+// 対象はハードコードせず、テンプレート命名規約（*-prompt.md）で自動収集する。
+// 固定リストだと、新しい委譲テンプレを追加しても検査対象に入らない（監査指摘）。
+function dispatchedPrompts() {
+  const out = [];
+  const skillsDir = join(ROOT, ".claude", "skills");
+  if (!existsSync(skillsDir)) return out;
+  for (const skill of readdirSync(skillsDir, { withFileTypes: true })) {
+    if (!skill.isDirectory()) continue;
+    const tpl = join(skillsDir, skill.name, "templates");
+    if (!existsSync(tpl)) continue;
+    for (const f of readdirSync(tpl)) {
+      if (f.endsWith("-prompt.md")) {
+        out.push(join(".claude", "skills", skill.name, "templates", f));
+      }
+    }
+  }
+  return out.sort();
+}
 const REQUIRED_GUARDS = [
   { label: "push の禁止", re: /git push/ },
   { label: "権限ファイルの変更禁止", re: /\.claude/ },
@@ -426,7 +461,12 @@ function checkDelegationGuards() {
   const NAME = "8. 委譲プロンプトに権限境界のガードが入っている";
   const missing = [];
   let checked = 0;
-  for (const rel of DISPATCHED_PROMPTS) {
+  const prompts = dispatchedPrompts();
+  if (prompts.length === 0) {
+    record(NAME, "skip", "*-prompt.md テンプレートが見つかりません");
+    return;
+  }
+  for (const rel of prompts) {
     const f = join(ROOT, rel);
     if (!existsSync(f)) {
       missing.push(`${rel}: ファイルがありません`);
@@ -435,7 +475,8 @@ function checkDelegationGuards() {
     checked++;
     const text = readFileSync(f, "utf8");
     for (const g of REQUIRED_GUARDS) {
-      if (!g.re.test(text)) missing.push(`${rel}: ${g.label} が書かれていません`);
+      if (!g.re.test(text))
+        missing.push(`${rel}: ${g.label} が書かれていません`);
     }
   }
   if (missing.length === 0) {
@@ -455,6 +496,152 @@ function checkDelegationGuards() {
   );
 }
 
+// ---- 9. 承認の完全性（承認済み文書の事後改変の検知） ----
+// (承認は spec.json の真偽値だけで、初版は「何を承認したか」を持っていなかった。
+//  承認後に requirements.md 等を書き換えても approved: true が残る——「承認済み事項の
+//  切り下げ」は実際に統括と設計担当の双方で起きた事故類型なのに、防御が散文しか
+//  無かった。/kiro-approve と -y 経路は承認時に対象文書の SHA-256 を
+//  approvals.<phase>.approved_sha256 として記録する。ここでは現文書のハッシュを
+//  再計算し、不一致なら fail する。ハッシュの無い承認（旧データ）は skip（後方互換）。
+//  これで「PO が承認した内容」と「いまの文書」の一致が機械の網に入る。)
+const PHASE_DOCS = {
+  requirements: "requirements.md",
+  design: "design.md",
+  tasks: "tasks.md",
+};
+
+function sha256OfFile(file) {
+  return createHash("sha256").update(readFileSync(file)).digest("hex");
+}
+
+function checkApprovalIntegrity() {
+  const NAME = "9. 承認の完全性（承認後に文書が変わっていないこと）";
+  const dir = join(ROOT, ".kiro", "specs");
+  if (!existsSync(dir)) {
+    record(NAME, "skip", ".kiro/specs/ がまだありません");
+    return;
+  }
+  const names = readdirSync(dir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
+    .sort();
+  let checked = 0;
+  let unhashed = 0;
+  const bad = [];
+  for (const name of names) {
+    const specFile = join(dir, name, "spec.json");
+    if (!existsSync(specFile)) continue;
+    let spec;
+    try {
+      spec = JSON.parse(readFileSync(specFile, "utf8"));
+    } catch {
+      continue; // チェック4 の担当
+    }
+    const ap = spec?.approvals;
+    if (!ap || typeof ap !== "object") continue;
+    for (const [phase, doc] of Object.entries(PHASE_DOCS)) {
+      const a = ap[phase];
+      if (!a || a.approved !== true) continue;
+      if (typeof a.approved_sha256 !== "string") {
+        unhashed++;
+        continue;
+      }
+      const docPath = join(dir, name, doc);
+      if (!existsSync(docPath)) {
+        bad.push(`${name}/${doc}: 承認済みなのに文書がありません`);
+        continue;
+      }
+      checked++;
+      if (sha256OfFile(docPath) !== a.approved_sha256) {
+        bad.push(
+          `${name}/${doc}: 承認後に内容が変わっています（${phase} の approved_sha256 と不一致）`,
+        );
+      }
+    }
+  }
+  if (bad.length > 0) {
+    record(
+      NAME,
+      "fail",
+      bad.join("\n") +
+        "\nPO が承認した内容と現在の文書が食い違っています。変更を戻すか、変更後の文書を /kiro-approve で再承認してください。",
+    );
+    return;
+  }
+  if (checked === 0 && unhashed === 0) {
+    record(NAME, "skip", "承認済みの段がまだありません");
+    return;
+  }
+  record(
+    NAME,
+    "pass",
+    `ハッシュ付き承認 ${checked} 件すべて一致` +
+      (unhashed > 0 ? `（ハッシュの無い旧形式の承認 ${unhashed} 件は対象外）` : ""),
+  );
+}
+
+// ---- 10. 点検の鮮度 ----
+// (定期棚卸し・rules GC・steering 点検・モデル世代適合点検は full-sdlc.md に定義されて
+//  いるが、定義から自律的に発火した実績はゼロだった（2026-08-24 の監査。棚卸しは
+//  131 コミット中実質3回、すべて人が起こした一回性のイベント。モデル世代適合点検は
+//  定義から一度も未実行）。「トリガーは書いてあるが誰も発火させない」が最大の穴なので、
+//  最終実施日を .claude/maintenance.json に記録し、頻繁に走る verify に催促させる。
+//  fail ではなく warn——点検の実施自体は人間と統括の判断であり、機械が強制するのは
+//  「忘れている事実の可視化」まで。)
+const MAINTENANCE_JSON = join(ROOT, ".claude", "maintenance.json");
+const MAINTENANCE_MAX_DAYS = 90;
+
+function checkMaintenanceFreshness() {
+  const NAME = "10. 点検の鮮度（定期棚卸しが放置されていないこと）";
+  if (!existsSync(MAINTENANCE_JSON)) {
+    record(
+      NAME,
+      "warn",
+      ".claude/maintenance.json がありません。点検の最終実施日を記録する台帳です（full-sdlc.md の定常運用を参照）。",
+    );
+    return;
+  }
+  let data;
+  try {
+    data = JSON.parse(readFileSync(MAINTENANCE_JSON, "utf8"));
+  } catch (e) {
+    record(NAME, "fail", `.claude/maintenance.json を読めません: ${e.message}`);
+    return;
+  }
+  const inspections = data?.inspections;
+  if (!inspections || typeof inspections !== "object") {
+    record(NAME, "fail", ".claude/maintenance.json に inspections がありません");
+    return;
+  }
+  const now = Date.now();
+  const overdue = [];
+  let count = 0;
+  for (const [key, ins] of Object.entries(inspections)) {
+    count++;
+    const t = Date.parse(ins?.last);
+    if (Number.isNaN(t)) {
+      overdue.push(`${key}: last が日付として読めません（${ins?.last}）`);
+      continue;
+    }
+    const days = Math.floor((now - t) / 86400000);
+    if (days > MAINTENANCE_MAX_DAYS) {
+      overdue.push(
+        `${ins.label || key}: 最終実施 ${ins.last}（${days} 日前）`,
+      );
+    }
+  }
+  if (overdue.length > 0) {
+    record(
+      NAME,
+      "warn",
+      overdue.join("\n") +
+        `\n${MAINTENANCE_MAX_DAYS} 日を超えています。full-sdlc.md の定常運用の該当箇条を実施し、.claude/maintenance.json の last を更新してください。`,
+    );
+    return;
+  }
+  record(NAME, "pass", `${count} 種の点検すべてが ${MAINTENANCE_MAX_DAYS} 日以内に実施済み`);
+}
+
 function main() {
   console.log("=== テンプレート整合性検証ハーネス（scripts/verify.mjs） ===\n");
 
@@ -466,6 +653,8 @@ function main() {
   checkHooksEnabled();
   checkContextBudget();
   checkDelegationGuards();
+  checkApprovalIntegrity();
+  checkMaintenanceFreshness();
 
   console.log("=== 結果一覧 ===");
   for (const r of results) {

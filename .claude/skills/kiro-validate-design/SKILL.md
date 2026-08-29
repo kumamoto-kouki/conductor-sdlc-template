@@ -69,7 +69,7 @@ A GO verdict is this skill's opinion, not the PO's approval. Turn it into a reco
 2. Use `AskUserQuestion` to ask whether to record the design approval now (e.g. 「この設計を承認として記録しますか？」 / 承認する / まだ承認しない).
 3. Only if the PO approves:
    - Get a timestamp with Bash: `date -u +"%Y-%m-%dT%H:%M:%SZ"`
-   - Edit `.kiro/specs/{feature}/spec.json`: set `approvals.design.approved: true` and `updated_at`
+   - Edit `.kiro/specs/{feature}/spec.json`: set `approvals.design.approved: true`, `approvals.design.approved_sha256` (= `sha256sum design.md`), and `updated_at`
    - Touch nothing else — no other phase's flags, no `generated` flags, no `phase` field
    - Run `npm run status` so `STATUS.md` matches
 4. If the PO declines, write nothing and report what they want changed.

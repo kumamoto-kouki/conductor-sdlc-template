@@ -82,9 +82,10 @@ Rules:
 
 Only after an explicit approval:
 
-1. Get the timestamp with Bash: `date -u +"%Y-%m-%dT%H:%M:%SZ"`.
+1. Get the timestamp with Bash: `date -u +"%Y-%m-%dT%H:%M:%SZ"`, and the document hash with `sha256sum .kiro/specs/{feature}/{phase-doc}.md` (first field).
 2. Edit `.kiro/specs/{feature}/spec.json`:
    - Set `approvals.{target_phase}.approved: true`
+   - Set `approvals.{target_phase}.approved_sha256` to the hash — **this is what makes the approval mean something**: `npm run verify` recomputes it, so if anyone edits the document after the PO approved it, the harness fails instead of silently carrying a stale approval. Without the hash, "approved" is just a boolean that survives any later rewrite (the "承認済み事項の切り下げ" incident class happened twice with no machine net).
    - Set `updated_at` to the timestamp
 3. **Touch nothing else.** Do not set `approved` on any other phase, do not flip any `generated` flag, do not change `phase`, do not reformat the file. One run of this skill records exactly one approval.
 

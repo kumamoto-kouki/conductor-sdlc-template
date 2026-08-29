@@ -16,6 +16,7 @@
  */
 
 import fs from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 
 const ROOT = process.cwd();
@@ -57,18 +58,30 @@ function readJson(file) {
   }
 }
 
-function approvalMark(a) {
-  if (!a) return "—";
-  if (a.approved) return "承認済";
-  if (a.generated) return "確認待ち";
-  return "—";
+/** 承認の実効状態。approved: true でも、承認時に記録したハッシュと現文書が
+ *  食い違っていれば「承認済み」とは扱わない——PO が承認したのは以前の内容であり、
+ *  食い違いを承認済みとして表示することが「承認済み事項の切り下げ」事故の温床になる。
+ *  ハッシュの無い承認（旧形式・-y 以前のデータ）は従来どおり承認済みとして扱う。 */
+function approvalState(a, docPath) {
+  if (!a) return "none";
+  if (!a.approved) return a.generated ? "pending" : "none";
+  if (typeof a.approved_sha256 === "string" && fs.existsSync(docPath)) {
+    const h = createHash("sha256").update(fs.readFileSync(docPath)).digest("hex");
+    if (h !== a.approved_sha256) return "stale";
+  }
+  return "approved";
+}
+
+function approvalMark(state) {
+  return { none: "—", pending: "確認待ち", approved: "承認済", stale: "**要再承認**" }[
+    state
+  ];
 }
 
 /** 仕様1件の現在地。戻り値の owner は「次に動くのが誰か」。
  *  owner が null なら終端（次にやることが無い）。 */
-function progressOf(spec, tasks, blocked, dirName) {
+function progressOf(spec, tasks, blocked, dirName, states) {
   const f = dirName || spec.feature_name;
-  const ap = spec.approvals || {};
   // 止まっていることは他の何より先に出す。工程がどこであっても、人の判断を待って
   // いる状態が最優先の情報である。
   if (blocked && blocked.length > 0) {
@@ -79,15 +92,22 @@ function progressOf(spec, tasks, blocked, dirName) {
     };
   }
   for (const st of STAGES) {
-    const a = ap[st.key] || {};
-    if (!a.generated) {
+    const state = states[st.key];
+    if (state === "none") {
       return {
         stage: `${st.label}づくり`,
         owner: "dev",
         next: `${st.generate(f)} を実行する`,
       };
     }
-    if (!a.approved) {
+    if (state === "stale") {
+      return {
+        stage: `${st.label}の再確認`,
+        owner: "po",
+        next: `**承認したあとに${st.label}が変更されています。**${mdLink(path.posix.join(".kiro/specs", f, st.key + ".md"))} を読み直し、\`/kiro-approve ${f} ${st.key}\` で再承認する（承認済みの扱いには戻りません）`,
+      };
+    }
+    if (state === "pending") {
       return {
         stage: `${st.label}の確認`,
         owner: "po",
@@ -340,14 +360,23 @@ function build() {
   for (const it of specs) {
     const tasks = taskProgress(it.dir);
     const blocked = blockedReasons(it.dir);
+    const ap = it.spec.approvals || {};
+    const states = {};
+    for (const st of STAGES) {
+      states[st.key] = approvalState(
+        ap[st.key],
+        path.join(it.dir, st.key + ".md"),
+      );
+    }
     // キーはディレクトリ名（一意）。feature_name を鍵にすると重複時に後勝ちで
     // 上書きされ、実在する spec の状態が別の spec のもので表示される。
     progress.set(it.name, {
       tasks,
       blocked,
+      states,
       reviews: reviewRecords(it.dir),
       decisions: poDecisions(it.dir),
-      p: progressOf(it.spec, tasks, blocked, it.name),
+      p: progressOf(it.spec, tasks, blocked, it.name, states),
     });
   }
 
@@ -414,8 +443,7 @@ function build() {
     out.push("| --- | --- | --- | --- | --- | --- | --- |");
     for (const it of specs) {
       const { spec } = it;
-      const { tasks, p, reviews } = progress.get(it.name);
-      const ap = spec.approvals || {};
+      const { tasks, p, reviews, states } = progress.get(it.name);
       const impl = tasks
         ? `${progressBar(tasks.done, tasks.total)} ${tasks.done}/${tasks.total}`
         : "—";
@@ -423,7 +451,7 @@ function build() {
         ? `${reviews.latest === "APPROVED" ? "合格" : reviews.latest === "REJECTED" ? "差し戻し" : reviews.latest || "記録あり"}・${reviews.count}回`
         : "—";
       out.push(
-        `| \`${cell(it.label)}\` | ${p.stage} | ${approvalMark(ap.requirements)} | ${approvalMark(ap.design)} | ${approvalMark(ap.tasks)} | ${impl} | ${rev} |`,
+        `| \`${cell(it.label)}\` | ${p.stage} | ${approvalMark(states.requirements)} | ${approvalMark(states.design)} | ${approvalMark(states.tasks)} | ${impl} | ${rev} |`,
       );
     }
     out.push("");
@@ -434,6 +462,7 @@ function build() {
     out.push("| `—` | まだ作られていない |");
     out.push("| `確認待ち` | できあがっていて、あなたが読んで承認するのを待っている |");
     out.push("| `承認済` | あなたが承認した |");
+    out.push("| `**要再承認**` | あなたが承認したあとに中身が変更された。読み直しが必要 |");
     out.push("| `██████░░░░ 6/10` | 作業10件のうち6件done |");
     out.push("| `⛔ 止まっています` | 人の判断が要る問題が出て、作業が止まった |");
     out.push("| `完了（公開待ち）` | 作業は全部終わった。公開してよいかの判断が残っている |");
