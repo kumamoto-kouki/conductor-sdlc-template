@@ -1,37 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430" width="900" height="430" role="img" aria-label="あなた（プロダクトオーナー）がやることと、AI がやることの分担図">
-  <rect x="0" y="0" width="900" height="430" fill="#FCFBF9"/>
-  <rect x="30" y="24" width="390" height="290" rx="10" fill="#FFFFFF" stroke="#1F6F6B" stroke-width="2"/>
-  <rect x="30" y="24" width="390" height="44" rx="10" fill="#1F6F6B"/>
-  <rect x="30" y="52" width="390" height="16" fill="#1F6F6B"/>
-  <text x="225" y="53" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">あなた（プロダクトオーナー）</text>
-  <text x="56" y="106" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" fill="#2B2B2B">・何を作るかを決める</text>
-  <text x="56" y="142" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" fill="#2B2B2B">・AI が書いた仕様を読んで承認する</text>
-  <circle cx="62" cy="180" r="6" fill="#B03A2E"/>
-  <text x="78" y="186" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" fill="#2B2B2B">画面の見た目が良いかを判断する</text>
-  <circle cx="62" cy="216" r="6" fill="#B03A2E"/>
-  <text x="78" y="222" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" fill="#2B2B2B">本当に動くかを最終確認する</text>
-  <rect x="52" y="242" width="346" height="52" rx="6" fill="#FBEDEA" stroke="#B03A2E" stroke-width="1"/>
-  <circle cx="72" cy="268" r="6" fill="#B03A2E"/>
-  <text x="88" y="264" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" font-weight="bold" fill="#B03A2E">この2つは、人の目が要ります</text>
-  <text x="88" y="284" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33">AI だけでは終わらない場面です</text>
-  <rect x="480" y="24" width="390" height="290" rx="10" fill="#FFFFFF" stroke="#4A5C8C" stroke-width="2"/>
-  <rect x="480" y="24" width="390" height="44" rx="10" fill="#4A5C8C"/>
-  <rect x="480" y="52" width="390" height="16" fill="#4A5C8C"/>
-  <text x="675" y="53" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="19" font-weight="bold" fill="#FFFFFF">AI</text>
-  <text x="506" y="106" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" fill="#2B2B2B">・調べる／案を出す</text>
-  <text x="506" y="142" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" fill="#2B2B2B">・要件／設計／作業リストを書く</text>
-  <text x="506" y="180" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" fill="#2B2B2B">・プログラムを書く</text>
-  <text x="506" y="216" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" fill="#2B2B2B">・別の AI が独立に検査する</text>
-  <rect x="502" y="242" width="346" height="52" rx="6" fill="#EFF1F7" stroke="#4A5C8C" stroke-width="1"/>
-  <text x="522" y="264" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" font-weight="bold" fill="#3B4A72">作った AI と検査する AI は別にする</text>
-  <text x="522" y="284" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#5A688F">自分の作ったものを自分で合格にさせない</text>
-  <path d="M 432 160 L 468 160" stroke="#9A948A" stroke-width="2"/>
-  <path d="M 462 154 L 470 160 L 462 166 Z" fill="#9A948A"/>
-  <path d="M 468 200 L 432 200" stroke="#9A948A" stroke-width="2"/>
-  <path d="M 438 194 L 430 200 L 438 206 Z" fill="#9A948A"/>
-  <text x="450" y="150" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#6E6A64">指示</text>
-  <text x="450" y="222" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#6E6A64">成果</text>
-  <rect x="30" y="340" width="840" height="58" rx="8" fill="#F2EFE9" stroke="#D8D4CC" stroke-width="1"/>
-  <text x="450" y="366" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" font-weight="bold" fill="#2B2B2B">あなたが黒い画面（ターミナル）を触るのは、最初の導入のときだけです</text>
-  <text x="450" y="388" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#6E6A64">導入が終わったあとは、AI の質問に日本語で答えていくだけになります</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 452" width="900" height="452" role="img" aria-label="あなた（プロダクトオーナー）がやることと、AI がやることの分担図。あなたは、何を作るかを決める／AI が書いた仕様を読んで承認する／画面の見た目が良いかを判断する／本当に動くかを最終確認する。後の2つは人の目が要ります。AI 側は役ごとに分かれており、調べ役が調べて案を出す、まとめ役が要件・設計・作業リストを書く、作る役がプログラムを書く、チェック役ができたものを検査する。作る役とチェック役は必ず別の AI にし、自分の作ったものを自分で合格にさせない。あなたが黒い画面を触るのは最初の導入のときだけです。">
+<rect x="0" y="0" width="900" height="452" fill="#FCFBF9"/>
+<rect x="34" y="24" width="386" height="296" rx="10" fill="#FFFFFF" stroke="#1F6F6B" stroke-width="2"/>
+<rect x="34" y="24" width="386" height="44" rx="10" fill="#1F6F6B"/>
+<rect x="34" y="52" width="386" height="16" fill="#1F6F6B"/>
+<text x="227" y="54" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="18" text-anchor="middle" fill="#FFFFFF" font-weight="bold">あなた（プロダクトオーナー）</text>
+<text x="60" y="108" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#2B2B2B">・何を作るかを決める</text>
+<text x="60" y="142" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#2B2B2B">・AI が書いた仕様を読んで承認する</text>
+<circle cx="66" cy="175" r="6" fill="#B03A2E"/>
+<text x="82" y="180" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#2B2B2B">画面の見た目が良いかを判断する</text>
+<circle cx="66" cy="209" r="6" fill="#B03A2E"/>
+<text x="82" y="214" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#2B2B2B">本当に動くかを最終確認する</text>
+<rect x="56" y="242" width="342" height="56" rx="6" fill="#FBEDEA" stroke="#B03A2E" stroke-width="1"/>
+<circle cx="76" cy="270" r="6" fill="#B03A2E"/>
+<text x="92" y="266" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" fill="#B03A2E" font-weight="bold">この2つは、人の目が要ります</text>
+<text x="92" y="286" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#8C3D33">AI だけでは終わらない場面です</text>
+<rect x="480" y="24" width="386" height="296" rx="10" fill="#FFFFFF" stroke="#4A5C8C" stroke-width="2"/>
+<rect x="480" y="24" width="386" height="44" rx="10" fill="#4A5C8C"/>
+<rect x="480" y="52" width="386" height="16" fill="#4A5C8C"/>
+<text x="673" y="54" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="18" text-anchor="middle" fill="#FFFFFF" font-weight="bold">AI</text>
+<rect x="504" y="85" width="86" height="22" rx="11" fill="#4A5C8C" fill-opacity="0.12" stroke="#4A5C8C" stroke-opacity="0.45" stroke-width="1"/>
+<text x="547" y="101" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#4A5C8C" font-weight="bold">調べ役</text>
+<text x="604" y="101" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14.5" fill="#2B2B2B">調べる・案を出す</text>
+<rect x="504" y="121" width="86" height="22" rx="11" fill="#4A5C8C" fill-opacity="0.12" stroke="#4A5C8C" stroke-opacity="0.45" stroke-width="1"/>
+<text x="547" y="137" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#4A5C8C" font-weight="bold">まとめ役</text>
+<text x="604" y="137" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14.5" fill="#2B2B2B">要件・設計・作業リストを書く</text>
+<rect x="504" y="157" width="86" height="22" rx="11" fill="#4A5C8C" fill-opacity="0.12" stroke="#4A5C8C" stroke-opacity="0.45" stroke-width="1"/>
+<text x="547" y="173" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#4A5C8C" font-weight="bold">作る役</text>
+<text x="604" y="173" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14.5" fill="#2B2B2B">プログラムを書く</text>
+<rect x="504" y="193" width="86" height="22" rx="11" fill="#B03A2E" fill-opacity="0.12" stroke="#B03A2E" stroke-opacity="0.45" stroke-width="1"/>
+<text x="547" y="209" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#B03A2E" font-weight="bold">チェック役</text>
+<text x="604" y="209" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14.5" fill="#2B2B2B">できたものを検査する</text>
+<rect x="502" y="242" width="342" height="56" rx="6" fill="#EFF1F7" stroke="#4A5C8C" stroke-width="1"/>
+<text x="520" y="266" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" fill="#3B4A72" font-weight="bold">作る役とチェック役は、必ず別の AI</text>
+<text x="520" y="286" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#5A688F">自分の作ったものを、自分で合格にさせない</text>
+<line x1="430" y1="154" x2="462" y2="154" stroke="#9A948A" stroke-width="2"/>
+<path d="M 470 154 L 460 148 L 460 160 Z" fill="#9A948A"/>
+<text x="450" y="144" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#6E6A64">指示</text>
+<line x1="462" y1="196" x2="438" y2="196" stroke="#9A948A" stroke-width="2"/>
+<path d="M 430 196 L 440 190 L 440 202 Z" fill="#9A948A"/>
+<text x="450" y="218" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#6E6A64">成果</text>
+<rect x="34" y="348" width="832" height="64" rx="8" fill="#F2EFE9" stroke="#D8D4CC" stroke-width="1"/>
+<text x="450" y="376" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" text-anchor="middle" fill="#2B2B2B" font-weight="bold">あなたが黒い画面（ターミナル）を触るのは、最初の導入のときだけです</text>
+<text x="450" y="400" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#6E6A64">導入が終わったあとは、AI の質問に日本語で答えていくだけになります</text>
 </svg>
