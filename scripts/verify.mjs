@@ -642,6 +642,117 @@ function checkMaintenanceFreshness() {
   record(NAME, "pass", `${count} 種の点検すべてが ${MAINTENANCE_MAX_DAYS} 日以内に実施済み`);
 }
 
+// CommonMark の強調記法は「区切り記号の前後に何があるか」で開閉の可否が決まる
+// （left-flanking / right-flanking）。日本語では **強調。**続き や 本文**「強調」**続き の
+// ように、句読点・鉤括弧が ** に隣接すると開閉できず、記号がそのまま表示される。
+// 日本語文書では見落としやすく、実際にテンプレート全体で 120 箇所が壊れていた。
+// 依存を増やさないため、パーサではなく規則そのものを実装して検知する。
+const UNI_WS = /\p{White_Space}/u;
+const isUniWhitespace = (c) => c === "" || UNI_WS.test(c);
+// CommonMark の「句読点」は Unicode の P カテゴリ ＋ ASCII 記号一式。
+// バッククォートなどは Unicode 上は記号(Sk)だが ASCII 句読点として扱う必要がある。
+const ASCII_PUNCT = /[!-\/:-@[-`{-~]/;
+const isUniPunct = (c) =>
+  c !== "" && (ASCII_PUNCT.test(c) || /\p{P}/u.test(c));
+
+// open = 開き ** の開始位置、close = 閉じ ** の開始位置
+function flanking(text, open, close) {
+  const at = (i) => (i < 0 || i >= text.length ? "" : text[i]);
+  const oPrev = at(open - 1);
+  const oNext = at(open + 2);
+  const cPrev = at(close - 1);
+  const cNext = at(close + 2);
+  const left =
+    !isUniWhitespace(oNext) &&
+    (!isUniPunct(oNext) || isUniWhitespace(oPrev) || isUniPunct(oPrev));
+  const right =
+    !isUniWhitespace(cPrev) &&
+    (!isUniPunct(cPrev) || isUniWhitespace(cNext) || isUniPunct(cNext));
+  return { left, right };
+}
+
+// インラインコード（`...`）の中身は記法として解釈されないため伏せ字にする
+function maskInlineCode(line) {
+  return line.replace(/`[^`]*`/g, (m) => " ".repeat(m.length));
+}
+
+function brokenBoldInFile(file) {
+  const lines = readFileSync(join(ROOT, file), "utf8").split("\n");
+  const out = [];
+  let inFence = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trimStart().startsWith("```")) {
+      inFence = !inFence;
+      continue;
+    }
+    if (inFence || !line.includes("**")) continue;
+    const masked = maskInlineCode(line);
+    let j = 0;
+    for (;;) {
+      const a = masked.indexOf("**", j);
+      if (a < 0) break;
+      const b = masked.indexOf("**", a + 2);
+      if (b < 0) break;
+      const { left, right } = flanking(line, a, b);
+      if (!left || !right) {
+        const inner = line.slice(a + 2, b);
+        out.push({
+          line: i + 1,
+          inner: inner.length > 44 ? inner.slice(0, 44) + "…" : inner,
+          why: !left
+            ? "開始できない（** の直後が括弧などの記号）"
+            : "閉じられない（** の直前が句読点などの記号）",
+        });
+      }
+      j = b + 2;
+    }
+  }
+  return out;
+}
+
+function checkBoldMarkup() {
+  const NAME = "11. 太字記法が実際に強調として描画されること";
+  let files;
+  try {
+    files = execSync('git ls-files "*.md"', { cwd: ROOT, encoding: "utf8" })
+      .split("\n")
+      .filter((f) => f && existsSync(join(ROOT, f)));
+  } catch {
+    record(NAME, "skip", "git が使えないため走査できません");
+    return;
+  }
+  const bad = [];
+  for (const f of files) {
+    try {
+      for (const b of brokenBoldInFile(f)) bad.push({ file: f, ...b });
+    } catch (e) {
+      bad.push({ file: f, line: 0, inner: "", why: `読み取り失敗: ${e.message}` });
+    }
+  }
+  if (bad.length > 0) {
+    const shown = bad
+      .slice(0, 12)
+      .map((b) => `${b.file}:${b.line}  **${b.inner}** — ${b.why}`)
+      .join("\n");
+    record(
+      NAME,
+      "fail",
+      `${bad.length} 箇所が強調として描画されません（** がそのまま表示されます）。\n` +
+        shown +
+        (bad.length > 12 ? `\n… 他 ${bad.length - 12} 箇所` : "") +
+        "\n直し方: 末尾の句読点を ** の外へ出す（**強調。**続き → **強調**。続き）か、" +
+        "** の隣に半角空白を入れる（本文 **「強調」** 続き）。",
+    );
+    return;
+  }
+  record(
+    NAME,
+    "pass",
+    `${files.length} 個の Markdown すべてで太字が正しく閉じています`,
+  );
+}
+
 function main() {
   console.log("=== テンプレート整合性検証ハーネス（scripts/verify.mjs） ===\n");
 
@@ -655,6 +766,7 @@ function main() {
   checkDelegationGuards();
   checkApprovalIntegrity();
   checkMaintenanceFreshness();
+  checkBoldMarkup();
 
   console.log("=== 結果一覧 ===");
   for (const r of results) {

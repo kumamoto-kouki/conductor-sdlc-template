@@ -2,10 +2,10 @@
 
 ## 厳守事項（絶対・省略不可）
 
-- **`git push` を一切実行しない。**理由の如何を問わず禁止。外部への公開は人間だけが行う（`.kiro/steering/orchestration.md` の権限境界）。
-- **統合ブランチへ自分で merge しない。**統合は統括が行う。
+- **`git push` を一切実行しない**。理由の如何を問わず禁止。外部への公開は人間だけが行う（`.kiro/steering/orchestration.md` の権限境界）。
+- **統合ブランチへ自分で merge しない**。統合は統括が行う。
 - **`.claude/**` の設定・権限ファイルを変更しない。**
-- **`git add` / `git commit` を自分では実行しない。**コミットは親（統括）がレビュー通過後に行う（本文 Role・Critical Constraints と同じ規定）。worktree 隔離の Maker（`.claude/playbooks/delegation.md` §1 の経路）とは違い、この委譲はメインツリーで動く。
+- **`git add` / `git commit` を自分では実行しない**。コミットは親（統括）がレビュー通過後に行う（本文 Role・Critical Constraints と同じ規定）。worktree 隔離の Maker（`.claude/playbooks/delegation.md` §1 の経路）とは違い、この委譲はメインツリーで動く。
 
 ## Role
 
