@@ -113,7 +113,7 @@ After all findings return, synthesize in main context before proceeding.
    - **File Structure Plan** (required): Populate the File Structure Plan section with concrete file paths and responsibilities. Analyze the codebase to determine which files need to be created vs. modified. Each file must have one clear responsibility. This section directly drives task `_Boundary:_` annotations and implementation Task Briefs — vague file structures produce vague implementations.
    - **Testing Strategy**: Derive test items from requirements' acceptance criteria, not generic patterns. Each test item should reference specific components and behaviors from this design. E2E paths must map to the critical user flows identified in requirements. Avoid vague entries like "test login works" -- instead specify what is being verified and why it matters.
    - If existing design.md found in Step 1, use it as reference context (merge mode)
-   - Apply design rules: Type Safety, Visual Communication, Formal Tone
+   - Apply design rules: Quality Bars, Boundary First, Section Authoring Guidance (rules/design-principles.md)
    - Use language specified in spec.json
    - Keep this as a draft until the review gate passes; do not write `design.md` yet
 
@@ -150,59 +150,23 @@ After all findings return, synthesize in main context before proceeding.
 
 ## Output Description
 
-**Command execution output** (separate from design.md content):
-
-Provide brief summary in the language specified in spec.json:
-
-1. **Status**: Confirm design document generated at `.kiro/specs/{feature}/design.md`
-2. **Discovery Type**: Which discovery process was executed (full/light/minimal)
-3. **Key Findings**: 2-3 critical insights from discovery that shaped the design
-4. **Review Gate**: Confirm the design review gate passed
-5. **Next Action**: Approval workflow guidance (see Safety & Fallback)
-6. **Research Log**: Confirm `research.md` updated with latest decisions
-
-**Format**: Concise Markdown (under 200 words) - this is the command output, NOT the design document itself
+**Command execution output** (separate from design.md content): a concise Markdown summary (under 200 words) in the language specified in spec.json, covering: the generated document path (`.kiro/specs/{feature}/design.md`), which discovery process ran (full/light/minimal), 2-3 key findings that shaped the design, confirmation that the design review gate passed and `research.md` was updated, and the next action (see Safety & Fallback).
 
 **Note**: The actual design document follows `.kiro/settings/templates/specs/design.md` structure.
 
 ## Safety & Fallback
 
-### Error Scenarios
+**Principle**: if a prerequisite phase is unapproved or its document is missing, stop and point the user to the command that produces it — `/kiro-approve {feature} requirements` when requirements are not yet approved (then re-run `/kiro-spec-design {feature}`), `/kiro-spec-requirements {feature}` when `requirements.md` does not exist. For unapproved requirements, also offer the deliberate fast-track: `/kiro-spec-design {feature} -y` auto-approves requirements without reading them and proceeds.
 
-**Requirements Not Approved**:
+**Other stop conditions**:
 
-- **Stop Execution**: Cannot proceed without approved requirements
-- **User Message**: "Requirements not yet approved. Approval required before design generation."
-- **Suggested Action** (offer both, in this order):
-  1. Read and approve: "Run `/kiro-approve {feature} requirements` to read `requirements.md` and record approval, then re-run `/kiro-spec-design {feature}`"
-  2. Deliberate fast-track: "Run `/kiro-spec-design {feature} -y` to auto-approve requirements without reading them and proceed"
+- **Invalid requirement IDs**: requirements.md lacks numeric IDs or uses non-numeric headings (for example, "Requirement A") — stop and instruct the user to fix requirements.md before continuing.
+- **Spec gap found during design review**: do not write a patched-over `design.md`; tell the user a real spec gap or ambiguity must be resolved, clarify or fix `requirements.md`, then re-run `/kiro-spec-design {feature}`.
 
-**Missing Requirements**:
+**Degrade instead of stopping**:
 
-- **Stop Execution**: Requirements document must exist
-- **User Message**: "No requirements.md found at `.kiro/specs/{feature}/requirements.md`"
-- **Suggested Action**: "Run `/kiro-spec-requirements {feature}` to generate requirements first"
-
-**Template Missing**:
-
-- **User Message**: "Template file missing at `.kiro/settings/templates/specs/design.md`"
-- **Suggested Action**: "Check repository setup or restore template file"
-- **Fallback**: Use inline basic structure with warning
-
-**Steering Context Missing**:
-
-- **Warning**: "Steering directory empty or missing - design may not align with project standards"
-- **Proceed**: Continue with generation but note limitation in output
-
-**Invalid Requirement IDs**:
-
-- **Stop Execution**: If requirements.md is missing numeric IDs or uses non-numeric headings (for example, "Requirement A"), stop and instruct the user to fix requirements.md before continuing.
-
-**Spec Gap Found During Design Review**:
-
-- **Stop Execution**: Do not write a patched-over `design.md`
-- **User Message**: "Design review found a real spec gap or ambiguity that must be resolved before design can be finalized."
-- **Suggested Action**: Clarify or fix `requirements.md`, then re-run `/kiro-spec-design {feature}`
+- **Template missing** (`.kiro/settings/templates/specs/design.md`): warn ("check repository setup or restore template file") and fall back to an inline basic structure.
+- **Steering directory empty or missing**: warn that the design may not align with project standards; proceed and note the limitation in output.
 
 ### Next Phase: Task Generation
 

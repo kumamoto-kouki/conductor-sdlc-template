@@ -51,6 +51,16 @@ Keep EARS trigger keywords and fixed phrases in English (`When`, `If`, `While`, 
 - **Process/Workflow**: Use responsible team/role (e.g., "Support Team", "Review Process")
 - **Non-Software**: Use appropriate subject (e.g., "Marketing Campaign", "Documentation")
 
+## Requirement IDs (Canonical Rule)
+
+This section is the single source of truth for requirement numbering. Other documents reference it instead of restating it — with one allowed exception: the spec templates (`.kiro/settings/templates/specs/*.md`) may carry a minimal inline reminder, because templates are read standalone at fill-time. The requirements-review gate in this skill also states its concrete pass/fail criteria (generation-vs-gate dual coverage is deliberate: what generation misses, the gate catches).
+
+- Requirement headings MUST carry a leading numeric ID ("Requirement 1", not "Requirement A"). Never mix numeric and alphabetic labels; if existing headings are non-numeric, normalize them to numeric IDs with a consistent mapping.
+- Acceptance criteria are numbered `N.M`, where `N` is the top-level requirement number (Requirement 1 → 1.1, 1.2; Requirement 2 → 2.1, 2.2).
+- These numeric IDs are the join key for `design.md` and `tasks.md` traceability: every component, task, and traceability row must reference the same canonical numeric ID.
+- Downstream documents reference IDs bare (`2.1, 2.3`), without the "Requirement" prefix.
+- Never renumber once design/tasks reference an ID. If a requirement lacks a numeric ID, stop and fix `requirements.md` before generating downstream documents.
+
 ## Quality Criteria
 
 - Requirements must be testable, verifiable, and describe a single behavior.

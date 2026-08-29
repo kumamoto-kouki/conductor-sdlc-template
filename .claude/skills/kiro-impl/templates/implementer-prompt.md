@@ -89,7 +89,7 @@ This is a pre-handoff check on your own work, not acceptance. It never substitut
 
 End your response with this structured status block:
 
-The parent controller parses the exact `- STATUS:` line. Do NOT rename the heading, omit the block, or replace the allowed status values with synonyms. Return exactly one final status block. Put extra explanation inside the defined fields, not after the block.
+The parent controller parses the exact `- STATUS:` line. Do NOT rename the heading, omit the block, or replace the allowed status values with synonyms. Return one final status block per assigned sub-task (a single-task dispatch returns exactly one; a bundled dispatch returns one **per sub-task**, each self-contained with its own verification evidence and, when behavioral, its own `RED_PHASE_OUTPUT`). Put extra explanation inside the defined fields, not after the block.
 
 ```
 ## Status Report

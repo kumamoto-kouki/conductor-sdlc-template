@@ -38,14 +38,9 @@ Otherwise, load all necessary context:
 - Additional steering files only when directly relevant to the selected task's boundary, runtime prerequisites, integrations, domain rules, security/performance constraints, or team conventions that affect implementation or validation
 - Relevant local agent skills or playbooks only when they clearly match the task's host environment or use case; read the specific artifact(s) you need, not entire directories
 
-#### Parallel Research
+#### Context to Load
 
-The following research areas are independent and can be executed in parallel:
-
-1. **Spec context loading**: spec.json, requirements.md, design.md, tasks.md
-2. **Steering, playbooks, & patterns**: Core steering, task-relevant extra steering, matching local agent skills/playbooks, and existing code patterns
-
-After all parallel research completes, synthesize implementation brief before starting.
+spec.json, requirements.md, design.md, tasks.md; task-relevant steering, matching local skills/playbooks, and existing code patterns. Synthesize an implementation brief before starting.
 
 #### Preflight
 
@@ -86,7 +81,7 @@ After all parallel research completes, synthesize implementation brief before st
 
 #### Autonomous Mode (subagent dispatch)
 
-**Iteration discipline**: Process exactly ONE sub-task (e.g., 1.1) per iteration. Do NOT batch multiple sub-tasks into a single subagent dispatch. Each iteration follows the full cycle: dispatch implementer → review → commit → re-read tasks.md → next.
+**Iteration discipline**: Acceptance granularity is fixed at the sub-task — every sub-task gets its own review verdict, its own commit, and its own checkbox update, so the audit trail never blurs. **Dispatch granularity is your judgment**: bundle consecutive sub-tasks into one implementer dispatch when they share the same `_Boundary:_`, are sequentially dependent, and are individually small (each subagent call carries a fixed floor cost — see `CLAUDE.md` トークン/コスト効率); keep them separate when boundaries differ or a failure in one should not block the others. A bundled dispatch still produces per-sub-task review verdicts and commits, and that promise has to be wired into the dispatch itself: (a) the implementer prompt must require **one Status Report block per sub-task** (each with its own `RED_PHASE_OUTPUT` when behavioral) — a single merged block leaves the reviewer no per-sub-task evidence and a strict reviewer will correctly REJECT the bundle; (b) when bundled sub-tasks touch the same files and per-sub-task commits cannot be split by pathspec, fall back to **one commit whose message lists every sub-task ID it covers** — the audit trail then lives in the message instead of the split; (c) run the review loop per sub-task against its own Status Report. Flow: dispatch (bundled) → review each sub-task → commit each (or one commit listing all IDs) → re-read tasks.md → next.
 
 **Context management**: At the start of each iteration, re-read `tasks.md` to determine the next actionable sub-task. Do NOT rely on accumulated memory of previous iterations. After completing each iteration, retain only a one-line summary (e.g., "1.1: READY_FOR_REVIEW, 3 files changed") and discard the full status report and reviewer details.
 
@@ -171,7 +166,7 @@ The debug subagent runs in a **fresh context** — it receives only the error in
 - **Max 2 debug rounds per task**. Each round: fresh debug subagent → fresh implementer. If still failing after 2 rounds, the task is blocked.
 - Record debug findings in `## Implementation Notes` (this helps subsequent tasks avoid the same issue)
 
-**`(P)` markers**: Tasks marked `(P)` in tasks.md indicate they have no inter-dependencies and could theoretically run in parallel. However, kiro-impl processes them sequentially (one at a time) to avoid git conflicts and simplify review. The `(P)` marker is informational for task planning, not an execution directive.
+**`(P)` markers**: Tasks marked `(P)` in tasks.md indicate they have no inter-dependencies and could theoretically run in parallel. However, kiro-impl executes in tasks.md order regardless — no concurrent dispatches — to avoid git conflicts and keep review boundaries clean (bundling consecutive sub-tasks into one dispatch, per Iteration discipline, is still ordered execution). The `(P)` marker is informational for task planning, not an execution directive.
 
 **Completion check**: If all remaining tasks are BLOCKED, stop and report blocked tasks with reasons to the user.
 

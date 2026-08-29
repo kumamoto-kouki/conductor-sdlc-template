@@ -51,9 +51,11 @@ implementer's default.
 <!--
 _Requirements:_ lists only numeric requirement IDs, comma-separated -- no
 descriptive suffixes or translations. `(P)` marks a task with no dependency on
-its immediately preceding peers; omit it entirely when generated with
---sequential. Every requirement ID from requirements.md must appear in at
-least one task; every component/contract from design.md must be represented.
+its immediately preceding peers (optional and informational -- the current
+executor, kiro-impl, runs tasks sequentially either way); omit it entirely when
+generated with --sequential. Every requirement ID from requirements.md must
+appear in at least one task; every component/contract from design.md must be
+represented.
 -->
 
 ## Traceability (optional)

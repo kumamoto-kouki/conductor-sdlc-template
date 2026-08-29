@@ -51,43 +51,9 @@ Use the language specified in `spec.json`.
 
 ## Method
 
-### 1. Read the Error Carefully
+Gather evidence first — the exact error and failing command, relevant repo/runtime/dependency state, and (when web access is available) official docs or version-specific issues — before classifying anything. For runtime/dependency issues, docs and version issues often contain the shortest path to root cause.
 
-Extract:
-
-- Exact error text
-- Stack trace or failure location
-- The command that produced the failure
-- Whether the failure is deterministic or intermittent
-
-### 2. Inspect Local Runtime and Repository State
-
-Inspect the repository for local evidence:
-
-- `package.json`, `pyproject.toml`, `go.mod`, `Makefile`, `README*`
-- Build config
-- `tsconfig` or equivalent language/runtime config
-- Runtime-specific config
-- Dependency versions and scripts
-- Relevant changed files from `git diff`
-
-### 3. Search the Web if Available
-
-If web access is available, search:
-
-- The exact error message
-- The technology + symptom combination
-- Official documentation
-- Version-specific issue trackers or migration notes
-
-Prefer:
-
-- Official docs
-- Official repos/issues
-- Version-specific references
-- Runtime-specific documentation
-
-### 4. Classify the Root Cause
+### 1. Classify the Root Cause
 
 Use one category:
 
@@ -102,18 +68,11 @@ Use one category:
 - `SPEC_CONFLICT`
 - `EXTERNAL_DEPENDENCY`
 
-### 5. Determine the Smallest Safe Next Action
+### 2. Determine the Smallest Safe Next Action
 
-Decide whether the issue can be fixed inside this repo by:
+Use `NEXT_ACTION: RETRY_TASK` when the issue can be fixed inside this repo (editing files, adjusting configuration, adding or correcting dependencies, restructuring code) within the current approved task plan.
 
-- Editing files
-- Adjusting configuration
-- Adding or correcting dependencies
-- Restructuring code
-
-Use `NEXT_ACTION: RETRY_TASK` when the issue is repo-fixable inside the current approved task plan.
-
-### 6. Determine Whether the Task Plan Is Still Valid
+### 3. Determine Whether the Task Plan Is Still Valid
 
 Decide whether the current approved task plan is still safe to execute as written.
 
@@ -142,15 +101,6 @@ Use `NEXT_ACTION: STOP_FOR_HUMAN` when the blocker genuinely requires:
 - Re-scoping due to spec/platform conflict
 
 If the issue is fixable by repo changes inside the current task plan, do not escalate prematurely.
-
-## Common Rationalizations
-
-| Rationalization                             | Reality                                                                                               |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| “This probably just needs a quick patch”    | Patch-first debugging creates rework.                                                                 |
-| “Let’s try a few fixes”                     | Multi-fix guessing hides root cause.                                                                  |
-| “The spec is probably wrong, I’ll adapt it” | Spec conflicts must be surfaced explicitly.                                                           |
-| “The docs search is optional”               | For runtime/dependency issues, docs and version issues often contain the shortest path to root cause. |
 
 ## Output Format
 

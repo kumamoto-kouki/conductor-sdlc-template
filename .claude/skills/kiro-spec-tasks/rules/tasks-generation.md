@@ -76,7 +76,7 @@ Add `_Model: <haiku|sonnet|opus|fable>_` only when a task calls for a model othe
 - Helps validate parallel safety: tasks with non-overlapping boundaries are parallel candidates
 - Helps agents understand scope: what to touch and what not to touch
 
-**When to use**: Required for tasks marked `(P)` to validate parallel safety. Omit for sequential tasks where scope is obvious from the description.
+**When to use**: Recommended wherever scope is not obvious from the description; include it whenever you mark a task `(P)`.
 
 **Boundary rule**:
 
@@ -178,26 +178,9 @@ Before writing `tasks.md`, review the draft task plan and repair local issues un
 - Sub-tasks reset per major task: 1.1, 1.2, then 2.1, 2.2...
 - Never repeat major task numbers
 
-### Parallel Analysis (default)
+### Parallel Marker `(P)` (optional, informational)
 
-- Assume parallel analysis is enabled unless explicitly disabled (e.g. `--sequential` flag).
-- `(P)` means: this task has no dependency on its immediately preceding peers and can run concurrently with them.
-- Identify tasks that can run concurrently when **all** conditions hold:
-  - No data dependency on other pending tasks
-  - No shared file or resource contention
-  - No prerequisite review/approval from another task
-  - `_Boundary:_` annotations confirm non-overlapping component scopes
-- Foundation-phase tasks (see Task Ordering Principle) are rarely `(P)` — they establish shared prerequisites.
-- Core-phase tasks are the primary candidates for `(P)` since foundation is already complete.
-- Validate that identified parallel tasks operate within separate boundaries defined in the Architecture Pattern & Boundary Map.
-- Confirm API/event contracts from design.md do not overlap in ways that cause conflicts.
-- `(P)` tasks with cross-boundary dependencies must declare `_Depends: X.X_` explicitly.
-- Append `(P)` immediately after the task number for each parallel-capable task:
-  - Example: `- [ ] 2.1 (P) Build background worker`
-  - Apply to both major tasks and sub-tasks when appropriate.
-- If sequential mode is requested, omit `(P)` markers entirely.
-- Group parallel tasks logically (same parent when possible) and highlight any ordering caveats in detail bullets.
-- Explicitly call out dependencies that prevent `(P)` even when tasks look similar.
+`(P)` after a task number (e.g. `- [ ] 2.1 (P) Build background worker`) notes that the task has no dependency on its immediately preceding peers. Marking it is **optional**: the current execution system does not consume it — `kiro-impl` always runs tasks sequentially and treats `(P)` as informational (see its SKILL.md). Actual parallelism in this template happens at the multi-spec wave level via `/kiro-spec-batch`, not between tasks inside one spec. If you do mark `(P)`: keep it outside the checkbox brackets, give the task a `_Boundary:_` annotation, declare cross-boundary prerequisites with `_Depends: X.X_` (the dependency declaration matters for execution order regardless of `(P)`), and omit `(P)` entirely when `--sequential` is requested.
 
 ### Checkbox Format
 
@@ -239,6 +222,6 @@ Before writing `tasks.md`, review the draft task plan and repair local issues un
 - If gaps found: Return to requirements or design phase
 - No requirement should be left without corresponding tasks
 
-Use `N.M`-style numeric requirement IDs where `N` is the top-level requirement number from requirements.md (for example, Requirement 1 → 1.1, 1.2; Requirement 2 → 2.1, 2.2), and `M` is a local index within that requirement group.
+Requirement-ID format is defined once in `kiro-spec-requirements`'s `rules/ears-format.md` (`## Requirement IDs (Canonical Rule)`); follow it — numeric `N.M` only, no restating here.
 
 Document any intentionally deferred requirements with rationale.

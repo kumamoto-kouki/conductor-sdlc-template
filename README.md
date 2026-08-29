@@ -56,7 +56,7 @@ flowchart TD
     B2 --> C["アイデアを整理<br/>/kiro-discovery"]
     C --> D["仕様を作成<br/>/kiro-spec-quick<br/>要件 → 設計 → タスク"]
     D --> E{{"人間(PO)が<br/>各フェーズを承認<br/>/kiro-approve"}}
-    E -->|承認| F["実装<br/>/kiro-impl（worktreeで並行）"]
+    E -->|承認| F["実装<br/>/kiro-impl（タスク単位に実装→独立レビュー→コミット）"]
     F --> G[独立レビュアーが受理判定]
     G -->|FAIL| F
     G -->|PASS| H[統合ブランチへ統合]
@@ -82,7 +82,7 @@ flowchart TD
     K["👨🏼‍💼 統括（コンダクター）<br/>采配は委譲・自分では実装しない"]
     LE["🧑🏼‍💼 Engリーダー<br/>エンジニアリングの采配"]
     LD["🧑🏼‍🎨 Designリーダー<br/>デザインの采配"]
-    ME["👨🏼‍💻 実装担当（Maker）<br/>worktreeで並行実装"]
+    ME["👨🏼‍💻 実装担当（Maker）<br/>タスク単位で実装（並行時はworktree＝別経路）"]
     MD["👩🏼‍🎨 デザイン実装（Maker）"]
     RE["🛡️ EngRev（Checker）<br/>実装者と別人が受理判定"]
     RD["🕵🏼‍♀️ デザインRev（Checker）<br/>実装者と別人が受理判定"]
@@ -154,7 +154,7 @@ flowchart TD
 | 解説ドキュメント       | `docs/`                                                | `team-structure.md`（チームの読み方）／`glossary.md`（用語集）／`pdca-practice.md`（PDCA の回し方）／`autonomy-tiers.md`（自律度の段階）／`external-services.md`（外部サービスとの関係）／`design-brief.md`（デザインブリーフの記入例）                                                                                                                                                                   |
 | プロダクト記憶（雛形） | `.kiro/steering/product.md`・`tech.md`・`structure.md` | 空テンプレ（記入して使う）                                                                                                                                                                                                                                                                                                                                                                                |
 
-npm スクリプトは `status`（`STATUS.md` の生成）と `verify`（整合性検証＝文書の相対参照の実在・`.gitignore` と `template.gitignore` の一致・`STATUS.md` が実態と一致・`spec.json` が導出元として読める・`VERSION` と `package.json` の版が一致）の2つだけで、どちらも node 標準機能だけで動く（テンプレート本体に依存パッケージは無い）。
+npm スクリプトは `status`（`STATUS.md` の生成）と `verify`（整合性検証ハーネス。**検査の一覧と各検査の狙いは実行時の出力自身が示す**——ここに列挙すると増減のたびに古びるため書かない。過去に2度、この説明が実際の検査数から取り残された）の2つだけで、どちらも node 標準機能だけで動く（テンプレート本体に依存パッケージは無い）。push と PR では同じ verify が CI（`.github/workflows/verify.yml`）でも自動実行される。
 
 ## この進め方のルール
 
@@ -173,6 +173,15 @@ npm スクリプトは `status`（`STATUS.md` の生成）と `verify`（整合�
 - **振り返りを記録する**：節目ごとに `.claude/reports/`（セッションメモ）へ振り返りを残す。バージョン記録・持ち越し事項は書いた時点で `CHANGELOG.md` へ、2回目以降も同じ判断を下す場面が来た学びは正本（`.kiro/steering/`・`.claude/rules/`）へ、それぞれ直接記録する。振り返りの基準そのものは `.claude/rules/retrospective.md`（`.claude/reports/**` に触れたときだけ読み込まれる）にある。
 - **文章の規範を揃える**：日本語文書は `.kiro/steering/writing-standards.md` に従う（新規に書く文章と、変更で触れた文章から適用。既存の一括書き換えはしない）。
 - **大規模化したらナレッジグラフ化を検討する**：依存関係を横断する質問（「この変更は何に影響するか」等）が頻発しだしたら `.claude/playbooks/knowledge-graph.md`（判断基準・手法マトリクス・導入手順）を参照する。
+
+## このテンプレートが向かない場合
+
+この進め方は「AI に任せきりでは出ない信頼性を、承認・独立レビュー・証拠での受理という**手間**で買う」ものである。手間が成果を上回る場面では使わないほうがよい。
+
+- **数時間で捨てる使い捨てプロトタイプ**：3段階承認と独立レビューのコストが成果を上回る。素の Claude Code で書くほうが速い。
+- **既に大きなコードベースがあるプロジェクトへの後付け**：steering・spec の体系は新規開始を前提に設計されており、既存資産の取り込み工程を持たない（`/kiro-validate-gap` は個別機能の差分分析であり、全体移行の道具ではない）。
+- **人間のエンジニアが複数人で開発するチーム**：承認者が PO ひとりである前提と、AI どうしの Maker≠Checker を軸にした体制が、人間どうしのコードレビュー文化と二重になる。
+- **迷ったら**：最初の1機能を両方のやり方で見積もり、承認・レビューの手間に見合う失敗コスト（作り直し・信頼の毀損）があるかで決める。
 
 ## 困ったとき・FAQ
 

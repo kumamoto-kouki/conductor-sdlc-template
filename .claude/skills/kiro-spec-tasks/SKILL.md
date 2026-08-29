@@ -47,14 +47,9 @@ Otherwise, load all necessary context:
 - Read `rules/tasks-parallel-analysis.md` from this skill's directory for parallel judgement criteria
 - Read `.kiro/settings/templates/specs/tasks.md` for format (supports `(P)` markers)
 
-#### Parallel Research
+#### Context to Load
 
-The following research areas are independent and can be executed in parallel:
-
-1. **Context loading**: Spec documents (requirements.md, design.md), steering files
-2. **Rules loading**: tasks-generation.md, tasks-parallel-analysis.md, tasks template
-
-After all parallel research completes, synthesize findings before generating tasks.
+Spec documents (requirements.md, design.md), steering files, tasks-generation.md, tasks-parallel-analysis.md, and the tasks template.
 
 **Generate task list following all rules**:
 
@@ -64,7 +59,7 @@ After all parallel research completes, synthesize findings before generating tas
 - Verify task progression is logical and incremental
 - Ensure each executable sub-task includes at least one detail bullet that states what "done" looks like in observable terms
 - Keep normal implementation tasks within a single responsibility boundary; if work crosses boundaries, make it an explicit integration task
-- Apply `(P)` markers to tasks that satisfy parallel criteria when `!sequential`
+- `(P)` markers are optional and informational (see rules/tasks-generation.md); add them only where they carry planning value — the current executor runs sub-tasks in order either way
 - Explicitly note dependencies preventing `(P)` when tasks appear parallel but are not safe
 - If sequential mode is true, omit `(P)` entirely
 - If existing tasks.md found, merge with new content
@@ -164,40 +159,16 @@ Provide brief summary in the language specified in spec.json:
 
 ## Safety & Fallback
 
-### Error Scenarios
+Principle: when a precondition fails, stop, state the reason plainly, and name the exact command that fixes it.
 
-**Requirements or Design Not Approved**:
-
-- **Stop Execution**: Cannot proceed without approved requirements and design
-- **User Message**: "Requirements and design must be approved before task generation"
-- **Suggested Action** (offer both, in this order):
+- **Requirements or design not approved**: stop — cannot proceed without approved requirements and design. Offer both, in this order:
   1. Read and approve: "Run `/kiro-approve {feature}` to read the pending document and record approval" (repeat until no phase is pending)
   2. Deliberate fast-track: "Run `/kiro-spec-tasks {feature} -y` to auto-approve the design (the immediately preceding phase) and the generated tasks, without reading them. This does not approve requirements — if requirements are still unapproved, `/kiro-approve {feature} requirements` is required first."
-
-**Missing Requirements or Design**:
-
-- **Stop Execution**: Both documents must exist
-- **User Message**: "Missing requirements.md or design.md at `.kiro/specs/{feature}/`"
-- **Suggested Action**: "Complete requirements and design phases first"
-
-**Incomplete Requirements Coverage**:
-
-- **Warning**: "Not all requirements mapped to tasks. Review coverage."
-- **User Action Required**: Confirm intentional gaps or regenerate tasks
-
-**Spec Gap Found During Task Review**:
-
-- **Stop Execution**: Do not write a patched-over `tasks.md`
-- **User Message**: "Requirements/design do not provide enough clear coverage to generate an executable task plan"
-- **Suggested Action**: "Refine requirements.md or design.md, then re-run `/kiro-spec-tasks {feature}`"
-
-**Template/Rules Missing**:
-
-- **User Message**: "Template or rules files missing in `.kiro/settings/`"
-- **Fallback**: Use inline basic structure with warning
-- **Suggested Action**: "Check repository setup or restore template files"
-- **Missing Numeric Requirement IDs**:
-  - **Stop Execution**: All requirements in requirements.md MUST have numeric IDs. If any requirement lacks a numeric ID, stop and request that requirements.md be fixed before generating tasks.
+- **Missing requirements.md or design.md at `.kiro/specs/{feature}/`**: stop — complete requirements and design phases first.
+- **Incomplete requirements coverage**: warn ("Not all requirements mapped to tasks. Review coverage."); the user confirms intentional gaps or regenerates tasks.
+- **Spec gap found during task review**: stop — do not write a patched-over `tasks.md`; refine requirements.md or design.md, then re-run `/kiro-spec-tasks {feature}`.
+- **Template or rules files missing in `.kiro/settings/`**: fall back to inline basic structure with a warning; check repository setup or restore template files.
+- **Missing numeric requirement IDs**: stop — all requirements in requirements.md MUST have numeric IDs; request that requirements.md be fixed before generating tasks.
 
 ### Next Phase: Implementation
 

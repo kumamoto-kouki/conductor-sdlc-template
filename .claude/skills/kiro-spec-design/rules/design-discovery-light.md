@@ -1,46 +1,6 @@
 # Light Discovery Process for Extensions
 
-## Objective
-
-Quickly analyze existing system and integration requirements for feature extensions.
-
-## Focused Discovery Steps
-
-### 1. Extension Point Analysis
-
-**Identify Integration Approach**:
-
-- Locate existing extension points or interfaces
-- Determine modification scope (files, components)
-- Check for existing patterns to follow
-- Identify backward compatibility requirements
-
-### 2. Dependency Check
-
-**Verify Compatibility**:
-
-- Check version compatibility of new dependencies
-- Validate API contracts haven't changed
-- Ensure no breaking changes in pipeline
-
-### 3. Quick Technology Verification
-
-**For New Libraries Only**:
-
-- Use WebSearch for official documentation
-- Verify basic usage patterns
-- Check for known compatibility issues
-- Confirm licensing compatibility
-- Record key findings in `research.md` (technology alignment section)
-
-### 4. Integration Risk Assessment
-
-**Quick Risk Check**:
-
-- Impact on existing functionality
-- Performance implications
-- Security considerations
-- Testing requirements
+Focused discovery for extending an existing system: identify extension points and existing patterns to follow, the modification scope (files, components), compatibility of new or changed dependencies, and integration risks. For new libraries, verify current official documentation and licensing; record key findings in `research.md` (technology alignment section).
 
 ## When to Escalate to Full Discovery
 
