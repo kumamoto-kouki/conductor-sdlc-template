@@ -125,11 +125,12 @@ fi
 # 生成プロジェクトの利用者が最初に開くファイルとしては誤り。CHANGELOG はテンプレート
 # 自身の開発史（77KB）で、新規プロジェクトの変更履歴ではない。LICENSE はテンプレート
 # 著作者の権利表示であり、複製すると生成プロジェクト（利用者自身の著作物）に他人の
-# 著作権表示が付いてしまう。ライセンスは利用者が自分で決める。README と CHANGELOG は
+# 著作権表示が付いてしまう。ライセンスは利用者が自分で決める。docs/images/ は本体 README
+# 専用の図で、生成プロジェクトからは誰も参照しない。README と CHANGELOG は
 # 複製後にプロジェクト用のものを書き起こす。
 doc_excludes=()
 if [ -f "$ROOT/package.scaffold.json" ]; then
-  doc_excludes+=( --exclude='/README.md' --exclude='/CHANGELOG.md' --exclude='/LICENSE' )
+  doc_excludes+=( --exclude='/README.md' --exclude='/CHANGELOG.md' --exclude='/LICENSE' --exclude='/docs/images/' )
 fi
 rsync -a \
   --exclude='.git' \

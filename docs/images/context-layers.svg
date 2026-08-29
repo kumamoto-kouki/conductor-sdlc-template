@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 386" width="880" height="386" role="img" aria-label="コンテキストを読み込みコストで3層に分けた地図">
+<rect x="0" y="0" width="880" height="386" fill="#FCFBF9"/>
+<rect x="28" y="24" width="824" height="96" rx="10" fill="#FFFFFF" stroke="#B03A2E" stroke-width="3"/>
+<rect x="28" y="24" width="10" height="96" rx="5" fill="#B03A2E"/>
+<text x="56" y="54" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" font-weight="bold" fill="#B03A2E">① 毎回 AI に渡る（固定費）</text>
+<rect x="56" y="66" width="97" height="26" rx="13" fill="#B03A2E" fill-opacity="0.10" stroke="#B03A2E" stroke-opacity="0.4" stroke-width="1"/>
+<text x="67" y="84" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" fill="#2B2B2B">CLAUDE.md</text>
+<rect x="163" y="66" width="148" height="26" rx="13" fill="#B03A2E" fill-opacity="0.10" stroke="#B03A2E" stroke-opacity="0.4" stroke-width="1"/>
+<text x="174" y="84" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" fill="#2B2B2B">.kiro/steering/</text>
+<text x="56" y="110" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#6E6A64">上限 32,000 文字。npm run verify が機械で強制する</text>
+<rect x="28" y="136" width="824" height="96" rx="10" fill="#FFFFFF" stroke="#4A5C8C" stroke-width="1"/>
+<rect x="28" y="136" width="10" height="96" rx="5" fill="#4A5C8C"/>
+<text x="56" y="166" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" font-weight="bold" fill="#4A5C8C">② 必要になったときだけ読む</text>
+<rect x="56" y="178" width="139" height="26" rx="13" fill="#4A5C8C" fill-opacity="0.10" stroke="#4A5C8C" stroke-opacity="0.4" stroke-width="1"/>
+<text x="67" y="196" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" fill="#2B2B2B">.claude/rules/</text>
+<rect x="205" y="178" width="173" height="26" rx="13" fill="#4A5C8C" fill-opacity="0.10" stroke="#4A5C8C" stroke-opacity="0.4" stroke-width="1"/>
+<text x="216" y="196" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" fill="#2B2B2B">.claude/playbooks/</text>
+<text x="56" y="222" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#6E6A64">rules はパスに触れたとき自動で／playbooks は判断が要るときに</text>
+<rect x="28" y="248" width="824" height="96" rx="10" fill="#FFFFFF" stroke="#2E7D4F" stroke-width="1"/>
+<rect x="28" y="248" width="10" height="96" rx="5" fill="#2E7D4F"/>
+<text x="56" y="278" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" font-weight="bold" fill="#2E7D4F">③ 生成物・道具（人と機械が読む）</text>
+<rect x="56" y="290" width="97" height="26" rx="13" fill="#2E7D4F" fill-opacity="0.10" stroke="#2E7D4F" stroke-opacity="0.4" stroke-width="1"/>
+<text x="67" y="308" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" fill="#2B2B2B">STATUS.md</text>
+<rect x="163" y="290" width="89" height="26" rx="13" fill="#2E7D4F" fill-opacity="0.10" stroke="#2E7D4F" stroke-opacity="0.4" stroke-width="1"/>
+<text x="174" y="308" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" fill="#2B2B2B">scripts/</text>
+<rect x="262" y="290" width="173" height="26" rx="13" fill="#2E7D4F" fill-opacity="0.10" stroke="#2E7D4F" stroke-opacity="0.4" stroke-width="1"/>
+<text x="273" y="308" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" fill="#2B2B2B">.github/workflows/</text>
+<text x="56" y="334" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#6E6A64">STATUS.md は手で書かない。仕様と配役から毎回作り直す</text>
+<text x="440" y="370" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#6E6A64">上の層ほど、置いたものが毎ターンの費用と注意を食う。だから①だけ上限を機械で見張る。</text>
+</svg>

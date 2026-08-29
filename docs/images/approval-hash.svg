@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 250" width="900" height="250" role="img" aria-label="承認したあとに文書が書き換わったことを検知する仕組みの3コマ図">
+<rect x="0" y="0" width="900" height="250" fill="#FCFBF9"/>
+<rect x="24" y="26" width="264" height="170" rx="10" fill="#FFFFFF" stroke="#2E7D4F" stroke-width="2"/>
+<rect x="24" y="26" width="264" height="38" rx="10" fill="#2E7D4F"/>
+<rect x="24" y="50" width="264" height="14" fill="#2E7D4F"/>
+<text x="156" y="52" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF">① 承認する</text>
+<rect x="46" y="82" width="40" height="52" rx="4" fill="#F2EFE9" stroke="#9A948A" stroke-width="1.5"/>
+<line x1="54" y1="94" x2="78" y2="94" stroke="#9A948A" stroke-width="2"/>
+<line x1="54" y1="106" x2="78" y2="106" stroke="#9A948A" stroke-width="2"/>
+<line x1="54" y1="118" x2="78" y2="118" stroke="#9A948A" stroke-width="2"/>
+<circle cx="94" cy="128" r="13" fill="#FFFFFF" stroke="#2E7D4F" stroke-width="2"/>
+<text x="94" y="133" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="14" font-weight="bold" fill="#2E7D4F">✓</text>
+<text x="120" y="98" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">PO が読んで承認する。</text>
+<text x="120" y="118" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">そのとき文書の指紋を</text>
+<text x="120" y="138" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">spec.json に記録する。</text>
+<text x="120" y="176" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#6E6A64">spec.json</text>
+<line x1="294" y1="111" x2="306" y2="111" stroke="#9A948A" stroke-width="2"/>
+<path d="M 304 105 L 314 111 L 304 117 Z" fill="#9A948A"/>
+<rect x="320" y="26" width="264" height="170" rx="10" fill="#FFFFFF" stroke="#8A6A2F" stroke-width="2"/>
+<rect x="320" y="26" width="264" height="38" rx="10" fill="#8A6A2F"/>
+<rect x="320" y="50" width="264" height="14" fill="#8A6A2F"/>
+<text x="452" y="52" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF">② 書き換わる</text>
+<rect x="342" y="82" width="40" height="52" rx="4" fill="#F2EFE9" stroke="#9A948A" stroke-width="1.5"/>
+<line x1="350" y1="94" x2="374" y2="94" stroke="#9A948A" stroke-width="2"/>
+<line x1="350" y1="106" x2="374" y2="106" stroke="#9A948A" stroke-width="2"/>
+<line x1="350" y1="118" x2="374" y2="118" stroke="#9A948A" stroke-width="2"/>
+<circle cx="390" cy="128" r="13" fill="#FFFFFF" stroke="#8A6A2F" stroke-width="2"/>
+<text x="390" y="133" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="14" font-weight="bold" fill="#8A6A2F">✎</text>
+<text x="416" y="98" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">承認したあとに、誰かが</text>
+<text x="416" y="118" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">その文書を直す。</text>
+<text x="416" y="138" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">指紋が合わなくなる。</text>
+<text x="416" y="176" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#6E6A64">requirements.md</text>
+<line x1="590" y1="111" x2="602" y2="111" stroke="#9A948A" stroke-width="2"/>
+<path d="M 600 105 L 610 111 L 600 117 Z" fill="#9A948A"/>
+<rect x="616" y="26" width="264" height="170" rx="10" fill="#FFFFFF" stroke="#B03A2E" stroke-width="2"/>
+<rect x="616" y="26" width="264" height="38" rx="10" fill="#B03A2E"/>
+<rect x="616" y="50" width="264" height="14" fill="#B03A2E"/>
+<text x="748" y="52" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF">③ 検知する</text>
+<rect x="638" y="82" width="40" height="52" rx="4" fill="#F2EFE9" stroke="#9A948A" stroke-width="1.5"/>
+<line x1="646" y1="94" x2="670" y2="94" stroke="#9A948A" stroke-width="2"/>
+<line x1="646" y1="106" x2="670" y2="106" stroke="#9A948A" stroke-width="2"/>
+<line x1="646" y1="118" x2="670" y2="118" stroke="#9A948A" stroke-width="2"/>
+<circle cx="686" cy="128" r="13" fill="#FFFFFF" stroke="#B03A2E" stroke-width="2"/>
+<text x="686" y="133" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="14" font-weight="bold" fill="#B03A2E">✕</text>
+<text x="712" y="98" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">npm run verify が気づき</text>
+<text x="712" y="118" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">STATUS.md がその段を</text>
+<text x="712" y="138" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">「要再承認」と表示する。</text>
+<text x="712" y="176" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#6E6A64">STATUS.md</text>
+<text x="450" y="228" text-anchor="middle" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#6E6A64">「承認済み」という表示が、実際の中身とずれないようにするための仕組み。</text>
+</svg>
