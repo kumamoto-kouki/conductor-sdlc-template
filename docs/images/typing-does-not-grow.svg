@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 452" width="900" height="452" role="img" aria-label="黒い画面の作業は増えない、ということを量で示した図。横に、導入（1回きり）、1つめの機能、2つめ、3つめ、4つめ、と並びます。上の段は「黒い画面（ターミナル）に打ち込む作業」です。導入のところに大きな黒い箱があり、9つの手順、30分から1時間と書かれています。そのあとの機能のところには、ごく小さな点が1つずつ並ぶだけで、機能のはじめに1行だけ（例: スラッシュ kiro-discovery）打つことを表しています。下の段は「AI と会話する（質問に答えるだけ）」です。会話は導入の最後から始まり、そのあとは機能ごとに同じ大きさの会話の箱が並び、機能を作るたびに繰り返されます。なお、この図では黒い画面のところを実際よりずっと大きく描いています。作れば作るほど、黒い画面の割合は小さくなります。打ち込む作業は最初の1回で終わり、ファイルを自分で開く必要もありません。">
+<rect x="0" y="0" width="900" height="452" fill="#FCFBF9"/>
+<text x="450" y="42" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="18" text-anchor="middle" fill="#2B2B2B" font-weight="bold">黒い画面の作業は、増えません</text>
+<text x="450" y="68" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#6E6A64">作る機能が増えても、増えるのは会話のほうです</text>
+
+<text x="286" y="104" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#6E6A64">導入（1回きり）</text>
+<text x="426" y="104" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#6E6A64">1つめの機能</text>
+<text x="542" y="104" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#6E6A64">2つめ</text>
+<text x="658" y="104" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#6E6A64">3つめ</text>
+<text x="774" y="104" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#6E6A64">4つめ</text>
+
+<line x1="200" y1="112" x2="200" y2="262" stroke="#E5E0D6" stroke-width="1"/>
+
+<text x="34" y="137" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B" font-weight="bold">黒い画面（ターミナル）に</text>
+<text x="34" y="157" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B" font-weight="bold">打ち込む作業</text>
+
+<rect x="210" y="116" width="152" height="54" rx="8" fill="#2E2C29"/>
+<text x="228" y="139" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" fill="#A9A49C">&gt;_</text>
+<text x="252" y="139" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#F2EFEA" font-weight="bold">9つの手順</text>
+<text x="252" y="159" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#A9A49C">30分〜1時間</text>
+
+<rect x="418" y="135" width="16" height="16" rx="4" fill="#2E2C29"/>
+<rect x="534" y="135" width="16" height="16" rx="4" fill="#2E2C29"/>
+<rect x="650" y="135" width="16" height="16" rx="4" fill="#2E2C29"/>
+<rect x="766" y="135" width="16" height="16" rx="4" fill="#2E2C29"/>
+<text x="846" y="148" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" text-anchor="middle" fill="#9A948A">…</text>
+<text x="600" y="188" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" text-anchor="middle" fill="#6E6A64">機能のはじめに1行だけ（例: <tspan font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">/kiro-discovery</tspan>）</text>
+
+<text x="34" y="225" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B" font-weight="bold">AI と会話する</text>
+<text x="34" y="245" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" fill="#6E6A64">（質問に答えるだけ）</text>
+
+<rect x="306" y="204" width="56" height="54" rx="8" fill="#EAF2F1" stroke="#1F6F6B" stroke-opacity="0.4" stroke-width="1.5"/>
+<path d="M 322 220 h 24 a5 5 0 0 1 5 5 v 12 a5 5 0 0 1 -5 5 h -14 l -8 7 v -7 h -2 a5 5 0 0 1 -5 -5 v -12 a5 5 0 0 1 5 -5 z" fill="none" stroke="#1F6F6B" stroke-opacity="0.55" stroke-width="1.5"/>
+
+<rect x="374" y="204" width="104" height="54" rx="8" fill="#EAF2F1" stroke="#1F6F6B" stroke-width="1.5"/>
+<path d="M 410 220 h 24 a5 5 0 0 1 5 5 v 12 a5 5 0 0 1 -5 5 h -14 l -8 7 v -7 h -2 a5 5 0 0 1 -5 -5 v -12 a5 5 0 0 1 5 -5 z" fill="none" stroke="#1F6F6B" stroke-width="1.5"/>
+<rect x="490" y="204" width="104" height="54" rx="8" fill="#EAF2F1" stroke="#1F6F6B" stroke-width="1.5"/>
+<path d="M 526 220 h 24 a5 5 0 0 1 5 5 v 12 a5 5 0 0 1 -5 5 h -14 l -8 7 v -7 h -2 a5 5 0 0 1 -5 -5 v -12 a5 5 0 0 1 5 -5 z" fill="none" stroke="#1F6F6B" stroke-width="1.5"/>
+<rect x="606" y="204" width="104" height="54" rx="8" fill="#EAF2F1" stroke="#1F6F6B" stroke-width="1.5"/>
+<path d="M 642 220 h 24 a5 5 0 0 1 5 5 v 12 a5 5 0 0 1 -5 5 h -14 l -8 7 v -7 h -2 a5 5 0 0 1 -5 -5 v -12 a5 5 0 0 1 5 -5 z" fill="none" stroke="#1F6F6B" stroke-width="1.5"/>
+<rect x="722" y="204" width="104" height="54" rx="8" fill="#EAF2F1" stroke="#1F6F6B" stroke-width="1.5"/>
+<path d="M 758 220 h 24 a5 5 0 0 1 5 5 v 12 a5 5 0 0 1 -5 5 h -14 l -8 7 v -7 h -2 a5 5 0 0 1 -5 -5 v -12 a5 5 0 0 1 5 -5 z" fill="none" stroke="#1F6F6B" stroke-width="1.5"/>
+<text x="846" y="236" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" text-anchor="middle" fill="#9A948A">…</text>
+<text x="334" y="282" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="11.5" text-anchor="middle" fill="#6E6A64">導入の最後から</text>
+<text x="600" y="282" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" text-anchor="middle" fill="#6E6A64">機能を作るたびに、これを繰り返します</text>
+
+<text x="866" y="312" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="11.5" text-anchor="end" fill="#6E6A64">この図では、黒い画面のところを実際よりずっと大きく描いています</text>
+
+<rect x="34" y="336" width="832" height="92" rx="10" fill="#F5F2EC" stroke="#1F6F6B" stroke-width="1.5"/>
+<text x="450" y="376" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" text-anchor="middle" fill="#1F6F6B" font-weight="bold">作れば作るほど、黒い画面の割合は小さくなります</text>
+<text x="450" y="404" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#2B2B2B">打ち込む作業は最初の1回で終わります。ファイルを自分で開く必要もありません。</text>
+</svg>
