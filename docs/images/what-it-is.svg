@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 628" width="900" height="628" role="img" aria-label="あなたの会社の仕事に合わせたソフトを AI に作らせる話。作りたいことを言葉で伝えると AI がプログラムを書き、このテンプレートが本当にできているかを確かめる。あなたがやるのは、何を作るかを決めることと、自分の書類を1枚、最初から最後まで作らせて確かめてから承認すること。先に不利なこととして、導入に Mac なら30分から1時間・Windows なら1時間半から2時間かかること、月ぎめの契約が要り無料では使えないこと（2026年8月時点で月20ドルほどから）、AI だけでは終わらない場面が2つ（画面の見た目の判断と、本当に動くかの最終確認）あることを示す。作れるものの例は、見積書の作成・在庫の記録・作業日報の集計・社内の申請フォーム。">
+<rect x="0" y="0" width="900" height="628" fill="#FCFBF9"/>
+<text x="450" y="30" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="18" text-anchor="middle" fill="#2B2B2B" font-weight="bold">あなたの会社の仕事に合わせたソフトを、AI に作らせる話です</text>
+<rect x="26" y="76" width="252" height="178" rx="10" fill="#FFFFFF" stroke="#1F6F6B" stroke-width="2"/>
+<rect x="26" y="76" width="252" height="34" rx="10" fill="#1F6F6B"/>
+<rect x="26" y="96" width="252" height="14" fill="#1F6F6B"/>
+<text x="152" y="99" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" text-anchor="middle" fill="#FFFFFF" font-weight="bold">① あなたが言葉で伝える</text>
+<path d="M 54 138 h 196 a8 8 0 0 1 8 8 v 52 a8 8 0 0 1 -8 8 h -150 l -22 20 v -20 h -24 a8 8 0 0 1 -8 -8 v -52 a8 8 0 0 1 8 -8 z" fill="#EAF2F1" stroke="#1F6F6B" stroke-width="1.5"/>
+<text x="70" y="166" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#2B2B2B">「見積書を作るのに</text>
+<text x="70" y="190" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#2B2B2B">　時間がかかってる」</text>
+<text x="152" y="242" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#6E6A64">専門用語は要りません</text>
+<line x1="286" y1="165" x2="308" y2="165" stroke="#6E6A64" stroke-width="2.5"/><path d="M 316 165 L 306 159 L 306 171 Z" fill="#6E6A64"/>
+<rect x="324" y="76" width="252" height="178" rx="10" fill="#FFFFFF" stroke="#4A5C8C" stroke-width="2"/>
+<rect x="324" y="76" width="252" height="34" rx="10" fill="#4A5C8C"/>
+<rect x="324" y="96" width="252" height="14" fill="#4A5C8C"/>
+<text x="450" y="99" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" text-anchor="middle" fill="#FFFFFF" font-weight="bold">② AI がプログラムを書く</text>
+<rect x="352" y="134" width="196" height="82" rx="6" fill="#2B2B2B"/>
+<rect x="366" y="148" width="96" height="7" rx="3.5" fill="#8FD19E" fill-opacity="0.85"/>
+<rect x="366" y="165" width="128" height="7" rx="3.5" fill="#9FC4F0" fill-opacity="0.85"/>
+<rect x="366" y="182" width="72" height="7" rx="3.5" fill="#E8C46B" fill-opacity="0.85"/>
+<rect x="366" y="199" width="110" height="7" rx="3.5" fill="#9FC4F0" fill-opacity="0.85"/>
+<text x="450" y="242" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#6E6A64">読めなくても、③で確かめられます</text>
+<line x1="584" y1="165" x2="606" y2="165" stroke="#6E6A64" stroke-width="2.5"/><path d="M 614 165 L 604 159 L 604 171 Z" fill="#6E6A64"/>
+<rect x="622" y="76" width="252" height="178" rx="10" fill="#FFFFFF" stroke="#2E7D4F" stroke-width="3"/>
+<rect x="622" y="76" width="252" height="34" rx="10" fill="#2E7D4F"/>
+<rect x="622" y="96" width="252" height="14" fill="#2E7D4F"/>
+<text x="748" y="99" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" text-anchor="middle" fill="#FFFFFF" font-weight="bold">③ 本当にできているか確かめる</text>
+<rect x="654" y="138" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#2E7D4F" stroke-width="2"/>
+<text x="680" y="152" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">決めたとおりに作られたか</text>
+<rect x="654" y="170" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#2E7D4F" stroke-width="2"/>
+<text x="680" y="184" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">作った AI に合格を出させない</text>
+<rect x="654" y="202" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#2E7D4F" stroke-width="2"/>
+<text x="680" y="216" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#2B2B2B">最後に、あなたが動かして見る</text>
+<text x="748" y="242" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" text-anchor="middle" fill="#2E7D4F" font-weight="bold">ひとつでも欠けたら、完成にしません</text>
+<text x="748" y="64" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#2E7D4F" font-weight="bold">▼ AI に任せるだけでは、ここが抜けます</text>
+<rect x="26" y="284" width="848" height="94" rx="10" fill="#F5F2EC" stroke="#D8D4CC" stroke-width="1"/>
+<text x="50" y="312" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="16" fill="#2B2B2B" font-weight="bold">あなたがやること</text>
+<rect x="56" y="324" width="392" height="42" rx="21" fill="#FFFFFF" stroke="#8A6A2F" stroke-width="1.5"/>
+<circle cx="82" cy="345" r="11" fill="#8A6A2F"/>
+<text x="82" y="350" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#FFFFFF" font-weight="bold">1</text>
+<text x="102" y="343" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14.5" fill="#2B2B2B" font-weight="bold">何を作るかを決める</text>
+<text x="102" y="360" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="11.5" fill="#6E6A64">現場のことを知っているのは、あなただけ</text>
+<rect x="472" y="324" width="392" height="42" rx="21" fill="#FFFFFF" stroke="#8A6A2F" stroke-width="1.5"/>
+<circle cx="498" cy="345" r="11" fill="#8A6A2F"/>
+<text x="498" y="350" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" text-anchor="middle" fill="#FFFFFF" font-weight="bold">2</text>
+<text x="518" y="343" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14.5" fill="#2B2B2B" font-weight="bold">動かして確かめてから承認する</text>
+<text x="518" y="360" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="11.5" fill="#6E6A64">自分の書類を1枚、最初から最後まで作らせて確かめます</text>
+<rect x="26" y="394" width="848" height="122" rx="10" fill="#FBEDEA" stroke="#B03A2E" stroke-width="1.5"/>
+<text x="50" y="422" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" fill="#B03A2E" font-weight="bold">先に、不利なことも</text>
+<text x="190" y="422" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#8C3D33">— 詳しくは、この図の下の本文にあります</text>
+<rect x="50" y="432" width="46" height="19" rx="9.5" fill="#B03A2E"/>
+<text x="73" y="446" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" text-anchor="middle" fill="#FFFFFF" font-weight="bold">時間</text>
+<text x="106" y="446" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33" font-weight="bold">Mac は 30分〜1時間</text>
+<text x="330" y="446" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#8C3D33">Windows は 1時間半〜2時間（WSL を先に入れる必要があります）</text>
+<rect x="50" y="456" width="46" height="19" rx="9.5" fill="#B03A2E"/>
+<text x="73" y="470" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" text-anchor="middle" fill="#FFFFFF" font-weight="bold">お金</text>
+<text x="106" y="470" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33" font-weight="bold">月ぎめの契約が要ります</text>
+<text x="330" y="470" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#8C3D33">無料では使えません。2026年8月時点で月20ドルほどから</text>
+<rect x="50" y="480" width="46" height="19" rx="9.5" fill="#B03A2E"/>
+<text x="73" y="494" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12" text-anchor="middle" fill="#FFFFFF" font-weight="bold">限界</text>
+<text x="106" y="494" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="13" fill="#8C3D33" font-weight="bold">AI だけでは終わらない場面が2つ</text>
+<text x="330" y="494" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="12.5" fill="#8C3D33">画面の見た目の判断／本当に動くかの最終確認</text>
+<text x="450" y="534" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="15" text-anchor="middle" fill="#2B2B2B" font-weight="bold">作れるものの例</text>
+<rect x="30" y="548" width="198" height="76" rx="10" fill="#FFFFFF" stroke="#D8D4CC" stroke-width="1.5"/>
+<path d="M 116 562 h 20 l 8 8 v 22 h -28 z" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 122 574 h 14 M 122 582 h 10" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="129" y="614" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" text-anchor="middle" fill="#2B2B2B" font-weight="bold">見積書の作成</text>
+<rect x="244" y="548" width="198" height="76" rx="10" fill="#FFFFFF" stroke="#D8D4CC" stroke-width="1.5"/>
+<path d="M 327 576 h 14 v 14 h -14 z M 345 576 h 14 v 14 h -14 z M 336 560 h 14 v 14 h -14 z" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="343" y="614" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" text-anchor="middle" fill="#2B2B2B" font-weight="bold">在庫の記録</text>
+<rect x="458" y="548" width="198" height="76" rx="10" fill="#FFFFFF" stroke="#D8D4CC" stroke-width="1.5"/>
+<path d="M 541 564 h 32 v 26 h -32 z M 541 572 h 32 M 549 560 v 6 M 565 560 v 6" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 548 580 h 5 M 558 580 h 5" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="557" y="614" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" text-anchor="middle" fill="#2B2B2B" font-weight="bold">作業日報の集計</text>
+<rect x="672" y="548" width="198" height="76" rx="10" fill="#FFFFFF" stroke="#D8D4CC" stroke-width="1.5"/>
+<path d="M 757 561 h 28 v 30 h -28 z" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 763 569 h 16 M 763 577 h 16 M 763 585 h 8" stroke="#1F6F6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="771" y="614" font-family="'Hiragino Sans','Noto Sans JP',Meiryo,sans-serif" font-size="14" text-anchor="middle" fill="#2B2B2B" font-weight="bold">社内の申請フォーム</text>
+</svg>
